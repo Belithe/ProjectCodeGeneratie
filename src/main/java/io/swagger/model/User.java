@@ -1,6 +1,9 @@
 package io.swagger.model;
 
+import java.util.List;
 import java.util.Objects;
+import javax.persistence.*;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -19,6 +22,10 @@ import javax.validation.constraints.*;
 
 
 public class User   {
+
+  @ElementCollection(fetch = FetchType.EAGER)
+  List<Role> roles;
+
   @JsonProperty("id")
   private Integer id = null;
 
@@ -98,6 +105,11 @@ public class User   {
   public User emailAddress(String emailAddress) {
     this.emailAddress = emailAddress;
     return this;
+  }
+
+
+  public List<Role> getRoles() {
+    return roles;
   }
 
   /**
