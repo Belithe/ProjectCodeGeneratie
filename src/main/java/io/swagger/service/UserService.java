@@ -1,6 +1,4 @@
 package io.swagger.service;
-
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.swagger.model.User;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
@@ -28,12 +26,12 @@ public class UserService {
     @Autowired
     JwtTokenProvider jwtTokenProvider;
 
-    public String login(String username, String password) {
+    public String login(String emailaddress, String password) {
         try {
             //login
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-            User user = userRepository.findByUsername(username);
-            return jwtTokenProvider.createToken(username, user.getRoles());
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(emailaddress, password));
+            User user = userRepository.findByEmailAddress(emailaddress);
+            return jwtTokenProvider.createToken(emailaddress, user.getRoles());
         } catch (AuthenticationException ex) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Login failed.");
         }
