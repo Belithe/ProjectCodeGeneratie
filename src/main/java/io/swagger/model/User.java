@@ -23,6 +23,7 @@ import javax.validation.constraints.*;
 /**
  * User
  */
+
 @Entity
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-12T14:50:34.731Z[GMT]")
@@ -33,6 +34,8 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     List<Role> roles;
 
+    @Id
+    @GeneratedValue
     @JsonProperty("id")
     private Integer id = null;
 
