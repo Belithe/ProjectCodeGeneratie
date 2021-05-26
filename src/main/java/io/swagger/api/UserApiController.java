@@ -3,6 +3,7 @@ package io.swagger.api;
 import io.swagger.model.Body2;
 import io.swagger.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +39,9 @@ import java.util.Map;
 @RestController
 public class UserApiController implements UserApi {
 
+    @Autowired
+    private UserService userService;
+
     private static final Logger log = LoggerFactory.getLogger(UserApiController.class);
 
     private final ObjectMapper objectMapper;
@@ -55,17 +60,10 @@ public class UserApiController implements UserApi {
     }
 
     public ResponseEntity<User> userUserIdGet(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<User>(objectMapper.readValue("{\n  \"firstName\" : \"Alice\",\n  \"lastName\" : \"Alixon\",\n  \"emailAddress\" : \"alice@example.com\",\n  \"role\" : \"customer\",\n  \"dayLimit\" : 0.8008282,\n  \"phone\" : \"+31 6 12345678\",\n  \"id\" : 42,\n  \"transactionLimit\" : 100,\n  \"birthDate\" : \"2000-05-29T00:00:00.000+00:00\"\n}", User.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+        // TODO check of role and id
 
-        return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
+        User user = userService.getUserById(userId);
+        return new ResponseEntity<User>(user, HttpStatus.OK);
     }
 
     public ResponseEntity<User> userUserIdPut(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId,@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body2 body) {
