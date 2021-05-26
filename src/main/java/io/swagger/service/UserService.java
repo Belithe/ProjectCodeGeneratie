@@ -1,4 +1,5 @@
 package io.swagger.service;
+
 import io.swagger.model.User;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
@@ -39,17 +40,22 @@ public class UserService {
 
     public User add(User user) {
         //Check of het al bestaat
-//        if (userRepository.findByUsername(user.getUsername()) == null) {
-//            Boolean validPass = (user.getPassword());
-//            if (validPass) {
-//                user.setPassword(passwordEncoder.encode((user.getPassword())));
-//            } else {
-//                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Password not valid");
-//            }
+        if (userRepository.findByEmailAddress(user.getEmailAddress()) == null) {
+            Boolean validPass = false;
+            if (user.getPassword() != null && user.getPassword().length() != 0)
+            {
+                validPass = true;
+            }
+
+            if (validPass) {
+                user.setPassword(passwordEncoder.encode((user.getPassword())));
+            } else {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Password not valid");
+            }
             return userRepository.save(user);
-//        } else {
-//            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Username already being used.");
-//        }
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Emailaddress already being used.");
+        }
     }
 
 

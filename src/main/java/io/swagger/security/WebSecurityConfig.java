@@ -1,5 +1,6 @@
 package io.swagger.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,16 +20,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Autowired
+    JwtTokenFilter jwtTokenFilter;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //super.configure(http);
         http.csrf().disable();
+        http.headers().frameOptions().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.authorizeRequests()
                 .antMatchers("/login").permitAll()
-                .antMatchers("/h2-console/**/**").permitAll()
-                .anyRequest().authenticated();
+                .antMatchers("/swagger-ui/**").permitAll()
+                .antMatchers("/swagger-ui").permitAll()
+                .antMatchers("/h2-console/**/**").permitAll();
+                //.anyRequest().authenticated();
 
         http.addFilterBefore(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
@@ -45,5 +52,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
+
 }
 
