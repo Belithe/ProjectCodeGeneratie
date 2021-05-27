@@ -34,8 +34,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/login").permitAll()
                 .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/swagger-ui").permitAll()
-                .antMatchers("/h2-console/**/**").permitAll();
-                //.anyRequest().authenticated();
+                .antMatchers("/swagger-resources/**").permitAll()
+                .antMatchers("/api-docs").permitAll()
+                .antMatchers("/api-docs/**").permitAll()
+                .antMatchers("/h2-console/**/**").permitAll()
+                .anyRequest().authenticated();
 
         http.addFilterBefore(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }

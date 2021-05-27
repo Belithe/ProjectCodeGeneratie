@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.*;
 import javax.validation.Valid;
@@ -61,6 +62,9 @@ public class LoginApiController implements LoginApi {
             try {
                 return new ResponseEntity<String>(userService.login(body.getEmailAddress(), body.getPassword()), HttpStatus.OK);
             } catch (Exception e) {
+                if (e.toString().contains("Login failed")) {
+                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Login failed.");
+                }
                 log.error("Couldn't serialize response for content type application/json", e);
                 return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
