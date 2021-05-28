@@ -1,4 +1,5 @@
 package io.swagger.service;
+
 import io.swagger.api.NotFoundException;
 import io.swagger.model.Body1;
 import io.swagger.model.User;
@@ -41,6 +42,26 @@ public class UserService {
         }
     }
 
+    public User add(User user) {
+        //Check of het al bestaat
+        if (userRepository.findByEmailAddress(user.getEmailAddress()) == null) {
+            Boolean validPass = false;
+            if (user.getPassword() != null && user.getPassword().length() != 0)
+            {
+                validPass = true;
+            }
+
+            if (validPass) {
+                user.setPassword(passwordEncoder.encode((user.getPassword())));
+            } else {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Password not valid");
+            }
+            return userRepository.save(user);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Emailaddress already being used.");
+        }
+    }
+
     //VALIDATE PASSWORD
     public static boolean isValidPassword(String password) {
         int charCounter = 0;
@@ -60,10 +81,6 @@ public class UserService {
             return false;
         }
         return true;
-    }
-
-    public User add(User user) {
-        return userRepository.save(user);
     }
 
     public List<User> getAllUsers() {
