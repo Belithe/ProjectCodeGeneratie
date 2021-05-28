@@ -31,24 +31,11 @@ public class TestConsole implements CommandLineRunner {
         user.lastName("Alixon");
         user.firstName("Alice");
         user.phone("+31 6 12345678");
-        user.role(User.RoleEnum.CUSTOMER);
+        user.role(User.RoleEnum.EMPLOYEE);
         user.id(10);
-        user.password("idk");
+        user.setPassword("testing");
 
         userService.add(user);
-        List<User> users = userService.getAllUsers();
-        User i = users.get(0);
-
-        Body1 b = new Body1();
-
-        b.firstName("Bob");
-        b.lastName("Bonson");
-        userService.updateUserById(i.getId(), b);
-
-        List<User> users2 = userService.getAllUsers();
-        for (User u : users2) {
-            System.out.println(u.getFirstName());
-        }
     }
 
     public static void main(String[] args) throws Exception {

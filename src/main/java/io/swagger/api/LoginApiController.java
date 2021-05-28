@@ -57,18 +57,15 @@ public class LoginApiController implements LoginApi {
     }
 
     public ResponseEntity<String> loginPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body body) {
-        String accept = request.getHeader("Accept");
-        //if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<String>(userService.login(body.getEmailAddress(), body.getPassword()), HttpStatus.OK);
-            } catch (Exception e) {
-                if (e.toString().contains("Login failed")) {
-                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Login failed.");
-                }
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        try {
+            return new ResponseEntity<String>(userService.login(body.getEmailAddress(), body.getPassword()), HttpStatus.OK);
+        } catch (Exception e) {
+            if (e.toString().contains("Login failed")) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Login failed.");
             }
-       // }
-        //return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
+
+            log.error("Couldn't serialize response for content type application/json", e);
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
