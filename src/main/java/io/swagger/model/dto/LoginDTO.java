@@ -1,15 +1,15 @@
 package io.swagger.model.dto;
 
 public class LoginDTO {
-    private String username;
+    private String emailaddress;
     private String password;
 
-    public String getUsername() {
-        return username;
+    public String getEmailaddress() {
+        return emailaddress;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmailaddress(String emailaddress) {
+        this.emailaddress = emailaddress;
     }
 
     public String getPassword() {
@@ -24,8 +24,8 @@ public class LoginDTO {
 
     }
 
-    public LoginDTO(String username, String password) {
-        this.username = username;
+    public LoginDTO(String emailaddress, String password) {
+        this.emailaddress = emailaddress;
         this.password = password;
     }
 }

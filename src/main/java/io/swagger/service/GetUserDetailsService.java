@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service;
 public class GetUserDetailsService implements UserDetailsService {
 
     @Autowired
-    UserRepository userRepository;
+    public UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException
     {
-        User user = userRepository.findByUsername(s);
+        User user = userRepository.findByEmailAddress(s);
         if (user == null)
         {
             throw new UsernameNotFoundException("User " + s + "not found.");
@@ -25,7 +25,7 @@ public class GetUserDetailsService implements UserDetailsService {
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User
                 .withUsername(s)
-                //.password(user.getPassword())
+                .password(user.getPassword())
                 .authorities(user.getRoles())
                 .accountExpired(false)
                 .accountLocked(false)
