@@ -15,7 +15,7 @@
         <setting name="provider-name" value="Hibernate" />
         <datasource-mapping>
           <factory-entry name="entityManagerFactory" />
-          <factory-entry name="swagger-spring" />
+          <factory-entry name="swagger-spring" value="29fd084d-7e72-446f-8b64-c7af1e648dfc" />
         </datasource-mapping>
         <naming-strategy-map />
       </configuration>
