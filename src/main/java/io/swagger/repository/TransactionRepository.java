@@ -13,12 +13,6 @@ import javax.transaction.Transactional;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
     Transaction findTransactionByTransferTo(String transferTo);
-    //    @Transactional
-//    @Modifying
-//    @Query("select transaction from Transaction user where transaction.IBAN =:IBAN")
-//    Transaction findTransactionByIBAN(@Param("lastName") String lastName);
-//
-//    @Query("select transaction from Transaction transaction where transaction.transactionId =:transactionId")
-//    Transaction findById(@Param("id") Integer id);
+    
 }
 
