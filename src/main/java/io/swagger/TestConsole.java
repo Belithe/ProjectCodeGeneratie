@@ -1,7 +1,9 @@
 package io.swagger;
 
 import io.swagger.model.Body1;
+import io.swagger.model.Transaction;
 import io.swagger.model.User;
+import io.swagger.repository.TransactionRepository;
 import io.swagger.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -10,6 +12,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
 import springfox.documentation.oas.annotations.EnableOpenApi;
 
 import java.util.List;
@@ -20,35 +24,20 @@ import java.util.List;
 public class TestConsole implements CommandLineRunner {
 
     @Autowired
-    UserService userService;
+    TransactionRepository transactionRepository;
 
     @Override
     public void run(String ...args) throws Exception {
-        User user = new User();
-        user.birthDate(LocalDate.of(2000, 1, 1));
-        user.dayLimit(100f);
-        user.emailAddress("alice@example.com");
-        user.lastName("Alixon");
-        user.firstName("Alice");
-        user.phone("+31 6 12345678");
-        user.role(User.RoleEnum.CUSTOMER);
-        user.id(10);
-        user.password("idk");
+        Transaction transaction = new Transaction();
+        transaction.setTimestamp(OffsetDateTime.of(2020, 01, 01, 10, 10, 10, 0, ZoneOffset.UTC));
+        transaction.setTransactionId(42);
+        transaction.setTransferFrom("HI");
+        transaction.setTransferTo("Hello");
 
-        userService.add(user);
-        List<User> users = userService.getAllUsers();
-        User i = users.get(0);
+        transactionRepository.save(transaction);
 
-        Body1 b = new Body1();
-
-        b.firstName("Bob");
-        b.lastName("Bonson");
-        userService.updateUserById(i.getId(), b);
-
-        List<User> users2 = userService.getAllUsers();
-        for (User u : users2) {
-            System.out.println(u.getFirstName());
-        }
+        Transaction i = transactionRepository.findTransactionByTransferTo("Hello");
+        System.out.println(i.getTransactionId());
     }
 
     public static void main(String[] args) throws Exception {
