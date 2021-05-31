@@ -38,7 +38,7 @@ public class UserService {
             User user = userRepository.findByEmailAddress(emailaddress);
             return jwtTokenProvider.createToken(emailaddress, user.getRoles());
         } catch (AuthenticationException ex) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Login failed.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login failed, because of invalid input.");
         }
     }
 
