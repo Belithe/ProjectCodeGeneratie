@@ -36,7 +36,7 @@ public class GetAccountService {
     }
 
     public List<Account> getAllAccounts() {
-        return accountRepository.findAllAccounts();
+        return accountRepository.findAll();
     }
 
 }

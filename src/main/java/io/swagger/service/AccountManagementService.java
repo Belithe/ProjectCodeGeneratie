@@ -34,6 +34,7 @@ public class AccountManagementService {
     GetAccountService getAccountService;
 
     public void updateExistingAccount(String IBAN, Body3 body) throws NotFoundException {
+
         Account accountToEdit = getAccountService.getByIBAN(IBAN);
 
         if (accountToEdit == null) {
