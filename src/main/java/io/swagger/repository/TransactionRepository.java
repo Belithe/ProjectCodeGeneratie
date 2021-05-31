@@ -11,7 +11,7 @@ import javax.transaction.Transactional;
 
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
     Transaction findTransactionByTransferTo(String transferTo);
     //    @Transactional
 //    @Modifying

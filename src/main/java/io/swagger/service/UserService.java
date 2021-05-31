@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -36,7 +37,7 @@ public class UserService {
             //login
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(emailaddress, password));
             User user = userRepository.findByEmailAddress(emailaddress);
-            return jwtTokenProvider.createToken(emailaddress, user.getRoles());
+            return jwtTokenProvider.createToken(emailaddress, user.getRole());
         } catch (AuthenticationException ex) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Login failed.");
         }
@@ -87,7 +88,10 @@ public class UserService {
         return (List<User>) userRepository.findAll();
     }
 
-    public User getUserById(int id) { return userRepository.findById(id); }
+    public User getUserById(int id) {
+        Optional<User> user = userRepository.findById(id);
+        return user.orElse(null);
+    }
 
     public void updateUserById(int id, Body1 body) throws NotFoundException {
         User user = this.getUserById(id);

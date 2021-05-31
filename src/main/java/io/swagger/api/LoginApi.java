@@ -33,7 +33,7 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-12T14:50:34.731Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
 @Validated
 public interface LoginApi {
 
@@ -52,7 +52,7 @@ public interface LoginApi {
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<String> loginPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body body);
+    ResponseEntity<InlineResponse200> loginPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body body);
 
 }
 

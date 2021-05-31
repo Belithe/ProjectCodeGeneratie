@@ -12,7 +12,7 @@ import javax.validation.constraints.*;
  * InlineResponse200
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-12T14:50:34.731Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
 
 
 public class InlineResponse200   {
