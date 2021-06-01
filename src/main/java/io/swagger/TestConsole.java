@@ -42,7 +42,6 @@ public class TestConsole implements CommandLineRunner {
         user.dayLimit(1000f);
         user.birthDate(LocalDate.of(2010, 10, 10));
         user.password("idk");
-
         userService.add(user);
     }
 
