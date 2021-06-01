@@ -6,6 +6,7 @@
 package io.swagger.api;
 
 import io.swagger.model.Account;
+import io.swagger.model.Body3;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -32,7 +33,7 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-12T14:50:34.731Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
 @Validated
 public interface AccountsApi {
 
@@ -52,6 +53,23 @@ public interface AccountsApi {
     ResponseEntity<Account> createAccount();
 
 
+    @Operation(summary = "Delete an account.", description = "Deletes the account with the corresponding IBAN.", security = {
+        @SecurityRequirement(name = "AuthToken")    }, tags={ "Employee" })
+    @ApiResponses(value = { 
+        @ApiResponse(responseCode = "204", description = "The account was successfully deleted."),
+        
+        @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
+        
+        @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
+        
+        @ApiResponse(responseCode = "404", description = "Could not find an account with the given IBAN."),
+        
+        @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
+    @RequestMapping(value = "/accounts/{iban}",
+        method = RequestMethod.DELETE)
+    ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+
+
     @Operation(summary = "Gets all accounts.", description = "Returns all accounts.", security = {
         @SecurityRequirement(name = "AuthToken")    }, tags={ "Employee" })
     @ApiResponses(value = { 
@@ -64,6 +82,40 @@ public interface AccountsApi {
         produces = { "application/json" }, 
         method = RequestMethod.GET)
     ResponseEntity<List<Account>> getAccounts();
+
+
+    @Operation(summary = "Get the account with the specified IBAN.", description = "Get the account with the specified IBAN.", security = {
+        @SecurityRequirement(name = "AuthToken")    }, tags={ "Customer", "Employee" })
+    @ApiResponses(value = { 
+        @ApiResponse(responseCode = "200", description = "The account belonging to the given IBAN.", content = @Content(schema = @Schema(implementation = Account.class))),
+        
+        @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
+        
+        @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
+        
+        @ApiResponse(responseCode = "404", description = "Could not find an account with the given IBAN."),
+        
+        @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
+    @RequestMapping(value = "/accounts/{iban}",
+        produces = { "application/json" }, 
+        method = RequestMethod.GET)
+    ResponseEntity<Account> getUserAccounts(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to get.", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+
+
+    @Operation(summary = "Edit an existing account.", description = "Edit the account with the specified IBAN.", security = {
+        @SecurityRequirement(name = "AuthToken")    }, tags={ "Employee", "Customer" })
+    @ApiResponses(value = { 
+        @ApiResponse(responseCode = "204", description = "The account has been changed."),
+        
+        @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
+        
+        @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
+        
+        @ApiResponse(responseCode = "404", description = "No user was found with the given") })
+    @RequestMapping(value = "/accounts/{iban}",
+        consumes = { "application/json" }, 
+        method = RequestMethod.PUT)
+    ResponseEntity<Void> regularEditAccount(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to edit", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body3 body);
 
 }
 

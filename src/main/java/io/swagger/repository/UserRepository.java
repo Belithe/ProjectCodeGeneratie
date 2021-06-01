@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Integer> {
     @Transactional
     @Modifying
     @Query("select user from User user where user.emailAddress =:emailAddress and user = :password")
@@ -21,8 +21,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select user from User user where user.emailAddress =:emailAddress")
     User findByEmailAddress(@Param("emailAddress") String emailAddress);
-
-    @Query("select user from User user where user.id =:id")
-    User findById(@Param("id") Integer id);
+//
+//    @Query("select user from User user where user.id =:id")
+//    User findById(@Param("id") Integer id);
 }
 

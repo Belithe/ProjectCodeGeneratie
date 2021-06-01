@@ -1,25 +1,22 @@
-package io.swagger.model;
+package io.swagger.model.dto;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
  * InlineResponse200
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-12T14:50:34.731Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
 
 
-public class InlineResponse200   {
+public class LoginResponseDTO {
   @JsonProperty("authToken")
   private String authToken = null;
 
-  public InlineResponse200 authToken(String authToken) {
+  public LoginResponseDTO authToken(String authToken) {
     this.authToken = authToken;
     return this;
   }
@@ -47,8 +44,8 @@ public class InlineResponse200   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    InlineResponse200 inlineResponse200 = (InlineResponse200) o;
-    return Objects.equals(this.authToken, inlineResponse200.authToken);
+    LoginResponseDTO loginResponseDTO = (LoginResponseDTO) o;
+    return Objects.equals(this.authToken, loginResponseDTO.authToken);
   }
 
   @Override

@@ -12,7 +12,7 @@ import javax.validation.constraints.*;
  * Account
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-12T14:50:34.731Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
 
 
 public class Account   {
@@ -37,7 +37,7 @@ public class Account   {
    * Get balance
    * @return balance
    **/
-  @Schema(description = "")
+  @Schema(example = "123.45", description = "")
   
     public Float getBalance() {
     return balance;
@@ -75,7 +75,7 @@ public class Account   {
    * Get minimumLimit
    * @return minimumLimit
    **/
-  @Schema(description = "")
+  @Schema(example = "200", description = "")
   
     public Float getMinimumLimit() {
     return minimumLimit;
@@ -94,7 +94,7 @@ public class Account   {
    * Get userId
    * @return userId
    **/
-  @Schema(example = "1", description = "")
+  @Schema(example = "42", description = "")
   
     public Long getUserId() {
     return userId;
