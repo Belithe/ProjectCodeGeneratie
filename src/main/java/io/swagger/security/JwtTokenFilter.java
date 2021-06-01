@@ -19,12 +19,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Autowired
     JwtTokenProvider jwtTokenProvider;
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest,
                                     HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
-        jwtTokenProvider = new JwtTokenProvider();
+
         String token = jwtTokenProvider.resolveToken(httpServletRequest);
 
         try {
@@ -36,8 +35,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         catch (ResponseStatusException ex)
         {
             SecurityContextHolder.clearContext();
-            //httpServletResponse.sendError(ex.getRawStatusCode(), ex.getMessage());
-            return;
+            throw ex;
+        }
+        catch (Exception e) {
+            throw e;
         }
 
 

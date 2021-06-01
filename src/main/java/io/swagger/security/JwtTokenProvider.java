@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
-import io.swagger.model.Role;
+import io.swagger.model.UserRole;
 import io.swagger.service.GetUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +47,7 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String username, List<Role> roles) {
+    public String createToken(String username, List<UserRole> roles) {
 
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("auth", roles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority())).filter(Objects::nonNull).collect(Collectors.toList()));

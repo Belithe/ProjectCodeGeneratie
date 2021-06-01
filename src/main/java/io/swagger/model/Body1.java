@@ -3,9 +3,11 @@ package io.swagger.model;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.model.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import org.threeten.bp.LocalDate;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
@@ -15,7 +17,7 @@ import javax.validation.constraints.*;
  * Body1
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-12T14:50:34.731Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
 
 
 public class Body1   {
@@ -28,38 +30,9 @@ public class Body1   {
   @JsonProperty("lastName")
   private String lastName = null;
 
-  /**
-   * Gets or Sets role
-   */
-  public enum RoleEnum {
-    CUSTOMER("customer"),
-    
-    EMPLOYEE("employee");
-
-    private String value;
-
-    RoleEnum(String value) {
-      this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static RoleEnum fromValue(String text) {
-      for (RoleEnum b : RoleEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-  }
   @JsonProperty("role")
-  private RoleEnum role = null;
+  @Valid
+  private List<UserRole> role = null;
 
   @JsonProperty("birthDate")
   private LocalDate birthDate = null;
@@ -136,8 +109,16 @@ public class Body1   {
     this.lastName = lastName;
   }
 
-  public Body1 role(RoleEnum role) {
+  public Body1 role(List<UserRole> role) {
     this.role = role;
+    return this;
+  }
+
+  public Body1 addRoleItem(UserRole roleItem) {
+    if (this.role == null) {
+      this.role = new ArrayList<UserRole>();
+    }
+    this.role.add(roleItem);
     return this;
   }
 
@@ -145,13 +126,13 @@ public class Body1   {
    * Get role
    * @return role
    **/
-  @Schema(example = "customer", description = "")
-  
-    public RoleEnum getRole() {
+  @Schema(description = "")
+      @Valid
+    public List<UserRole> getRole() {
     return role;
   }
 
-  public void setRole(RoleEnum role) {
+  public void setRole(List<UserRole> role) {
     this.role = role;
   }
 
