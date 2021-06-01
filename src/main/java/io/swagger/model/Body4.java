@@ -4,7 +4,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.threeten.bp.OffsetDateTime;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -13,39 +12,18 @@ import javax.validation.constraints.*;
  * Body4
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-12T14:50:34.731Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
 
 
 public class Body4   {
-  @JsonProperty("timestamp")
-  private OffsetDateTime timestamp = null;
-
   @JsonProperty("transferTo")
   private String transferTo = null;
 
   @JsonProperty("transferFrom")
   private String transferFrom = null;
 
-  public Body4 timestamp(OffsetDateTime timestamp) {
-    this.timestamp = timestamp;
-    return this;
-  }
-
-  /**
-   * Get timestamp
-   * @return timestamp
-   **/
-  @Schema(example = "2021-01-01T08:00:01Z", required = true, description = "")
-      @NotNull
-
-    @Valid
-    public OffsetDateTime getTimestamp() {
-    return timestamp;
-  }
-
-  public void setTimestamp(OffsetDateTime timestamp) {
-    this.timestamp = timestamp;
-  }
+  @JsonProperty("amount")
+  private Float amount = null;
 
   public Body4 transferTo(String transferTo) {
     this.transferTo = transferTo;
@@ -87,6 +65,25 @@ public class Body4   {
     this.transferFrom = transferFrom;
   }
 
+  public Body4 amount(Float amount) {
+    this.amount = amount;
+    return this;
+  }
+
+  /**
+   * Get amount
+   * @return amount
+   **/
+  @Schema(example = "9000.01", description = "")
+  
+    public Float getAmount() {
+    return amount;
+  }
+
+  public void setAmount(Float amount) {
+    this.amount = amount;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -97,14 +94,14 @@ public class Body4   {
       return false;
     }
     Body4 body4 = (Body4) o;
-    return Objects.equals(this.timestamp, body4.timestamp) &&
-        Objects.equals(this.transferTo, body4.transferTo) &&
-        Objects.equals(this.transferFrom, body4.transferFrom);
+    return Objects.equals(this.transferTo, body4.transferTo) &&
+        Objects.equals(this.transferFrom, body4.transferFrom) &&
+        Objects.equals(this.amount, body4.amount);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(timestamp, transferTo, transferFrom);
+    return Objects.hash(transferTo, transferFrom, amount);
   }
 
   @Override
@@ -112,9 +109,9 @@ public class Body4   {
     StringBuilder sb = new StringBuilder();
     sb.append("class Body4 {\n");
     
-    sb.append("    timestamp: ").append(toIndentedString(timestamp)).append("\n");
     sb.append("    transferTo: ").append(toIndentedString(transferTo)).append("\n");
     sb.append("    transferFrom: ").append(toIndentedString(transferFrom)).append("\n");
+    sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
     sb.append("}");
     return sb.toString();
   }

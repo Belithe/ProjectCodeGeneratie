@@ -33,7 +33,7 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-12T14:50:34.731Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
 @Validated
 public interface TransactionsApi {
 
@@ -86,6 +86,24 @@ public interface TransactionsApi {
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
     ResponseEntity<Transaction> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body4 body);
+
+
+    @Operation(summary = "Get single transactions by transaction ID.", description = "", security = {
+        @SecurityRequirement(name = "AuthToken")    }, tags={ "Customer", "Employee" })
+    @ApiResponses(value = { 
+        @ApiResponse(responseCode = "200", description = "Transaction by ID.", content = @Content(schema = @Schema(implementation = Transaction.class))),
+        
+        @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
+        
+        @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
+        
+        @ApiResponse(responseCode = "404", description = "Could not find a transaction with the given transaction ID."),
+        
+        @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
+    @RequestMapping(value = "/transactions/{transactionId}",
+        produces = { "application/json" }, 
+        method = RequestMethod.GET)
+    ResponseEntity<Transaction> transactionsTransactionIdGet(@Parameter(in = ParameterIn.PATH, description = "The ID of the transaction.", required=true, schema=@Schema()) @PathVariable("transactionId") Integer transactionId);
 
 }
 
