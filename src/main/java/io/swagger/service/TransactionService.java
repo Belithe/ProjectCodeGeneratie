@@ -22,29 +22,13 @@ public class TransactionService {
     @Autowired
     TransactionRepository transactionRepository;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
 
-    @Autowired
-    AuthenticationManager authenticationManager;
-
-    @Autowired
-    JwtTokenProvider jwtTokenProvider;
-
-
-    public Transaction add(Transaction user) {
-
-        return transactionRepository.save(user);
+    public Transaction postTransaction(Transaction transaction) {
+        return transactionRepository.save(transaction);
     }
 
-
-
-    public List<Transaction> getAllUsers() {
+    public List<Transaction> getAllTransactions() {
         return (List<Transaction>) transactionRepository.findAll();
     }
-
-//    public Transaction getUserById(int id) { return TransactionRepository.findById(id); }
-
-
 }
 

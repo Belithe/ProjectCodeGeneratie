@@ -12,10 +12,10 @@ import javax.transaction.Transactional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
-    Transaction findTransactionByTransferTo(String transferTo);
+    Transaction findTransactionsByTransferTo(String transferTo);
 
-    Transaction FindAllTransaction();
+    Transaction FindAllTransactionBy();
     
-    Transaction findTransactionByTransferFrom(String transferTo);
+    Transaction findTransactionsByTransferFrom(String transferFrom);
 }
 
