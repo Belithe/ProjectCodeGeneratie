@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,6 +51,9 @@ public interface TransactionsApi {
     @RequestMapping(value = "/transactions",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
+
+    // auto
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('CUSTOMER')")
     ResponseEntity<List<Transaction>> transactionsGet(@Min(1) @Max(1000) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="1000"
 , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="100") Integer limit, @Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
 , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page);
