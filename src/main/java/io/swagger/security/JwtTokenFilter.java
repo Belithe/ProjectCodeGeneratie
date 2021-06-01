@@ -35,7 +35,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         catch (ResponseStatusException ex)
         {
             SecurityContextHolder.clearContext();
-            return;
+            throw ex;
+        }
+        catch (Exception e) {
+            throw e;
         }
 
 

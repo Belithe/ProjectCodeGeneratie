@@ -1,6 +1,8 @@
 package io.swagger.model;
 
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.model.UserRole;
@@ -39,10 +41,7 @@ public class User   {
 
   @JsonProperty("role")
   @Valid
-  @ElementCollection(targetClass = UserRole.class)
-  @CollectionTable(name = "TBL_USER_ROLE",
-          joinColumns = @JoinColumn(name = "id"))
-  @Column(name = "PLATFORM_ID")
+  @ElementCollection(fetch = FetchType.EAGER)
   private List<UserRole> role = null;
 
   @JsonProperty("birthDate")
@@ -57,6 +56,7 @@ public class User   {
   @JsonProperty("transactionLimit")
   private BigDecimal transactionLimit = null;
 
+//  @JsonIgnore
   private String password = null;
 
   public String getPassword() {
