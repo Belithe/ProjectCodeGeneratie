@@ -12,10 +12,6 @@ import javax.transaction.Transactional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
-    Transaction findTransactionsByTransferTo(String transferTo);
-
-    Transaction FindAllTransactionBy();
-    
-    Transaction findTransactionsByTransferFrom(String transferFrom);
+    Transaction findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(String iban);
 }
 
