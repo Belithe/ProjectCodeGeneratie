@@ -52,7 +52,7 @@ public interface TransactionsApi {
         produces = { "application/json" }, 
         method = RequestMethod.GET)
 
-    // auto
+    // Rolls as employee or user
     @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('CUSTOMER')")
     ResponseEntity<List<Transaction>> transactionsGet(@Min(1) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="1000"
 , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="100") Integer limit, @Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
