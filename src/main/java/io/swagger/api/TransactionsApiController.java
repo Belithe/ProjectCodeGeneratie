@@ -3,6 +3,7 @@ package io.swagger.api;
 import io.swagger.model.Body4;
 import io.swagger.model.Transaction;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,13 +45,17 @@ public class TransactionsApiController implements TransactionsApi {
 
     private final HttpServletRequest request;
 
+    @Autowired
+    private TransactionService transactionService;
+
     @org.springframework.beans.factory.annotation.Autowired
     public TransactionsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
     }
 
-    public ResponseEntity<List<Transaction>> transactionsGet(@Min(1) @Max(1000) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="1000"
+    // get transaction
+    public ResponseEntity<List<Transaction>> transactionsGet(@Min(1) @Max(100) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="100"
             , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="100") Integer limit,@Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
             , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page) {
         String accept = request.getHeader("Accept");

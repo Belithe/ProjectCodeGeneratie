@@ -5,6 +5,7 @@ import io.swagger.model.Account;
 import io.swagger.model.Body1;
 import io.swagger.model.Transaction;
 import io.swagger.model.User;
+import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
@@ -34,21 +35,29 @@ public class TransactionService {
     @Autowired
     UserRepository userRepository;
 
-//    @Autowired
-//    AccountRepository accountRepository;
+    @Autowired
+    AccountRepository accountRepository;
+
     private LocalDateTime localTime;
     private User loggedInUser;
+    private float dayLimit;
+    private Integer transactionLimit;
+
+    // constructor
+    public TransactionService() {
+
+    }
 
     // get all transaction
-//    public List<Transaction> getAllTransactions(Integer limit, Integer offset) {
-//        List<Transaction> transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc();
-//
-//        return ;
-//    }
+    public List<Transaction> getAllTransactions(Integer limit, Integer offset) {
+        List<Transaction> transactions = transactionRepository.findAll();
+        if (transactions.size() == 0) {
+            return transactions;
+        }
+        return createPage(limit, offset, transactions);
+    }
 
-
-
-
+    // update balance
     public void updateBalance(Transaction transaction) {
 
     }
@@ -70,14 +79,16 @@ public class TransactionService {
     }
 
     // find user
-    private User findUser() {
-        User user = new User();
-        return user;
+    private User findUser(String email) {
+        loggedInUser = userRepository.findByEmailAddress(email);
+        findAccount(loggedInUser);
+        return loggedInUser;
     }
 
     // find account by user
-    private Account findAccount() {
-        Account account = new Account();
+    private List<Account> findAccount(User user) {
+        Long id = new Long(user.getId());
+        List<Account> account = accountRepository.findAllById(id);
         return account;
     }
 
