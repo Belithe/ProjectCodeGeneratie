@@ -29,6 +29,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <mainClass>io.swagger.Swagger2SpringBoot</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
