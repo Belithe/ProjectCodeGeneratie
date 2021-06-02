@@ -31,18 +31,6 @@ public class TestConsole implements CommandLineRunner {
 
     @Override
     public void run(String ...args) throws Exception {
-//        User user = new User();
-//        user.id(10);
-//        user.firstName("Alice");
-//        user.lastName("Alixon");
-//        user.emailAddress("alice@example.com");
-//        user.addRoleItem(UserRole.EMPLOYEE);
-//        user.phone("+31 6 12345678");
-//        user.transactionLimit(BigDecimal.valueOf(100f));
-//        user.dayLimit(1000f);
-//        user.birthDate(LocalDate.of(2010, 10, 10));
-//        user.password("idk");
-//        userService.add(user);
 
     }
 

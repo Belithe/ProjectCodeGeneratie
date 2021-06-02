@@ -5,7 +5,7 @@
  */
 package io.swagger.api;
 
-import io.swagger.model.Body4;
+import io.swagger.model.Body5;
 import io.swagger.model.Transaction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,7 +33,7 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T09:17:08.337Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T14:07:43.568Z[GMT]")
 @Validated
 public interface TransactionsApi {
 
@@ -85,7 +85,7 @@ public interface TransactionsApi {
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<Transaction> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body4 body);
+    ResponseEntity<Transaction> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body5 body);
 
 
     @Operation(summary = "Get single transactions by transaction ID.", description = "", security = {

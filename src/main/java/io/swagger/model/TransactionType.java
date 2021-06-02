@@ -1,15 +1,20 @@
 package io.swagger.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.springframework.validation.annotation.Validated;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 /**
  * Gets or Sets TransactionType
  */
 public enum TransactionType {
   TRANSFER("transfer"),
-    DEPOSIT("deposit"),
-    WITHDRAW("withdraw");
+  DEPOSIT("deposit"),
+  WITHDRAW("withdraw");
 
   private String value;
 

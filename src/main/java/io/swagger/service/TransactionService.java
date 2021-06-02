@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -87,9 +88,8 @@ public class TransactionService {
 
     // find account by user
     private List<Account> findAccount(User user) {
-        Long id = new Long(user.getId());
-        List<Account> account = accountRepository.findAllById(id);
-        return account;
+        List<Account> accounts = accountRepository.findAllById(Collections.singleton(new Long(user.getId())));
+        return accounts;
     }
 
     // create page of list transaction
