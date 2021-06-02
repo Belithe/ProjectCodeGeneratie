@@ -12,7 +12,7 @@ import javax.validation.constraints.*;
  * Body4
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T09:17:08.337Z[GMT]")
 
 
 public class Body4   {
@@ -35,9 +35,9 @@ public class Body4   {
    * @return transferTo
    **/
   @Schema(example = "NL14RABO0987654321", required = true, description = "")
-      @NotNull
+  @NotNull
 
-    public String getTransferTo() {
+  public String getTransferTo() {
     return transferTo;
   }
 
@@ -55,9 +55,9 @@ public class Body4   {
    * @return transferFrom
    **/
   @Schema(example = "NL91ABNA1234567890", required = true, description = "")
-      @NotNull
+  @NotNull
 
-    public String getTransferFrom() {
+  public String getTransferFrom() {
     return transferFrom;
   }
 
@@ -75,8 +75,8 @@ public class Body4   {
    * @return amount
    **/
   @Schema(example = "9000.01", description = "")
-  
-    public Float getAmount() {
+
+  public Float getAmount() {
     return amount;
   }
 
@@ -95,8 +95,8 @@ public class Body4   {
     }
     Body4 body4 = (Body4) o;
     return Objects.equals(this.transferTo, body4.transferTo) &&
-        Objects.equals(this.transferFrom, body4.transferFrom) &&
-        Objects.equals(this.amount, body4.amount);
+            Objects.equals(this.transferFrom, body4.transferFrom) &&
+            Objects.equals(this.amount, body4.amount);
   }
 
   @Override
@@ -108,7 +108,7 @@ public class Body4   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Body4 {\n");
-    
+
     sb.append("    transferTo: ").append(toIndentedString(transferTo)).append("\n");
     sb.append("    transferFrom: ").append(toIndentedString(transferFrom)).append("\n");
     sb.append("    amount: ").append(toIndentedString(amount)).append("\n");

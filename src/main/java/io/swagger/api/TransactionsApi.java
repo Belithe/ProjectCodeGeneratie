@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,79 +33,76 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T09:17:08.337Z[GMT]")
 @Validated
 public interface TransactionsApi {
 
     @Operation(summary = "Get all transactions.", description = "", security = {
-        @SecurityRequirement(name = "AuthToken")    }, tags={ "Employee" })
-    @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "All Transactions", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Transaction.class)))),
-        
-        @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
-        
-        @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
-        
-        @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
-    @RequestMapping(value = "/transactions",
-        produces = { "application/json" }, 
-        method = RequestMethod.GET)
+            @SecurityRequirement(name = "AuthToken")    }, tags={ "Employee" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "All Transactions", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Transaction.class)))),
 
-    // Rolls as employee or user
-    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('CUSTOMER')")
-    ResponseEntity<List<Transaction>> transactionsGet(@Min(1) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="1000"
-, defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="100") Integer limit, @Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
-, defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page);
+            @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
+
+            @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
+
+            @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
+    @RequestMapping(value = "/transactions",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<List<Transaction>> transactionsGet(@Min(1) @Max(1000) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="1000"
+            , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="100") Integer limit, @Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
+            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page);
 
 
     @Operation(summary = "Get all transactions by IBAN number.", description = "", security = {
-        @SecurityRequirement(name = "AuthToken")    }, tags={ "Customer", "Employee" })
-    @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "All transactions that are associated with the given IBAN.", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Transaction.class)))),
-        
-        @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
-        
-        @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
-        
-        @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
+            @SecurityRequirement(name = "AuthToken")    }, tags={ "Customer", "Employee" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "All transactions that are associated with the given IBAN.", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Transaction.class)))),
+
+            @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
+
+            @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
+
+            @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
     @RequestMapping(value = "/transactions/{iban}",
-        produces = { "application/json" }, 
-        method = RequestMethod.GET)
+            produces = { "application/json" },
+            method = RequestMethod.GET)
     ResponseEntity<List<Transaction>> transactionsIbanGet(@Parameter(in = ParameterIn.PATH, description = "Get all transaction by IBAN number.", required=true, schema=@Schema()) @PathVariable("iban") String iban);
 
 
     @Operation(summary = "Add a new transaction.", description = "", security = {
-        @SecurityRequirement(name = "AuthToken")    }, tags={ "Customer", "Employee" })
-    @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "Returns the transaction that was created", content = @Content(schema = @Schema(implementation = Transaction.class))),
-        
-        @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
-        
-        @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
-        
-        @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
+            @SecurityRequirement(name = "AuthToken")    }, tags={ "Customer", "Employee" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns the transaction that was created", content = @Content(schema = @Schema(implementation = Transaction.class))),
+
+            @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
+
+            @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
+
+            @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
     @RequestMapping(value = "/transactions",
-        produces = { "application/json" }, 
-        consumes = { "application/json" }, 
-        method = RequestMethod.POST)
+            produces = { "application/json" },
+            consumes = { "application/json" },
+            method = RequestMethod.POST)
     ResponseEntity<Transaction> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body4 body);
 
 
     @Operation(summary = "Get single transactions by transaction ID.", description = "", security = {
-        @SecurityRequirement(name = "AuthToken")    }, tags={ "Customer", "Employee" })
-    @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "Transaction by ID.", content = @Content(schema = @Schema(implementation = Transaction.class))),
-        
-        @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
-        
-        @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
-        
-        @ApiResponse(responseCode = "404", description = "Could not find a transaction with the given transaction ID."),
-        
-        @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
+            @SecurityRequirement(name = "AuthToken")    }, tags={ "Customer", "Employee" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Transaction by ID.", content = @Content(schema = @Schema(implementation = Transaction.class))),
+
+            @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
+
+            @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
+
+            @ApiResponse(responseCode = "404", description = "Could not find a transaction with the given transaction ID."),
+
+            @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
     @RequestMapping(value = "/transactions/{transactionId}",
-        produces = { "application/json" }, 
-        method = RequestMethod.GET)
+            produces = { "application/json" },
+            method = RequestMethod.GET)
     ResponseEntity<Transaction> transactionsTransactionIdGet(@Parameter(in = ParameterIn.PATH, description = "The ID of the transaction.", required=true, schema=@Schema()) @PathVariable("transactionId") Integer transactionId);
 
 }

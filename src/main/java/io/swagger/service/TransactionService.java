@@ -40,11 +40,11 @@ public class TransactionService {
     private User loggedInUser;
 
     // get all transaction
-    public List<Transaction> getAllTransactions(Integer limit, Integer offset) {
-        List<Transaction> transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc();
-
-        return ;
-    }
+//    public List<Transaction> getAllTransactions(Integer limit, Integer offset) {
+//        List<Transaction> transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc();
+//
+//        return ;
+//    }
 
 
 

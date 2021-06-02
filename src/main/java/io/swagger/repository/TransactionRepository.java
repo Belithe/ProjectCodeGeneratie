@@ -8,10 +8,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
-    Transaction findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(String iban);
+    List<Transaction> findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(String iban);
 }
 
