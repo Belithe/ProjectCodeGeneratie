@@ -5,6 +5,7 @@ import io.swagger.model.Body1;
 import io.swagger.model.User;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -116,6 +117,10 @@ public class UserService {
         }
 
         userRepository.delete(user);
+    }
+
+    public Boolean checkValidEmailaddress(String emailAddress){
+        return EmailValidator.getInstance().isValid(emailAddress);
     }
 }
 

@@ -26,22 +26,24 @@ import javax.validation.Valid;
 @Validated
 public interface LoginApi {
 
-    @Operation(summary = "Returns a JWT used to make calls to protected endpoints.", description = "", tags={ "Authentication" })
-    @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "Returns a JWT.", content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
-        
-        @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
-        
-        @ApiResponse(responseCode = "401", description = "The given password was not valid for the given email address."),
-        
-        @ApiResponse(responseCode = "404", description = "No user was found using the given email address."),
-        
-        @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
+    @Operation(summary = "Returns a JWT used to make calls to protected endpoints.", description = "", tags = {"Authentication"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns a JWT.", content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
+
+            @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
+
+            @ApiResponse(responseCode = "401", description = "The given password was not valid for the given email address."),
+
+            @ApiResponse(responseCode = "422", description = "Invalid emailaddress format."),
+
+            @ApiResponse(responseCode = "404", description = "No user was found using the given email address."),
+
+            @ApiResponse(responseCode = "500", description = "An internal server error has occurred.")})
     @RequestMapping(value = "/login",
-        produces = { "application/json" }, 
-        consumes = { "application/json" }, 
-        method = RequestMethod.POST)
-    ResponseEntity<LoginResponseDTO> loginPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body body);
+            produces = {"application/json"},
+            consumes = {"application/json"},
+            method = RequestMethod.POST)
+    ResponseEntity<LoginResponseDTO> loginPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Body body);
 
 }
 

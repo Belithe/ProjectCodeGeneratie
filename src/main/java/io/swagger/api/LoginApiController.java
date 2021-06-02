@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
+import org.apache.commons.validator.routines.EmailValidator;
 
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
@@ -39,23 +40,15 @@ public class LoginApiController implements LoginApi {
     }
 
     public ResponseEntity<LoginResponseDTO> loginPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Body body) {
-//        try {
-        String token = userService.login(body.getEmailAddress(), body.getPassword());
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
-        loginResponseDTO.setAuthToken(token);
 
-
-        //return new ResponseEntity<String>(userService.login(body.getEmailAddress(), body.getPassword()), HttpStatus.OK);
-         return new ResponseEntity<LoginResponseDTO>(loginResponseDTO, HttpStatus.OK);
-//        } catch (Exception e) {
-//            if (e.toString().contains("Login failed")) {
-//                return new ResponseEntity<LoginResponseDTO>(HttpStatus.UNPROCESSABLE_ENTITY);
-//                //throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Login failed.");
-//            }
-//
-//            log.error("Couldn't serialize response for content type application/json", e);
-//            return new ResponseEntity<LoginResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
+        if (userService.checkValidEmailaddress(body.getEmailAddress())) {
+            String token = userService.login(body.getEmailAddress(), body.getPassword());
+            LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
+            loginResponseDTO.setAuthToken(token);
+            return new ResponseEntity<LoginResponseDTO>(loginResponseDTO, HttpStatus.OK);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid emailaddress format.");
+        }
     }
 }
 
