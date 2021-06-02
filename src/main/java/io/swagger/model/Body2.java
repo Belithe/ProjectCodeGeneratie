@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.model.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.threeten.bp.LocalDate;
@@ -16,7 +17,7 @@ import javax.validation.constraints.*;
  * Body2
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-01T12:10:11.144Z[GMT]")
 
 
 public class Body2   {
@@ -41,6 +42,12 @@ public class Body2   {
 
   @JsonProperty("password")
   private String password = null;
+
+  @JsonProperty("dayLimit")
+  private Float dayLimit = 1000f;
+
+  @JsonProperty("transactionLimit")
+  private BigDecimal transactionLimit = new BigDecimal(50);
 
   public Body2 emailAddress(String emailAddress) {
     this.emailAddress = emailAddress;
@@ -184,6 +191,45 @@ public class Body2   {
     this.password = password;
   }
 
+  public Body2 dayLimit(Float dayLimit) {
+    this.dayLimit = dayLimit;
+    return this;
+  }
+
+  /**
+   * Get dayLimit
+   * @return dayLimit
+   **/
+  @Schema(example = "234.46", description = "")
+  
+    public Float getDayLimit() {
+    return dayLimit;
+  }
+
+  public void setDayLimit(Float dayLimit) {
+    this.dayLimit = dayLimit;
+  }
+
+  public Body2 transactionLimit(BigDecimal transactionLimit) {
+    this.transactionLimit = transactionLimit;
+    return this;
+  }
+
+  /**
+   * Get transactionLimit
+   * @return transactionLimit
+   **/
+  @Schema(example = "100", description = "")
+  
+    @Valid
+    public BigDecimal getTransactionLimit() {
+    return transactionLimit;
+  }
+
+  public void setTransactionLimit(BigDecimal transactionLimit) {
+    this.transactionLimit = transactionLimit;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -200,12 +246,14 @@ public class Body2   {
         Objects.equals(this.role, body2.role) &&
         Objects.equals(this.birthDate, body2.birthDate) &&
         Objects.equals(this.phone, body2.phone) &&
-        Objects.equals(this.password, body2.password);
+        Objects.equals(this.password, body2.password) &&
+        Objects.equals(this.dayLimit, body2.dayLimit) &&
+        Objects.equals(this.transactionLimit, body2.transactionLimit);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(emailAddress, firstName, lastName, role, birthDate, phone, password);
+    return Objects.hash(emailAddress, firstName, lastName, role, birthDate, phone, password, dayLimit, transactionLimit);
   }
 
   @Override
@@ -220,6 +268,8 @@ public class Body2   {
     sb.append("    birthDate: ").append(toIndentedString(birthDate)).append("\n");
     sb.append("    phone: ").append(toIndentedString(phone)).append("\n");
     sb.append("    password: ").append(toIndentedString(password)).append("\n");
+    sb.append("    dayLimit: ").append(toIndentedString(dayLimit)).append("\n");
+    sb.append("    transactionLimit: ").append(toIndentedString(transactionLimit)).append("\n");
     sb.append("}");
     return sb.toString();
   }
