@@ -50,7 +50,7 @@ public interface UsersApi {
     @RequestMapping(value = "/users",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
     ResponseEntity<List<User>> usersGet();
 
 
@@ -68,6 +68,7 @@ public interface UsersApi {
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
     ResponseEntity<User> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body1 body);
 
 
@@ -85,7 +86,8 @@ public interface UsersApi {
         @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
     @RequestMapping(value = "/users/{userId}",
         method = RequestMethod.DELETE)
-    ResponseEntity<Void> usersUserIdDelete(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId);
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    ResponseEntity<Void> usersUserIdDelete(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) throws NotFoundException;
 
 
     @Operation(summary = "Get a specific user by ID.", description = "", security = {
@@ -121,7 +123,23 @@ public interface UsersApi {
     @RequestMapping(value = "/users/{userId}",
         consumes = { "application/json" }, 
         method = RequestMethod.PUT)
-    ResponseEntity<Void> usersUserIdPut(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId, @Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body2 body);
+    ResponseEntity<Void> usersUserIdPut(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId, @Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body2 body) throws NotFoundException;
 
+    @Operation(summary = "Returns user information about the logged in user.", description = "", security = {
+            @SecurityRequirement(name = "AuthToken")    }, tags={ "Customer", "Employee" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User information for the JWT that was given."),
+
+            @ApiResponse(responseCode = "400", description = "The given input was not valid for this operation at this endpoint."),
+
+            @ApiResponse(responseCode = "401", description = "The current auth token does not provide access to this resource."),
+
+            @ApiResponse(responseCode = "404", description = "Could not find an user with the given user ID."),
+
+            @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
+    @RequestMapping(value = "/users/self",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<User> usersSelfGet();
 }
 
