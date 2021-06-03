@@ -1,8 +1,8 @@
 package io.swagger.service;
 
 import io.swagger.api.NotFoundException;
-import io.swagger.model.Body1;
-import io.swagger.model.Body2;
+import io.swagger.model.CreateUserPostBody;
+import io.swagger.model.UpdateUserPutBody;
 import io.swagger.model.User;
 import io.swagger.model.UserRole;
 import io.swagger.repository.UserRepository;
@@ -98,7 +98,7 @@ public class UserService {
         return user.orElse(null);
     }
 
-    public User updateUserById(int id, Body2 body) {
+    public User updateUserById(int id, UpdateUserPutBody body) {
         User user = this.getUserById(id);
 
         if (user == null) {
@@ -143,7 +143,7 @@ public class UserService {
         return user;
     }
 
-    public User createUser(Body1 body) {
+    public User createUser(CreateUserPostBody body) {
         // Perform input validation
         performEmailAddressValidation(body.getEmailAddress());
         performRoleValidation(body.getRole());
@@ -161,12 +161,23 @@ public class UserService {
         user.firstName(body.getFirstName());
         user.lastName(body.getLastName());
         user.emailAddress(body.getEmailAddress());
-        user.role(body.getRole());
         user.phone(body.getPhone());
         user.transactionLimit(body.getTransactionLimit());
         user.dayLimit(body.getDayLimit());
         user.birthDate(body.getBirthDate());
         user.password(body.getPassword()); // Password encoding is done in the 'add' method
+
+        if (body.getRole() != null) {
+            if (body.getRole().size() == 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User should have at least one role.");
+            }
+
+            if (body.getRole().size() > UserRole.values().length) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User cannot have more than " + UserRole.values().length + " roles.");
+            }
+
+            user.role(body.getRole());
+        }
 
         add(user);
         return user;

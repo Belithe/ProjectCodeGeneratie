@@ -2,8 +2,6 @@ package io.swagger.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.model.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -11,7 +9,6 @@ import java.util.List;
 import org.threeten.bp.LocalDate;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
  * Body2
@@ -20,7 +17,7 @@ import javax.validation.constraints.*;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-01T12:10:11.144Z[GMT]")
 
 
-public class Body2   {
+public class UpdateUserPutBody {
   @JsonProperty("emailAddress")
   private String emailAddress = null;
 
@@ -49,7 +46,7 @@ public class Body2   {
   @JsonProperty("transactionLimit")
   private BigDecimal transactionLimit = new BigDecimal(50);
 
-  public Body2 emailAddress(String emailAddress) {
+  public UpdateUserPutBody emailAddress(String emailAddress) {
     this.emailAddress = emailAddress;
     return this;
   }
@@ -68,7 +65,7 @@ public class Body2   {
     this.emailAddress = emailAddress;
   }
 
-  public Body2 firstName(String firstName) {
+  public UpdateUserPutBody firstName(String firstName) {
     this.firstName = firstName;
     return this;
   }
@@ -87,7 +84,7 @@ public class Body2   {
     this.firstName = firstName;
   }
 
-  public Body2 lastName(String lastName) {
+  public UpdateUserPutBody lastName(String lastName) {
     this.lastName = lastName;
     return this;
   }
@@ -106,12 +103,12 @@ public class Body2   {
     this.lastName = lastName;
   }
 
-  public Body2 role(List<UserRole> role) {
+  public UpdateUserPutBody role(List<UserRole> role) {
     this.role = role;
     return this;
   }
 
-  public Body2 addRoleItem(UserRole roleItem) {
+  public UpdateUserPutBody addRoleItem(UserRole roleItem) {
     if (this.role == null) {
       this.role = new ArrayList<UserRole>();
     }
@@ -133,7 +130,7 @@ public class Body2   {
     this.role = role;
   }
 
-  public Body2 birthDate(LocalDate birthDate) {
+  public UpdateUserPutBody birthDate(LocalDate birthDate) {
     this.birthDate = birthDate;
     return this;
   }
@@ -153,7 +150,7 @@ public class Body2   {
     this.birthDate = birthDate;
   }
 
-  public Body2 phone(String phone) {
+  public UpdateUserPutBody phone(String phone) {
     this.phone = phone;
     return this;
   }
@@ -172,7 +169,7 @@ public class Body2   {
     this.phone = phone;
   }
 
-  public Body2 password(String password) {
+  public UpdateUserPutBody password(String password) {
     this.password = password;
     return this;
   }
@@ -191,7 +188,7 @@ public class Body2   {
     this.password = password;
   }
 
-  public Body2 dayLimit(Float dayLimit) {
+  public UpdateUserPutBody dayLimit(Float dayLimit) {
     this.dayLimit = dayLimit;
     return this;
   }
@@ -210,7 +207,7 @@ public class Body2   {
     this.dayLimit = dayLimit;
   }
 
-  public Body2 transactionLimit(BigDecimal transactionLimit) {
+  public UpdateUserPutBody transactionLimit(BigDecimal transactionLimit) {
     this.transactionLimit = transactionLimit;
     return this;
   }
@@ -239,16 +236,16 @@ public class Body2   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Body2 body2 = (Body2) o;
-    return Objects.equals(this.emailAddress, body2.emailAddress) &&
-        Objects.equals(this.firstName, body2.firstName) &&
-        Objects.equals(this.lastName, body2.lastName) &&
-        Objects.equals(this.role, body2.role) &&
-        Objects.equals(this.birthDate, body2.birthDate) &&
-        Objects.equals(this.phone, body2.phone) &&
-        Objects.equals(this.password, body2.password) &&
-        Objects.equals(this.dayLimit, body2.dayLimit) &&
-        Objects.equals(this.transactionLimit, body2.transactionLimit);
+    UpdateUserPutBody updateUserPutBody = (UpdateUserPutBody) o;
+    return Objects.equals(this.emailAddress, updateUserPutBody.emailAddress) &&
+        Objects.equals(this.firstName, updateUserPutBody.firstName) &&
+        Objects.equals(this.lastName, updateUserPutBody.lastName) &&
+        Objects.equals(this.role, updateUserPutBody.role) &&
+        Objects.equals(this.birthDate, updateUserPutBody.birthDate) &&
+        Objects.equals(this.phone, updateUserPutBody.phone) &&
+        Objects.equals(this.password, updateUserPutBody.password) &&
+        Objects.equals(this.dayLimit, updateUserPutBody.dayLimit) &&
+        Objects.equals(this.transactionLimit, updateUserPutBody.transactionLimit);
   }
 
   @Override

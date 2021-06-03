@@ -2,11 +2,8 @@ package io.swagger.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
  * Body
@@ -15,14 +12,14 @@ import javax.validation.constraints.*;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
 
 
-public class Body   {
+public class LoginPostBody {
   @JsonProperty("emailAddress")
   private String emailAddress = null;
 
   @JsonProperty("password")
   private String password = null;
 
-  public Body emailAddress(String emailAddress) {
+  public LoginPostBody emailAddress(String emailAddress) {
     this.emailAddress = emailAddress;
     return this;
   }
@@ -41,7 +38,7 @@ public class Body   {
     this.emailAddress = emailAddress;
   }
 
-  public Body password(String password) {
+  public LoginPostBody password(String password) {
     this.password = password;
     return this;
   }
@@ -69,9 +66,9 @@ public class Body   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Body body = (Body) o;
-    return Objects.equals(this.emailAddress, body.emailAddress) &&
-        Objects.equals(this.password, body.password);
+    LoginPostBody loginPostBody = (LoginPostBody) o;
+    return Objects.equals(this.emailAddress, loginPostBody.emailAddress) &&
+        Objects.equals(this.password, loginPostBody.password);
   }
 
   @Override
