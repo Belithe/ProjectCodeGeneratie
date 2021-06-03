@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -127,21 +128,8 @@ public class UserService {
         }
 
         if (body.getRole() != null) {
-            // Filter out any invalid values in the request
-            List<UserRole> roles = body.getRole()
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-
-            if (roles.size() == 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User should have at least one valid role.");
-            }
-
-            if (roles.size() > UserRole.values().length) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User cannot have more than " + UserRole.values().length + " roles.");
-            }
-
-            user.setRole(roles);
+            performRoleValidation(body.getRole());
+            user.setRole(body.getRole());
         }
 
         // Check which fields are set in the request body and only change those fields
@@ -158,6 +146,7 @@ public class UserService {
     public User createUser(Body1 body) {
         // Perform input validation
         performEmailAddressValidation(body.getEmailAddress());
+        performRoleValidation(body.getRole());
 
         if (body.getDayLimit() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot set day limit to a value less than 0.");
@@ -211,6 +200,27 @@ public class UserService {
     private boolean checkEmailAddressFormat(String string) {
         String expression = "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
         return Pattern.matches(expression, string);
+    }
+
+    private void performRoleValidation(List<UserRole> roles) {
+        if (roles.size() == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User should have at least one valid role.");
+        }
+
+        for (UserRole role : roles) {
+            if (role == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Roles field contains invalid value.");
+            }
+        }
+
+        List<UserRole> includedRoles = new ArrayList<>();
+        for (UserRole role : roles) {
+            if (includedRoles.contains(role)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Roles field contains duplicate values.");
+            }
+
+            includedRoles.add(role);
+        }
     }
 }
 
