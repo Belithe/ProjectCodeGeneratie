@@ -33,19 +33,19 @@ public class TestConsole implements CommandLineRunner {
 
     @Override
     public void run(String ...args) throws Exception {
-        User user = new User();
-        user.birthDate(LocalDate.of(2000, 1, 1));
-        user.dayLimit(100f);
-        user.emailAddress("test@test.com");
-        user.lastName("Alixon");
-        user.firstName("Alice");
-        user.phone("+31 6 12345678");
-        user.setRole(Collections.singletonList(UserRole.CUSTOMER));
-        user.id(10);
-        user.password("idk");
-        userService.add(user);
-
-        transactionService.testAddTransaction();
+//        User user = new User();
+//        user.birthDate(LocalDate.of(2000, 1, 1));
+//        user.dayLimit(100f);
+//        user.emailAddress("test@test.com");
+//        user.lastName("Alixon");
+//        user.firstName("Alice");
+//        user.phone("+31 6 12345678");
+//        user.setRole(Collections.singletonList(UserRole.CUSTOMER));
+//        user.id(10);
+//        user.password("idk");
+//        userService.add(user);
+//
+//        transactionService.testAddTransaction();
 //
 //        List<Transaction> transactions = transactionService.getAllTransactions(1,1, "test@test.com");
 //        for (Transaction t : transactions) {

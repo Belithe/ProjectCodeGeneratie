@@ -24,9 +24,11 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneOffset;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -74,53 +76,76 @@ public class TransactionService {
     }
 
     // get all transaction
-//    public List<Transaction> getAllTransactions(Integer limit, Integer offset, String email) {
-//        User user = findUser(email);
-//        List<Account> accounts = findAccount();
-//        if (user.getRole() == UserRole.EMPLOYEE) {
-//            List<Transaction> transactions = transactionRepository.findAll();
-//        }
-//        if (transactions.size() == 0) {
-//            return transactions;
-//        }
-//        return createPage(limit, offset, transactions);
-//    }
-
-    public List<Transaction> getTransActionsByIBAN(Integer limit, Integer offset, String email, String iban) {
-//        User user = findUser(email);
-//        List<Account> accounts = findAccount();
-//        if () {
-//
-//        }
-        List<Transaction> transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(iban, iban);
+    public List<Transaction> getAllTransactions(Integer limit, Integer offset, String email) {
+        User user = findUserByEmail(email);
+        List<Account> accounts = findAccount(user);
+        List<Transaction> transactions = transactionRepository.findAll();
+        if (transactions.size() == 0) {
+            return transactions;
+        }
         return createPage(limit, offset, transactions);
     }
 
-    // make a deposit or withdraw
-    public Transaction incomingChangeBalance(String email, TransactionType type, String transferFrom, String transferTo, Float amount) {
+    // get transactions by iban
+    public List<Transaction> getTransActionsByIBAN(Integer limit, Integer offset, String email, String iban) throws Exception {
+        User user = findUserByEmail(email);
+        List<Account> accounts = findAccount(user);
+        List<Transaction> transactions = new ArrayList<>();
+
+        for (Account account : accounts) {
+            if (account.getIBAN() == iban) {
+                for (UserRole role : user.getRole()) {
+                    if (role == UserRole.EMPLOYEE) {
+                        transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(iban, iban);
+                    } else if (role == UserRole.CUSTOMER || account.getIBAN() == iban){
+                    } else {
+                         throw new Exception("");
+                    }
+                }
+            } else {
+                throw new Exception("The IBAN number could not be en found. Please try again.");
+            }
+        }
+
+        return createPage(limit, offset, transactions);
+    }
+
+    // make a transaction, deposit or withdraw
+    public Transaction incomingChangeBalance(String email, TransactionType type, String transferFrom, String transferTo, Float amount) throws Exception {
         Transaction transaction = makeObject(type, transferFrom, transferTo, amount);
-        User user = findUser(email);
+        User user = findUserByEmail(email);
+        List<Account> accounts = findAccount(user);
+        for (Account account : accounts) {
+            if (transaction.getTransferFrom() == account.getIBAN() && ) {
+                switch (type) {
+                    case TRANSFER:
+                        checkTransaction(transaction, user, account);
+                        break;
+                    case DEPOSIT:
 
+                        break;
+                    case WITHDRAW:
 
-//        if ()
-//        switch (type) {
-//            case TRANSFER:
-//
-//                break;
-//            case DEPOSIT:
-//
-//                break;
-//            case WITHDRAW:
-//
-//                break;
-//        }
+                        break;
+                }
+            } else {
+                throw new Exception("");
+            }
+        }
         return transactionRepository.save(transaction);
     }
 
     // validate input
-    private void transactionLimit(Transaction transaction, User user) throws Exception {
-//        if ()
-//            throw new Exception();
+    private void checkTransaction(Transaction transaction, User user, Account account) throws Exception {
+
+        if ()
+            throw new Exception("The daily limit of the total amount from transactions is overseeded, change the limit or make the transaction tomorrow.");
+    }
+    private BigDecimal getTodayTransaction() {
+
+        BigDecimal total = new BigDecimal(0);
+
+        return total;
     }
 
     // make a transaction object
@@ -144,14 +169,14 @@ public class TransactionService {
     }
 
     // find user
-    private User findUser(String email) {
+    private User findUserByEmail(String email) {
         User user = new User();
         return user = userRepository.findByEmailAddress(email);
     }
 
     // find account by user
     private List<Account> findAccount(User user) {
-        List<Account> accounts = accountRepository.findAllById(Collections.singleton(new Long(user.getId())));
+        List<Account> accounts = accountRepository.findAllById(user.getId());
         return accounts;
     }
 

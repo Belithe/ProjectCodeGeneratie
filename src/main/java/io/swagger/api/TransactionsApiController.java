@@ -68,16 +68,17 @@ public class TransactionsApiController implements TransactionsApi {
             , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="20") Integer limit,@Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
             , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String emailAddress = authentication.getName();
-        User loggedInUser = userService.getUserByEmailAddress(emailAddress);
-
-        if (loggedInUser == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
-        }
-
-        List<Transaction> transactions = transactionService.getAllTransactions(limit, page, emailAddress);
-        return new ResponseEntity<List<Transaction>>(transactions, HttpStatus.OK);
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String emailAddress = authentication.getName();
+//        User loggedInUser = userService.getUserByEmailAddress(emailAddress);
+//
+//        if (loggedInUser == null) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
+//        }
+//
+//        List<Transaction> transactions = transactionService.getAllTransactions(limit, page, emailAddress);
+//        return new ResponseEntity<List<Transaction>>(transactions, HttpStatus.OK);
+        return new ResponseEntity<List<Transaction>>( HttpStatus.OK);
     }
 
     // get transactions by iban

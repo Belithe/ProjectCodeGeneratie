@@ -13,6 +13,12 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
-    List<Transaction> findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(String IBAN, String secondIBAN);
+    List<Transaction> findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(String iban, String secondIban);
+
+    List<Transaction> findTransactionByTransferFrom(String iban);
+
+    List<Transaction> findAll();
+
+
 }
 
