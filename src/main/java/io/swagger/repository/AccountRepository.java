@@ -12,7 +12,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface AccountRepository extends JpaRepository<Account, String> {
     //@Transactional
     //@Modifying
     //@Query("select account from Account account where account.IBAN =:IBAN and account = :password")

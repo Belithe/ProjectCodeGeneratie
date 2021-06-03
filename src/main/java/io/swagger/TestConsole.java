@@ -3,6 +3,8 @@ package io.swagger;
 import io.swagger.model.*;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.repository.UserRepository;
+import io.swagger.repository.AccountRepository;
+import io.swagger.service.AccountManagementService;
 import io.swagger.service.TransactionService;
 import io.swagger.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +14,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneOffset;
 import springfox.documentation.oas.annotations.EnableOpenApi;
 
 import java.math.BigDecimal;
@@ -31,8 +31,16 @@ public class TestConsole implements CommandLineRunner {
     @Autowired
     TransactionService transactionService;
 
+    @Autowired
+    AccountManagementService accountManagementService;
+
     @Override
     public void run(String ...args) throws Exception {
+        testAccount();
+        printAccount();
+    }
+
+    public void testUser() {
         User user = new User();
         user.birthDate(LocalDate.of(2000, 1, 1));
         user.dayLimit(100f);
@@ -67,6 +75,26 @@ public class TestConsole implements CommandLineRunner {
 //        }
 //        Transaction i = transactionRepository.findTransactionByTransferTo("Hello");
 //        System.out.println(i.getTransactionId());
+
+    }
+
+    public void printAccount() {
+        Account toPrint = accountManagementService.getByIBAN("NL01INHO0000000001");
+
+        System.out.println(toPrint.getBalance());
+        System.out.println(toPrint.getMinimumLimit());
+        System.out.println(toPrint.getIBAN());
+        System.out.println(toPrint.getUserId());
+    }
+
+    public void testAccount() {
+        Account accountToTest = new Account();
+        accountToTest.setUserId(10);
+        accountToTest.setIBAN("NL01INHO0000000001");
+        accountToTest.setMinimumLimit(200.0F);
+        accountToTest.setBalance(300F);
+
+        accountManagementService.addNewAccountRepo(accountToTest);
 
     }
 

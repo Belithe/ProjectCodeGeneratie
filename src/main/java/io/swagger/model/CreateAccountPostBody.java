@@ -3,26 +3,20 @@ package io.swagger.model;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import io.swagger.model.AccountType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
- * Account
+ * Body3
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T13:47:48.293Z[GMT]")
 
-@Entity
-public class Account   {
-  @JsonProperty("balance")
-  private Float balance = null;
 
-  @Id
+public class Body3   {
   @JsonProperty("IBAN")
   private String IBAN = null;
 
@@ -32,26 +26,10 @@ public class Account   {
   @JsonProperty("userId")
   private Integer userId = null;
 
-  public Account balance(Float balance) {
-    this.balance = balance;
-    return this;
-  }
+  @JsonProperty("accountType")
+  private AccountType accountType = null;
 
-  /**
-   * Get balance
-   * @return balance
-   **/
-  @Schema(example = "123.45", description = "")
-  
-    public Float getBalance() {
-    return balance;
-  }
-
-  public void setBalance(Float balance) {
-    this.balance = balance;
-  }
-
-  public Account IBAN(String IBAN) {
+  public Body3 IBAN(String IBAN) {
     this.IBAN = IBAN;
     return this;
   }
@@ -60,7 +38,7 @@ public class Account   {
    * Get IBAN
    * @return IBAN
    **/
-  @Schema(example = "NL01INHO0000000001", description = "")
+  @Schema(example = "NL02ABNA0123456789", description = "")
   
     public String getIBAN() {
     return IBAN;
@@ -70,7 +48,7 @@ public class Account   {
     this.IBAN = IBAN;
   }
 
-  public Account minimumLimit(Float minimumLimit) {
+  public Body3 minimumLimit(Float minimumLimit) {
     this.minimumLimit = minimumLimit;
     return this;
   }
@@ -89,7 +67,7 @@ public class Account   {
     this.minimumLimit = minimumLimit;
   }
 
-  public Account userId(Integer userId) {
+  public Body3 userId(Integer userId) {
     this.userId = userId;
     return this;
   }
@@ -108,6 +86,26 @@ public class Account   {
     this.userId = userId;
   }
 
+  public Body3 accountType(AccountType accountType) {
+    this.accountType = accountType;
+    return this;
+  }
+
+  /**
+   * Get accountType
+   * @return accountType
+   **/
+  @Schema(description = "")
+  
+    @Valid
+    public AccountType getAccountType() {
+    return accountType;
+  }
+
+  public void setAccountType(AccountType accountType) {
+    this.accountType = accountType;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -117,27 +115,27 @@ public class Account   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Account account = (Account) o;
-    return Objects.equals(this.balance, account.balance) &&
-        Objects.equals(this.IBAN, account.IBAN) &&
-        Objects.equals(this.minimumLimit, account.minimumLimit) &&
-        Objects.equals(this.userId, account.userId);
+    Body3 body3 = (Body3) o;
+    return Objects.equals(this.IBAN, body3.IBAN) &&
+        Objects.equals(this.minimumLimit, body3.minimumLimit) &&
+        Objects.equals(this.userId, body3.userId) &&
+        Objects.equals(this.accountType, body3.accountType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(balance, IBAN, minimumLimit, userId);
+    return Objects.hash(IBAN, minimumLimit, userId, accountType);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Account {\n");
+    sb.append("class Body3 {\n");
     
-    sb.append("    balance: ").append(toIndentedString(balance)).append("\n");
     sb.append("    IBAN: ").append(toIndentedString(IBAN)).append("\n");
     sb.append("    minimumLimit: ").append(toIndentedString(minimumLimit)).append("\n");
     sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
+    sb.append("    accountType: ").append(toIndentedString(accountType)).append("\n");
     sb.append("}");
     return sb.toString();
   }
