@@ -166,18 +166,7 @@ public class UserService {
         user.dayLimit(body.getDayLimit());
         user.birthDate(body.getBirthDate());
         user.password(body.getPassword()); // Password encoding is done in the 'add' method
-
-        if (body.getRole() != null) {
-            if (body.getRole().size() == 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User should have at least one role.");
-            }
-
-            if (body.getRole().size() > UserRole.values().length) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User cannot have more than " + UserRole.values().length + " roles.");
-            }
-
-            user.role(body.getRole());
-        }
+        user.role(body.getRole());
 
         add(user);
         return user;
@@ -202,6 +191,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email address given.");
         }
 
+        // Check if there's already a user with the username
         User otherUser = getUserByEmailAddress(emailAddress);
         if (otherUser != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email address is already in use.");
@@ -214,16 +204,19 @@ public class UserService {
     }
 
     private void performRoleValidation(List<UserRole> roles) {
+        // Check if the array is empty as an user has to have at least one role
         if (roles.size() == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User should have at least one valid role.");
         }
 
+        // Check if there's an invalid value in the request in the form of a null value
         for (UserRole role : roles) {
             if (role == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Roles field contains invalid value.");
             }
         }
 
+        // Check if there are any duplicate values in the request
         List<UserRole> includedRoles = new ArrayList<>();
         for (UserRole role : roles) {
             if (includedRoles.contains(role)) {
