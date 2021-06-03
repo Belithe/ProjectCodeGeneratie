@@ -4,6 +4,7 @@ import io.swagger.api.NotFoundException;
 import io.swagger.model.Body1;
 import io.swagger.model.Body2;
 import io.swagger.model.User;
+import io.swagger.model.UserRole;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -123,13 +126,30 @@ public class UserService {
             user.setTransactionLimit(body.getTransactionLimit());
         }
 
+        if (body.getRole() != null) {
+            // Filter out any invalid values in the request
+            List<UserRole> roles = body.getRole()
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            if (roles.size() == 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User should have at least one valid role.");
+            }
+
+            if (roles.size() > UserRole.values().length) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User cannot have more than " + UserRole.values().length + " roles.");
+            }
+
+            user.setRole(roles);
+        }
+
         // Check which fields are set in the request body and only change those fields
         if (body.getFirstName() != null) user.setFirstName(body.getFirstName());
         if (body.getLastName() != null) user.setFirstName(body.getLastName());
         if (body.getBirthDate() != null) user.setBirthDate(body.getBirthDate());
         if (body.getPhone() != null) user.setPhone(body.getPhone());
         if (body.getPassword() != null) user.setPassword(passwordEncoder.encode(body.getPassword()));
-        if (body.getRole() != null) user.setRole(body.getRole());
 
         userRepository.save(user);
         return user;
