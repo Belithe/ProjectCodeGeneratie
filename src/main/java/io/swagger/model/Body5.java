@@ -13,7 +13,7 @@ import javax.validation.constraints.*;
  * Body5
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T14:07:43.568Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-03T10:00:39.046Z[GMT]")
 
 
 public class Body5   {
@@ -26,8 +26,8 @@ public class Body5   {
   @JsonProperty("amount")
   private Float amount = null;
 
-  @JsonProperty("accountType")
-  private TransactionType accountType = null;
+  @JsonProperty("transactionType")
+  private TransactionType transactionType = null;
 
   public Body5 transferTo(String transferTo) {
     this.transferTo = transferTo;
@@ -39,9 +39,9 @@ public class Body5   {
    * @return transferTo
    **/
   @Schema(example = "NL14RABO0987654321", required = true, description = "")
-      @NotNull
+  @NotNull
 
-    public String getTransferTo() {
+  public String getTransferTo() {
     return transferTo;
   }
 
@@ -59,9 +59,9 @@ public class Body5   {
    * @return transferFrom
    **/
   @Schema(example = "NL91ABNA1234567890", required = true, description = "")
-      @NotNull
+  @NotNull
 
-    public String getTransferFrom() {
+  public String getTransferFrom() {
     return transferFrom;
   }
 
@@ -79,8 +79,8 @@ public class Body5   {
    * @return amount
    **/
   @Schema(example = "9000.01", description = "")
-  
-    public Float getAmount() {
+
+  public Float getAmount() {
     return amount;
   }
 
@@ -88,29 +88,29 @@ public class Body5   {
     this.amount = amount;
   }
 
-  public Body5 accountType(TransactionType accountType) {
-    this.accountType = accountType;
+  public Body5 transactionType(TransactionType transactionType) {
+    this.transactionType = transactionType;
     return this;
   }
 
   /**
-   * Get accountType
-   * @return accountType
+   * Get transactionType
+   * @return transactionType
    **/
   @Schema(description = "")
-  
-    @Valid
-    public TransactionType getAccountType() {
-    return accountType;
+
+  @Valid
+  public TransactionType getTransactionType() {
+    return transactionType;
   }
 
-  public void setAccountType(TransactionType accountType) {
-    this.accountType = accountType;
+  public void setTransactionType(TransactionType transactionType) {
+    this.transactionType = transactionType;
   }
 
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(java.lang.Object o) {
     if (this == o) {
       return true;
     }
@@ -119,25 +119,25 @@ public class Body5   {
     }
     Body5 body5 = (Body5) o;
     return Objects.equals(this.transferTo, body5.transferTo) &&
-        Objects.equals(this.transferFrom, body5.transferFrom) &&
-        Objects.equals(this.amount, body5.amount) &&
-        Objects.equals(this.accountType, body5.accountType);
+            Objects.equals(this.transferFrom, body5.transferFrom) &&
+            Objects.equals(this.amount, body5.amount) &&
+            Objects.equals(this.transactionType, body5.transactionType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(transferTo, transferFrom, amount, accountType);
+    return Objects.hash(transferTo, transferFrom, amount, transactionType);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Body5 {\n");
-    
+
     sb.append("    transferTo: ").append(toIndentedString(transferTo)).append("\n");
     sb.append("    transferFrom: ").append(toIndentedString(transferFrom)).append("\n");
     sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
-    sb.append("    accountType: ").append(toIndentedString(accountType)).append("\n");
+    sb.append("    transactionType: ").append(toIndentedString(transactionType)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -146,7 +146,7 @@ public class Body5   {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(Object o) {
+  private String toIndentedString(java.lang.Object o) {
     if (o == null) {
       return "null";
     }

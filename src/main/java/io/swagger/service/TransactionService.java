@@ -74,24 +74,24 @@ public class TransactionService {
     }
 
     // get all transaction
-    public List<Transaction> getAllTransactions(Integer limit, Integer offset, String email) {
-        User user = findUser(email);
-        List<Account> accounts = findAccount();
-        if (user.getRole() == UserRole.EMPLOYEE) {
-            List<Transaction> transactions = transactionRepository.findAll();
-        }
-        if (transactions.size() == 0) {
-            return transactions;
-        }
-        return createPage(limit, offset, transactions);
-    }
+//    public List<Transaction> getAllTransactions(Integer limit, Integer offset, String email) {
+//        User user = findUser(email);
+//        List<Account> accounts = findAccount();
+//        if (user.getRole() == UserRole.EMPLOYEE) {
+//            List<Transaction> transactions = transactionRepository.findAll();
+//        }
+//        if (transactions.size() == 0) {
+//            return transactions;
+//        }
+//        return createPage(limit, offset, transactions);
+//    }
 
     public List<Transaction> getTransActionsByIBAN(Integer limit, Integer offset, String email, String iban) {
-        User user = findUser(email);
-        List<Account> accounts = findAccount();
-        if () {
-
-        }
+//        User user = findUser(email);
+//        List<Account> accounts = findAccount();
+//        if () {
+//
+//        }
         List<Transaction> transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(iban, iban);
         return createPage(limit, offset, transactions);
     }
@@ -102,25 +102,25 @@ public class TransactionService {
         User user = findUser(email);
 
 
-        if ()
-        switch (type) {
-            case TRANSFER:
-
-                break;
-            case DEPOSIT:
-
-                break;
-            case WITHDRAW:
-
-                break;
-        }
+//        if ()
+//        switch (type) {
+//            case TRANSFER:
+//
+//                break;
+//            case DEPOSIT:
+//
+//                break;
+//            case WITHDRAW:
+//
+//                break;
+//        }
         return transactionRepository.save(transaction);
     }
 
     // validate input
     private void transactionLimit(Transaction transaction, User user) throws Exception {
-        if ()
-            throw new Exception();
+//        if ()
+//            throw new Exception();
     }
 
     // make a transaction object
