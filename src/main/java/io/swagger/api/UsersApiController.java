@@ -1,7 +1,7 @@
 package io.swagger.api;
 
-import io.swagger.model.Body1;
-import io.swagger.model.Body2;
+import io.swagger.model.CreateUserPostBody;
+import io.swagger.model.UpdateUserPutBody;
 import io.swagger.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.UserRole;
@@ -49,7 +49,7 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<List<User>>(users, HttpStatus.OK);
     }
 
-    public ResponseEntity<User> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body1 body) {
+    public ResponseEntity<User> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody CreateUserPostBody body) {
         userService.createUser(body);
         return new ResponseEntity<User>(HttpStatus.OK);
     }
@@ -76,7 +76,7 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<User>(user, HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> usersUserIdPut(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId,@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body2 body) throws NotFoundException {
+    public ResponseEntity<Void> usersUserIdPut(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId,@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody UpdateUserPutBody body) throws NotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String emailAddress = authentication.getName();
 
