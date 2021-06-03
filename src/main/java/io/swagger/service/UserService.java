@@ -6,6 +6,8 @@ import io.swagger.model.Body2;
 import io.swagger.model.User;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
+import org.apache.commons.validator.routines.EmailValidator;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -191,6 +193,10 @@ public class UserService {
     private boolean checkEmailAddressFormat(String string) {
         String expression = "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
         return Pattern.matches(expression, string);
+    }
+    
+    public Boolean checkValidEmailaddress(String emailAddress){
+        return EmailValidator.getInstance().isValid(emailAddress);
     }
 }
 
