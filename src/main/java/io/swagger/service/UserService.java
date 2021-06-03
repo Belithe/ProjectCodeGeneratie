@@ -180,7 +180,7 @@ public class UserService {
     }
 
     private void performEmailAddressValidation(String emailAddress) {
-        if (!checkEmailAddressFormat(emailAddress)) {
+        if (!checkValidEmailaddress(emailAddress)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email address given.");
         }
 
@@ -188,11 +188,6 @@ public class UserService {
         if (otherUser != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email address is already in use.");
         }
-    }
-
-    private boolean checkEmailAddressFormat(String string) {
-        String expression = "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
-        return Pattern.matches(expression, string);
     }
     
     public Boolean checkValidEmailaddress(String emailAddress){
