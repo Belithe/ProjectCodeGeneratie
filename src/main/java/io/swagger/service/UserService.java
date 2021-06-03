@@ -4,6 +4,7 @@ import io.swagger.api.NotFoundException;
 import io.swagger.model.Body1;
 import io.swagger.model.Body2;
 import io.swagger.model.User;
+import io.swagger.model.UserRole;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,13 +124,24 @@ public class UserService {
             user.setTransactionLimit(body.getTransactionLimit());
         }
 
+        if (body.getRole() != null) {
+            if (body.getRole().size() == 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User should have at least one role.");
+            }
+
+            if (body.getRole().size() > UserRole.values().length) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User cannot have more than " + UserRole.values().length + " roles.");
+            }
+
+            user.setRole(body.getRole());
+        }
+
         // Check which fields are set in the request body and only change those fields
         if (body.getFirstName() != null) user.setFirstName(body.getFirstName());
         if (body.getLastName() != null) user.setFirstName(body.getLastName());
         if (body.getBirthDate() != null) user.setBirthDate(body.getBirthDate());
         if (body.getPhone() != null) user.setPhone(body.getPhone());
         if (body.getPassword() != null) user.setPassword(passwordEncoder.encode(body.getPassword()));
-        if (body.getRole() != null) user.setRole(body.getRole());
 
         userRepository.save(user);
         return user;
