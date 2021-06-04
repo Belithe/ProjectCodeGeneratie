@@ -13,7 +13,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 import org.threeten.bp.LocalDate;
 
@@ -29,9 +28,6 @@ import static org.mockito.BDDMockito.given;
 @SpringBootTest(classes = { Swagger2SpringBoot.class })
 @AutoConfigureMockMvc
 class UserServiceTest {
-    @Autowired
-    MockMvc mockMvc;
-
     @Autowired
     UserService userService;
 
