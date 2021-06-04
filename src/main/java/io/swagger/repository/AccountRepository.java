@@ -1,6 +1,7 @@
 package io.swagger.repository;
 
-import io.swagger.model.Transaction;
+import io.swagger.model.Account;
+import io.swagger.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,9 +11,13 @@ import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;
 import java.util.List;
 
-
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
-    //List<Transaction> findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(String IBAN, String secondIBAN);
+public interface AccountRepository extends JpaRepository<Account, String> {
+    @Transactional
+    @Modifying
+    @Query("select account from Account account where account.IBAN =:IBAN and account = :password")
+    Account findAccountByIBAN(@Param("IBAN") String IBAN);
+
+    List<Account> findAll();
 }
 

@@ -9,17 +9,17 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
- * Body3
+ * UpdateAccountPutBody
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
 
 
-public class Body3   {
+public class UpdateAccountPutBody   {
   @JsonProperty("minimumLimit")
   private Float minimumLimit = null;
 
-  public Body3 minimumLimit(Float minimumLimit) {
+  public UpdateAccountPutBody minimumLimit(Float minimumLimit) {
     this.minimumLimit = minimumLimit;
     return this;
   }
@@ -47,8 +47,8 @@ public class Body3   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Body3 body3 = (Body3) o;
-    return Objects.equals(this.minimumLimit, body3.minimumLimit);
+    UpdateAccountPutBody UpdateAccountPutBody = (UpdateAccountPutBody) o;
+    return Objects.equals(this.minimumLimit, UpdateAccountPutBody.minimumLimit);
   }
 
   @Override
@@ -59,7 +59,7 @@ public class Body3   {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Body3 {\n");
+    sb.append("class UpdateAccountPutBody {\n");
     
     sb.append("    minimumLimit: ").append(toIndentedString(minimumLimit)).append("\n");
     sb.append("}");
