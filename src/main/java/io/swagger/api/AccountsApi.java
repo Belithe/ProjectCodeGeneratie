@@ -83,7 +83,9 @@ public interface AccountsApi {
     @RequestMapping(value = "/accounts",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<List<Account>> getAccounts();
+    ResponseEntity<List<Account>> getAccounts(@Min(1) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="50"
+            , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="20") Integer limit,@Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
+            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page, @Parameter(in = ParameterIn.PATH, description = "Current user's id.", required=false, schema=@Schema()) @PathVariable("userId") Integer userId);
 
 
     @Operation(summary = "Get the account with the specified IBAN.", description = "Get the account with the specified IBAN.", security = {
