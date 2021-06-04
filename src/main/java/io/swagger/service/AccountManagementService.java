@@ -38,6 +38,10 @@ public class AccountManagementService {
         return accountRepository.findAll();
     }
 
+    public List<Account> getAllAccountsById(Integer userId) {
+        return accountRepository.findAllByUserId(userId);
+    }
+
     public void updateExistingAccount(String IBAN, UpdateAccountPutBody body) throws ResponseStatusException {
 
         Account accountToEdit = this.getByIBAN(IBAN);
