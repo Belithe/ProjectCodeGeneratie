@@ -111,29 +111,34 @@ public class TransactionService {
     }
 
     // make a transaction, deposit or withdraw
-    public Transaction checkTypeOfTransaction(String email, PostTransBody postTransBody) throws Exception {
+    public Transaction createTransaction(String email, PostTransBody postTransBody) throws Exception {
         Transaction transaction = makeObject(postTransBody);
+        if (transaction.getTransferFrom() == transaction.getTransferTo())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from to the same account.");
         User user = findUserByEmail(email);
         List<Account> accounts = findAccountById(user);
         switch (transaction.getType()) {
             case TRANSFER:
                 // determine the transfer from account
                 for (Account account : accounts) {
-                    if (transaction.getTransferFrom() == account.getIBAN()) {
+                    if (transaction.getTransferFrom() == account.getIBAN() || user.getRole().contains(UserRole.EMPLOYEE)) {
                         Account transferToAccount = accountRepository.findAccountByIBAN(transaction.getTransferTo());
                         User transferToUser = userRepository.findById(transferToAccount.getUserId()).get();
                         if (transferToAccount.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
                             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
                         if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer to an saving's account of someone else.");
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer to a saving's account of someone else.");
                         checkTransactionLimits(transaction, user, account);
-
+                        updateFromBalance(transaction);
+                        updateToBalance(transaction);
+                    } else {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot transfer from other account other then your own.");
                     }
                     break;
                 }
                 break;
             case DEPOSIT:
-
+                updateToBalance(transaction);
                 break;
             case WITHDRAW:
                 // check if the account got enough to withdraw
@@ -141,7 +146,7 @@ public class TransactionService {
                     if (transaction.getTransferFrom() == account.getIBAN()) {
                         if (account.getBalance() <= 0)
                             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The balance can not be 0 or lower");
-
+                        updateFromBalance(transaction);
                     }
                 }
                 break;
@@ -149,8 +154,18 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    private void updateBalance() {
+    // update from account
+    private void updateFromBalance(Transaction transaction) {
+        Account account = accountRepository.findAccountByIBAN(transaction.getTransferFrom());
+        account.setBalance((account.getBalance() - transaction.getAmount()));
+        accountRepository.save(account);
+    }
 
+    // update to account
+    private void updateToBalance(Transaction transaction) {
+        Account account = accountRepository.findAccountByIBAN(transaction.getTransferTo());
+        account.setBalance((account.getBalance() + transaction.getAmount()));
+        accountRepository.save(account);
     }
 
     // validate transaction to make
@@ -199,17 +214,26 @@ public class TransactionService {
         if (postTransBody.getTransactionType() == null ||
                 postTransBody.getTransferFrom() == null ||
                 postTransBody.getTransferTo() == null || postTransBody.getAmount() == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One of the input (type, transfer from, transfer to or amount) is incorrect.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One of the input (type, transfer from, transfer to or amount) is missing.");
         localTime = OffsetDateTime.now();
         Transaction transaction = new Transaction();
 
         if (postTransBody.getTransactionType() == TransactionType.DEPOSIT) {
             transaction.setTransferFrom("ATM");
+            if (validateIBAN(postTransBody.getTransferTo()))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer to is incorrect.");
             transaction.setTransferTo(postTransBody.getTransferTo());
+
         } else if (postTransBody.getTransactionType() == TransactionType.WITHDRAW) {
-            transaction.setTransferFrom(postTransBody.getTransferFrom());
             transaction.setTransferTo("ATM");
+            if (validateIBAN(postTransBody.getTransferTo()))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer from is incorrect.");
+            transaction.setTransferFrom(postTransBody.getTransferFrom());
         } else {
+            if (validateIBAN(postTransBody.getTransferTo()))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer to is incorrect.");
+            if (validateIBAN(postTransBody.getTransferTo()))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer from is incorrect.");
             transaction.setTransferFrom(postTransBody.getTransferFrom());
             transaction.setTransferTo(postTransBody.getTransferTo());
         }
