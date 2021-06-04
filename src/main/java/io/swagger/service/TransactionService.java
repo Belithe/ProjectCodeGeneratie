@@ -58,8 +58,19 @@ public class TransactionService {
         return matcher.find();
     }
 
+    public static final Pattern VALID_INTEGER_REGEX =
+            Pattern.compile("^([0-9]+$)?");
+
+    public static boolean validateInteger(String integer) {
+        Matcher matcher = VALID_INTEGER_REGEX.matcher(integer);
+        return matcher.find();
+    }
+
     // get all transaction
     public List<Transaction> getAllTransactions(Integer limit, Integer offset, String email) throws Exception {
+//        if (validateInteger(limit)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The limit is invalid.");
+//        if (validateInteger(offset)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The offset is invalid.");
+        if (validateEmail(email)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The email is invalid.");
         User user = findUserByEmail(email);
         if (user == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User could not been found, please try to login again.");
@@ -86,7 +97,7 @@ public class TransactionService {
     }
 
     // get transactions by iban
-    public List<Transaction> getTransActionsByIBAN(Integer limit, Integer offset, String email, String iban) throws Exception {
+    public List<Transaction> getTransActionsByIBAN(String email, String iban) throws Exception {
         if (validateIBAN(iban) || iban.isEmpty() || iban == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN number is incorrect.");
         Account account = accountRepository.findAccountByIBAN(iban);
@@ -107,7 +118,7 @@ public class TransactionService {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to this account.");
             }
         }
-        return createPage(limit, offset, transactions);
+        return transactions;
     }
 
     // make a transaction, deposit or withdraw
