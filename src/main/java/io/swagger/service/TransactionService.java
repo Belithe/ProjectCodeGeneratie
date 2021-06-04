@@ -26,7 +26,7 @@ public class TransactionService {
     TransactionRepository transactionRepository;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    UserRepository userRepository;
 
     @Autowired
     AccountRepository accountRepository;
@@ -300,6 +300,7 @@ public class TransactionService {
         if (limit == null)
             limit = 0;
 
+        int size = transactions.size();
         limit = limit + offset;
         if (limit > size)
             limit = size;

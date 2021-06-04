@@ -3,7 +3,6 @@ package io.swagger.service;
 import io.swagger.api.NotFoundException;
 import io.swagger.model.CreateAccountPostBody;
 import io.swagger.model.Account;
-import io.swagger.model.Body5;
 import io.swagger.model.UpdateAccountPutBody;
 import io.swagger.repository.AccountRepository;
 import io.swagger.security.JwtTokenProvider;
