@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T13:47:48.293Z[GMT]")
 @RestController
@@ -79,10 +80,20 @@ public class AccountsApiController implements AccountsApi {
         }
     }
 
-    public ResponseEntity<List<Account>> getAccounts(@Parameter(in = ParameterIn.PATH, description = "Current user's id.", required=false, schema=@Schema()) @PathVariable("userId") Integer userId) {
+    public ResponseEntity<List<Account>> getAccounts(@Min(1) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="50"
+            , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="20") Integer limit,@Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
+            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page, @Parameter(in = ParameterIn.PATH, description = "Current user's id.", required=false, schema=@Schema()) @PathVariable("userId") Integer userId) {
         if(userId != null) {
             if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
                 List<Account> accounts = accountService.getAllAccounts();
+
+                page -= 1;
+                int skip = limit * page;
+                accounts = accounts.stream()
+                        .skip(skip)
+                        .limit(limit)
+                        .collect(Collectors.toList());
+
                 return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
             } else {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
