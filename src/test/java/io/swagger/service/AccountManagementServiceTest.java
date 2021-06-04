@@ -3,6 +3,7 @@ package io.swagger.service;
 import io.swagger.Swagger2SpringBoot;
 import io.swagger.model.Account;
 import io.swagger.model.AccountType;
+import io.swagger.model.UpdateAccountPutBody;
 import io.swagger.repository.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,7 +78,7 @@ class AccountManagementServiceTest {
         given(accountRepository.findAll()).willReturn(expectedAccounts);
 
         // Execution
-        List<Account> accounts = accountRepository.getAllAccounts();
+        List<Account> accounts = accountRepository.findAll();
 
         // Assertions
         assertNotNull(accounts);
@@ -112,6 +113,16 @@ class AccountManagementServiceTest {
     }
 
     @Test
-    public void updateAccount
+    public void updateAccountSuccessfully() {
+        // Setup
+        given(accountRepository.findAccountByIBAN("NL19INHO629399613")).willReturn(expectedAccounts.get(0));
+
+        // Execution
+        accountManagementService.updateExistingAccount("NL19INHO629399613", new UpdateAccountPutBody().minimumLimit(200f));
+
+        // Assertions
+        // None :)
+    }
+
 
 }

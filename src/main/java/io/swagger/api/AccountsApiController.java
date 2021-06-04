@@ -65,7 +65,7 @@ public class AccountsApiController implements AccountsApi {
     public ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody CreateAccountPostBody body) throws ResponseStatusException {
         if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
             accountService.createNewAccount(body);
-            return new ResponseEntity<Account>(HttpStatus.OK);
+            return new ResponseEntity<Account>(HttpStatus.CREATED);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
