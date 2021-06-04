@@ -1,6 +1,5 @@
 package io.swagger.service;
 
-import io.swagger.api.NotFoundException;
 import io.swagger.model.CreateUserPostBody;
 import io.swagger.model.UpdateUserPutBody;
 import io.swagger.model.User;
@@ -8,7 +7,6 @@ import io.swagger.model.UserRole;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,10 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
