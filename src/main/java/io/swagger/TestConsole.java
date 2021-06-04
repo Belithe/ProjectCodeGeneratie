@@ -35,8 +35,8 @@ public class TestConsole implements CommandLineRunner {
 
     @Override
     public void run(String ...args) throws Exception {
-        testAccount();
-        printAccount();
+//       testAccount();
+//        printAccount();
     }
 
     public void testUser() {
