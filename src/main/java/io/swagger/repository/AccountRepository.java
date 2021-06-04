@@ -21,6 +21,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     //@Query("select account from Account account")
     List<Account> findAll();
 
+
     List<Account> findAllByUserId(Integer userId);
 }
 

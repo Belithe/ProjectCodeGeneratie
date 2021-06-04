@@ -35,7 +35,7 @@ public class TransactionService {
     private static final String bankIban = "NL01INHO0000000001";
 
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
-            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("^[\\\\w!#$%&’*+/=?`{|}~^-]+(?:\\\\.[\\\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\\\.)+[a-zA-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
     public static boolean validateEmail(String emailStr) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
@@ -67,9 +67,9 @@ public class TransactionService {
     }
 
     // get all transaction
-    public List<Transaction> getAllTransactions(Integer limit, Integer offset, String email) throws Exception {
+    public List<Transaction> getAllTransactions(Integer offset, Integer limit, String email) throws Exception {
 //        if (validateInteger(limit)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The limit is invalid.");
-//        if (validateInteger(offset)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The offset is invalid.");
+////        if (validateInteger(offset)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The offset is invalid.");
         if (validateEmail(email)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The email is invalid.");
         User user = findUserByEmail(email);
         if (user == null)
@@ -93,12 +93,13 @@ public class TransactionService {
         if (transactions.size() == 0) {
             return transactions;
         }
-        return createPage(limit, offset, transactions);
+
+        return createPage(offset, limit, transactions);
     }
 
     // get transactions by iban
     public List<Transaction> getTransActionsByIBAN(String email, String iban) throws Exception {
-        if (validateIBAN(iban) || iban.isEmpty() || iban == null)
+        if (!validateIBAN(iban) || iban.isEmpty() || iban == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN number is incorrect.");
         Account account = accountRepository.findAccountByIBAN(iban);
         if (account == null)
@@ -112,7 +113,7 @@ public class TransactionService {
                 transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(iban, iban);
                 break;
             }
-            if (userRole == UserRole.CUSTOMER && account.getIBAN() == iban) {
+            if (userRole == UserRole.CUSTOMER && account.getIBAN().equals(iban)) {
                 transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(iban, iban);
             } else {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to this account.");
@@ -128,18 +129,28 @@ public class TransactionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from to the same account.");
         User user = findUserByEmail(email);
         List<Account> accounts = findAccountById(user);
+        transaction.setUserPerforming(user.getId());
         switch (transaction.getType()) {
             case TRANSFER:
                 // determine the transfer from account
                 for (Account account : accounts) {
                     if (transaction.getTransferFrom() == account.getIBAN() || user.getRole().contains(UserRole.EMPLOYEE)) {
-                        Account transferToAccount = accountRepository.findAccountByIBAN(transaction.getTransferTo());
-                        User transferToUser = userRepository.findById(transferToAccount.getUserId()).get();
-                        if (transferToAccount.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
-                        if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer to a saving's account of someone else.");
                         checkTransactionLimits(transaction, user, account);
+                        Account transferToAccount = accountRepository.findAccountByIBAN(transaction.getTransferTo());
+                        if (transferToAccount != null) {
+                            User transferToUser = null;
+                            if (userRepository.findById(transferToAccount.getUserId()).isPresent()) {
+                                transferToUser = userRepository.findById(transferToAccount.getUserId()).get();
+                            }
+                            if (transferToUser != null) {
+                                if (transferToAccount.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
+                                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
+                                if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
+                                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer to a saving's account of someone else.");
+                            }
+                        } else {
+                            // The transfer to IBAN is registered on this bank
+                        }
                         updateFromBalance(transaction);
                         updateToBalance(transaction);
                     } else {
@@ -168,15 +179,19 @@ public class TransactionService {
     // update from account
     private void updateFromBalance(Transaction transaction) {
         Account account = accountRepository.findAccountByIBAN(transaction.getTransferFrom());
-        account.setBalance((account.getBalance() - transaction.getAmount()));
-        accountRepository.save(account);
+        if (account != null) {
+            account.setBalance((account.getBalance() - transaction.getAmount()));
+            accountRepository.save(account);
+        }
     }
 
     // update to account
     private void updateToBalance(Transaction transaction) {
         Account account = accountRepository.findAccountByIBAN(transaction.getTransferTo());
-        account.setBalance((account.getBalance() + transaction.getAmount()));
-        accountRepository.save(account);
+        if (account != null) {
+            account.setBalance((account.getBalance() + transaction.getAmount()));
+            accountRepository.save(account);
+        }
     }
 
     // validate transaction to make
@@ -190,7 +205,7 @@ public class TransactionService {
         // check amount limit of transaction
         BigDecimal transLimit = new BigDecimal(user.getDayLimit());
         BigDecimal value = new BigDecimal(transaction.getAmount(), new MathContext(3, RoundingMode.HALF_EVEN));
-        if (value.compareTo(transLimit) == 1)
+        if (transLimit.compareTo(value) == -1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"The amount of the transaction overseeded the limit of a transaction defined by the user, change the limit or amount of the transaction.");
 
         // check day limit of user
@@ -229,24 +244,27 @@ public class TransactionService {
         localTime = OffsetDateTime.now();
         Transaction transaction = new Transaction();
 
-        if (postTransBody.getTransactionType() == TransactionType.DEPOSIT) {
-            transaction.setTransferFrom("ATM");
-            if (validateIBAN(postTransBody.getTransferTo()))
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer to is incorrect.");
-            transaction.setTransferTo(postTransBody.getTransferTo());
-
-        } else if (postTransBody.getTransactionType() == TransactionType.WITHDRAW) {
-            transaction.setTransferTo("ATM");
-            if (validateIBAN(postTransBody.getTransferTo()))
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer from is incorrect.");
-            transaction.setTransferFrom(postTransBody.getTransferFrom());
-        } else {
-            if (validateIBAN(postTransBody.getTransferTo()))
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer to is incorrect.");
-            if (validateIBAN(postTransBody.getTransferTo()))
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer from is incorrect.");
-            transaction.setTransferFrom(postTransBody.getTransferFrom());
-            transaction.setTransferTo(postTransBody.getTransferTo());
+        switch (postTransBody.getTransactionType()) {
+            case WITHDRAW:
+                transaction.setTransferTo("ATM");
+                if (!validateIBAN(postTransBody.getTransferFrom()))
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer from is incorrect.");
+                transaction.setTransferTo(postTransBody.getTransferFrom());
+                break;
+            case DEPOSIT:
+                transaction.setTransferFrom("ATM");
+                if (!validateIBAN(postTransBody.getTransferTo()))
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer to is incorrect.");
+                transaction.setTransferFrom(postTransBody.getTransferTo());
+                break;
+            case TRANSFER:
+                if (!validateIBAN(postTransBody.getTransferTo()))
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer to is incorrect.");
+                if (!validateIBAN(postTransBody.getTransferTo()))
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer from is incorrect.");
+                transaction.setTransferFrom(postTransBody.getTransferFrom());
+                transaction.setTransferTo(postTransBody.getTransferTo());
+                break;
         }
 
         transaction.setAmount(postTransBody.getAmount());
@@ -257,7 +275,7 @@ public class TransactionService {
     }
 
     // find user
-    private User findUserByEmail(String email) throws Exception {
+    private User findUserByEmail(String email) {
         if(userRepository.findByEmailAddress(email) == null)
             return null;
         return userRepository.findByEmailAddress(email);
@@ -265,13 +283,13 @@ public class TransactionService {
 
     // find account by user
     private List<Account> findAccountById(User user) {
-        if (!(accountRepository.findAllByUserId(user.getId()).size() <= 0))
+        if (accountRepository.findAllByUserId(user.getId()).size() <= 0)
             return null;
         return accountRepository.findAllByUserId(user.getId());
     }
 
     // create page of list transaction
-    private List<Transaction>createPage(Integer limit, Integer offset, List<Transaction> transactions) throws Exception {
+    private List<Transaction>createPage(Integer offset, Integer limit, List<Transaction> transactions) throws Exception {
         if (limit <= 0 || offset < 0)
             throw  new ResponseStatusException(HttpStatus.BAD_REQUEST, "Limit can not be below or eqeal 0, offset can not be below 0");
         if (limit == null && offset == null)
@@ -284,7 +302,7 @@ public class TransactionService {
         if (limit == null)
             limit = 0;
 
-        limit += offset;
+        limit = limit + offset;
         if (limit > size)
             limit = size;
         if (offset > size)
