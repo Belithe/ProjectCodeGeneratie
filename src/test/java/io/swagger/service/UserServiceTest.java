@@ -1,12 +1,16 @@
 package io.swagger.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.Headers;
 import io.swagger.Swagger2SpringBoot;
 import io.swagger.api.UsersApiController;
 import io.swagger.model.CreateUserPostBody;
 import io.swagger.model.User;
 import io.swagger.model.UserRole;
+import io.swagger.model.dto.LoginResponseDTO;
 import io.swagger.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,129 +21,127 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.server.ResponseStatusException;
 import org.threeten.bp.LocalDate;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = { Swagger2SpringBoot.class })
-//@RunWith(SpringRunner.class)
-//@WebMvcTest(UsersApiController.class)
 @AutoConfigureMockMvc
 class UserServiceTest {
     @Autowired
     MockMvc mockMvc;
 
-    @MockBean
+    @Autowired
     UserService userService;
 
-    CreateUserPostBody createUserBody;
+    @MockBean
+    UserRepository userRepository;
+
+    List<User> expectedUsers;
 
     @BeforeEach
-    public void initializeCreateUserBody() {
-        createUserBody = new CreateUserPostBody();
-        createUserBody.firstName("Alice");
-        createUserBody.lastName("Alixon");
-        createUserBody.emailAddress("aliceexample.com");
-        createUserBody.addRoleItem(UserRole.EMPLOYEE);
-        createUserBody.phone("+31 6 12345678");
-        createUserBody.transactionLimit(BigDecimal.valueOf(100f));
-        createUserBody.dayLimit(1000f);
-        createUserBody.birthDate(LocalDate.of(2010, 10, 10));
-        createUserBody.password("idk"); // shhhhh...
+    public void setup() {
+        List<User> users = new ArrayList<>();
+
+        // Alice is just an employee
+        User alice = new User();
+        alice.id(1);
+        alice.firstName("Alice");
+        alice.lastName("Alixon");
+        alice.emailAddress("alice@example.com");
+        alice.addRoleItem(UserRole.EMPLOYEE);
+        alice.phone("+31 6 12345678");
+        alice.transactionLimit(BigDecimal.valueOf(100f));
+        alice.dayLimit(1000f);
+        alice.birthDate(LocalDate.of(2010, 10, 10));
+        alice.password("idk");
+
+        users.add(alice);
+
+        // Charlie is just a customer
+        User bob = new User();
+        bob.id(2);
+        bob.firstName("Bob");
+        bob.lastName("Bobson");
+        bob.emailAddress("bob@example.com");
+        bob.addRoleItem(UserRole.CUSTOMER);
+        bob.phone("+31 6 87654321");
+        bob.transactionLimit(BigDecimal.valueOf(50f));
+        bob.dayLimit(2000f);
+        bob.birthDate(LocalDate.of(2012, 12, 12));
+        bob.password("idk");
+
+        users.add(bob);
+
+        // Charlie has both the customer and employee role
+        User charlie = new User();
+        charlie.id(3);
+        charlie.firstName("Charlie");
+        charlie.lastName("Charhan");
+        charlie.emailAddress("charlie@example.com");
+        charlie.addRoleItem(UserRole.CUSTOMER);
+        charlie.addRoleItem(UserRole.EMPLOYEE);
+        charlie.phone("+31 6 12348765");
+        charlie.transactionLimit(BigDecimal.valueOf(200f));
+        charlie.dayLimit(500f);
+        charlie.birthDate(LocalDate.of(1980, 8, 18));
+        charlie.password("idk");
+
+        users.add(charlie);
+
+        expectedUsers = users;
     }
 
     @Test
-    public void validateEmailAddressIncorrect() throws Exception {
-        mockMvc.perform(post("/users")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content("{\n" +
-                "  \"birthDate\": \"1800-06-02\",\n" +
-                "  \"dayLimit\": 0,\n" +
-                "  \"emailAddress\": \"cheeyau@example\",\n" +
-                "  \"firstName\": \"Cheeyau\",\n" +
-                "  \"lastName\": \"Au\",\n" +
-                "  \"password\": \"idk\",\n" +
-                "  \"phone\": \"+31 6 12345678\",\n" +
-                "  \"role\": [\n" +
-                "    \"customer\"\n" +
-                "  ],\n" +
-                "  \"transactionLimit\": 100\n" +
-                "}"))
-                .andExpect(
-                        status().isBadRequest()
-                );
+    public void getAllUsers() {
+        // Setup
+        given(userRepository.findAll()).willReturn(expectedUsers);
+
+        // Execution
+        List<User> users = userService.getAllUsers();
+
+        // Assertions
+        assertNotNull(users);
+        assertEquals(3, users.size());
+        assertEquals(users, expectedUsers);
     }
 
     @Test
-    public void validateEmailAddressCorrect() throws Exception {
-        mockMvc.perform(post("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\n" +
-                        "  \"birthDate\": \"1800-06-02\",\n" +
-                        "  \"dayLimit\": 0,\n" +
-                        "  \"emailAddress\": \"cheeyau@example.com\",\n" +
-                        "  \"firstName\": \"Cheeyau\",\n" +
-                        "  \"lastName\": \"Au\",\n" +
-                        "  \"password\": \"idk\",\n" +
-                        "  \"phone\": \"+31 6 12345678\",\n" +
-                        "  \"role\": [\n" +
-                        "    \"customer\"\n" +
-                        "  ],\n" +
-                        "  \"transactionLimit\": 100\n" +
-                        "}"))
-                .andExpect(
-                        status().isBadRequest()
-                );
+    public void getUserById() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.of(expectedUsers.get(0)));
+
+        // Execution
+        User user = userService.getUserById(1);
+
+        // Assertions
+        assertNotNull(user);
+        assertEquals(1, user.getId());
+        assertEquals(expectedUsers.get(0), user);
     }
 
-//    @Test
-//    public UserService makeUserService() {
-//        UserService userService = new UserService();
-//        return userService;
-//    }
-//
-//
-//
-//    //TESTS
-//    @Test
-//    public void userServiceIsNotNull() {
-//        UserService userService = new UserService();
-//        assertNotNull(userService);
-//    }
-//
-//    @Test
-//    public void userLoginCheckEmailFormatValid() {
-//        String emailAddress = "test@gmail.com";
-//        Boolean validEmailaddress = makeUserService().checkValidEmailaddress(emailAddress);
-//        System.out.println("Emailaddress [" + emailAddress + "] is valid: " + validEmailaddress);
-//    }
-//
-//
-//    @Test
-//    public void userLoginCheckEmail() {
-//        String emailAddress = "test@gmail.com";
-//        String password = "p@ssw0rd";
-//        //String token = makeUserService().login(emailAddress, password);
-//        //System.out.println(token);
-//    }
-//
-//    @Test
-//    public void checkIfLoginCheckWorksAndGetToken() {
-//        String emailAddress = "testus";
-//        String password = "test";
-//        //String token = makeUserService().login(emailAddress, password);
-//        //System.out.println(token);
-//    }
-//
-//    @Test
-//    public void createANewUser(){
-//        UserService userService = makeUserService();
-//    }
+    @Test
+    public void getNonExistingUserById() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.empty());
+
+        // Execution
+        User user = userService.getUserById(1);
+
+        // Assertions
+        assertNull(user);
+    }
+
 
 }
