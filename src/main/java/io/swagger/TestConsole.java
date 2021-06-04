@@ -1,9 +1,6 @@
 package io.swagger;
 
 import io.swagger.model.*;
-//import io.swagger.repository.TransactionRepository;
-import io.swagger.repository.UserRepository;
-import io.swagger.repository.AccountRepository;
 import io.swagger.service.AccountManagementService;
 import io.swagger.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +12,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.threeten.bp.LocalDate;
 import springfox.documentation.oas.annotations.EnableOpenApi;
 
-import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
 
 @SpringBootApplication
 @EnableOpenApi

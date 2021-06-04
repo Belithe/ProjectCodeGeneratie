@@ -41,10 +41,10 @@ public class UpdateUserPutBody {
   private String password = null;
 
   @JsonProperty("dayLimit")
-  private Float dayLimit = 1000f;
+  private Float dayLimit = null;
 
   @JsonProperty("transactionLimit")
-  private BigDecimal transactionLimit = new BigDecimal(50);
+  private BigDecimal transactionLimit = null;
 
   public UpdateUserPutBody emailAddress(String emailAddress) {
     this.emailAddress = emailAddress;
