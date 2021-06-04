@@ -1,9 +1,10 @@
 package io.swagger.service;
 
 import io.swagger.api.NotFoundException;
-import io.swagger.model.Body3;
+import io.swagger.model.CreateAccountPostBody;
 import io.swagger.model.Account;
 import io.swagger.model.Body5;
+import io.swagger.model.UpdateAccountPutBody;
 import io.swagger.repository.AccountRepository;
 import io.swagger.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,6 @@ public class AccountManagementService {
     @Autowired
     JwtTokenProvider jwtTokenProvider;
 
-    public void addNewAccountRepo(Account accountToAdd) {accountRepository.save(accountToAdd); }
-
     public Account getByIBAN(String IBANToGet) {
         return accountRepository.findAccountByIBAN(IBANToGet);
     }
@@ -42,7 +41,7 @@ public class AccountManagementService {
         return accountRepository.findAll();
     }
 
-    public void updateExistingAccount(String IBAN, Body3 body) throws ResponseStatusException {
+    public void updateExistingAccount(String IBAN, UpdateAccountPutBody body) throws ResponseStatusException {
 
         Account accountToEdit = this.getByIBAN(IBAN);
 
@@ -70,13 +69,19 @@ public class AccountManagementService {
 
     }
 
-    public void createNewAccount(Body5 accountToCreate) throws ResponseStatusException {
+    public void createNewAccount(CreateAccountPostBody accountToCreate) throws ResponseStatusException {
         if(!Pattern.matches("^NL\\d{2}INHO\\d{10}", "hi lol")){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
             Account accountToAdd = new Account();
-            accountToAdd.setUserId(accountToCreate.);
-            accountRepository.save(accountToCreate);
+
+            accountToAdd.setUserId(accountToCreate.getUserId());
+            accountToAdd.setIBAN(accountToCreate.getIBAN());
+            accountToAdd.setMinimumLimit(accountToCreate.getMinimumLimit());
+            accountToAdd.setBalance(0F);
+            accountToAdd.setAccountType(accountToCreate.getAccountType());
+
+            accountRepository.save(accountToAdd);
         }
 
 

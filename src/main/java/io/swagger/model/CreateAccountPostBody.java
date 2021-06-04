@@ -10,13 +10,13 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
- * Body3
+ * CreateAccountPostBody
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T13:47:48.293Z[GMT]")
 
 
-public class Body3   {
+public class CreateAccountPostBody   {
   @JsonProperty("IBAN")
   private String IBAN = null;
 
@@ -29,7 +29,7 @@ public class Body3   {
   @JsonProperty("accountType")
   private AccountType accountType = null;
 
-  public Body3 IBAN(String IBAN) {
+  public CreateAccountPostBody IBAN(String IBAN) {
     this.IBAN = IBAN;
     return this;
   }
@@ -48,7 +48,7 @@ public class Body3   {
     this.IBAN = IBAN;
   }
 
-  public Body3 minimumLimit(Float minimumLimit) {
+  public CreateAccountPostBody minimumLimit(Float minimumLimit) {
     this.minimumLimit = minimumLimit;
     return this;
   }
@@ -67,7 +67,7 @@ public class Body3   {
     this.minimumLimit = minimumLimit;
   }
 
-  public Body3 userId(Integer userId) {
+  public CreateAccountPostBody userId(Integer userId) {
     this.userId = userId;
     return this;
   }
@@ -86,7 +86,7 @@ public class Body3   {
     this.userId = userId;
   }
 
-  public Body3 accountType(AccountType accountType) {
+  public CreateAccountPostBody accountType(AccountType accountType) {
     this.accountType = accountType;
     return this;
   }
@@ -115,11 +115,11 @@ public class Body3   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Body3 body3 = (Body3) o;
-    return Objects.equals(this.IBAN, body3.IBAN) &&
-        Objects.equals(this.minimumLimit, body3.minimumLimit) &&
-        Objects.equals(this.userId, body3.userId) &&
-        Objects.equals(this.accountType, body3.accountType);
+    CreateAccountPostBody CreateAccountPostBody = (CreateAccountPostBody) o;
+    return Objects.equals(this.IBAN, CreateAccountPostBody.IBAN) &&
+        Objects.equals(this.minimumLimit, CreateAccountPostBody.minimumLimit) &&
+        Objects.equals(this.userId, CreateAccountPostBody.userId) &&
+        Objects.equals(this.accountType, CreateAccountPostBody.accountType);
   }
 
   @Override
@@ -130,7 +130,7 @@ public class Body3   {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Body3 {\n");
+    sb.append("class CreateAccountPostBody {\n");
     
     sb.append("    IBAN: ").append(toIndentedString(IBAN)).append("\n");
     sb.append("    minimumLimit: ").append(toIndentedString(minimumLimit)).append("\n");

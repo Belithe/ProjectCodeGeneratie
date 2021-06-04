@@ -3,6 +3,7 @@ package io.swagger.model;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import io.swagger.model.AccountType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 
@@ -15,7 +16,7 @@ import javax.validation.constraints.*;
  * Account
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T13:47:48.293Z[GMT]")
 
 @Entity
 public class Account   {
@@ -31,6 +32,9 @@ public class Account   {
 
   @JsonProperty("userId")
   private Integer userId = null;
+
+  @JsonProperty("accountType")
+  private AccountType accountType = null;
 
   public Account balance(Float balance) {
     this.balance = balance;
@@ -108,6 +112,26 @@ public class Account   {
     this.userId = userId;
   }
 
+  public Account accountType(AccountType accountType) {
+    this.accountType = accountType;
+    return this;
+  }
+
+  /**
+   * Get accountType
+   * @return accountType
+   **/
+  @Schema(description = "")
+  
+    @Valid
+    public AccountType getAccountType() {
+    return accountType;
+  }
+
+  public void setAccountType(AccountType accountType) {
+    this.accountType = accountType;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -121,12 +145,13 @@ public class Account   {
     return Objects.equals(this.balance, account.balance) &&
         Objects.equals(this.IBAN, account.IBAN) &&
         Objects.equals(this.minimumLimit, account.minimumLimit) &&
-        Objects.equals(this.userId, account.userId);
+        Objects.equals(this.userId, account.userId) &&
+        Objects.equals(this.accountType, account.accountType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(balance, IBAN, minimumLimit, userId);
+    return Objects.hash(balance, IBAN, minimumLimit, userId, accountType);
   }
 
   @Override
@@ -138,6 +163,7 @@ public class Account   {
     sb.append("    IBAN: ").append(toIndentedString(IBAN)).append("\n");
     sb.append("    minimumLimit: ").append(toIndentedString(minimumLimit)).append("\n");
     sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
+    sb.append("    accountType: ").append(toIndentedString(accountType)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -1,11 +1,10 @@
 package io.swagger;
 
 import io.swagger.model.*;
-import io.swagger.repository.TransactionRepository;
+//import io.swagger.repository.TransactionRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.repository.AccountRepository;
 import io.swagger.service.AccountManagementService;
-import io.swagger.service.TransactionService;
 import io.swagger.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -28,8 +27,8 @@ public class TestConsole implements CommandLineRunner {
     @Autowired
     UserService userService;
 
-    @Autowired
-    TransactionService transactionService;
+//    @Autowired
+//    TransactionService transactionService;
 
     @Autowired
     AccountManagementService accountManagementService;
@@ -53,7 +52,7 @@ public class TestConsole implements CommandLineRunner {
         user.password("idk");
         userService.add(user);
 
-        transactionService.testAddTransaction();
+        //transactionService.testAddTransaction();
 //
 //        List<Transaction> transactions = transactionService.getAllTransactions(1,1, "test@test.com");
 //        for (Transaction t : transactions) {
@@ -88,13 +87,13 @@ public class TestConsole implements CommandLineRunner {
     }
 
     public void testAccount() {
-        Account accountToTest = new Account();
+        CreateAccountPostBody accountToTest = new CreateAccountPostBody();
         accountToTest.setUserId(10);
         accountToTest.setIBAN("NL01INHO0000000001");
         accountToTest.setMinimumLimit(200.0F);
-        accountToTest.setBalance(300F);
+        accountToTest.setAccountType(AccountType.SAVING);
 
-        accountManagementService.addNewAccountRepo(accountToTest);
+        accountManagementService.createNewAccount(accountToTest);
 
     }
 

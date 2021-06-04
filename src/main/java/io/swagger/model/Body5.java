@@ -1,4 +1,4 @@
-    sb.append("    transferFrom: ").append(toIndentedString(transferFrom)).append("\n");
+
 package io.swagger.model;
 
 import java.util.Objects;

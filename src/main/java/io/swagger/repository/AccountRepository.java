@@ -13,12 +13,11 @@ import java.util.List;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, String> {
-    //@Transactional
-    //@Modifying
-    //@Query("select account from Account account where account.IBAN =:IBAN and account = :password")
-        Account findAccountByIBAN(String IBAN);
+    @Transactional
+    @Modifying
+    @Query("select account from Account account where account.IBAN =:IBAN and account = :password")
+    Account findAccountByIBAN(@Param("IBAN") String IBAN);
 
-    //@Query("select account from Account account")
     List<Account> findAll();
 }
 
