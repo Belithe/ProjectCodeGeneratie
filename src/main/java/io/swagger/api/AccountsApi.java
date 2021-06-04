@@ -83,7 +83,7 @@ public interface AccountsApi {
     @RequestMapping(value = "/accounts",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<List<Account>> getAccounts();
+    ResponseEntity<List<Account>> getAccounts(@Parameter(in = ParameterIn.PATH, description = "Current user's id.", required=false, schema=@Schema()) @PathVariable("userId") Integer userId);
 
 
     @Operation(summary = "Get the account with the specified IBAN.", description = "Get the account with the specified IBAN.", security = {

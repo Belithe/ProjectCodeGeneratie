@@ -1,11 +1,9 @@
 package io.swagger.api;
 
-import io.swagger.model.Account;
-import io.swagger.model.CreateAccountPostBody;
-import io.swagger.model.UpdateAccountPutBody;
+import io.swagger.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.model.User;
 import io.swagger.service.AccountManagementService;
+import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -20,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.*;
 import javax.validation.Valid;
@@ -50,35 +51,78 @@ public class AccountsApiController implements AccountsApi {
     @Autowired
     AccountManagementService accountService;
 
+    @Autowired
+    UserService userService;
+
+
     @org.springframework.beans.factory.annotation.Autowired
     public AccountsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
     }
 
-    public ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody CreateAccountPostBody body) {
-        accountService.createNewAccount(body);
-        return new ResponseEntity<Account>(HttpStatus.OK);
+    public ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody CreateAccountPostBody body) throws ResponseStatusException {
+        if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
+            accountService.createNewAccount(body);
+            return new ResponseEntity<Account>(HttpStatus.OK);
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
     }
 
     public ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws NotFoundException {
-        accountService.deleteSingleAccount(iban);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
+            accountService.deleteSingleAccount(iban);
+            return new ResponseEntity<Void>(HttpStatus.OK);
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
     }
 
-    public ResponseEntity<List<Account>> getAccounts() {
-        List<Account> accounts = accountService.getAllAccounts();
-        return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
+    public ResponseEntity<List<Account>> getAccounts(@Parameter(in = ParameterIn.PATH, description = "Current user's id.", required=false, schema=@Schema()) @PathVariable("userId") Integer userId) {
+        if(userId != null) {
+            if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
+                List<Account> accounts = accountService.getAllAccounts();
+                return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
+            } else {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+        } else {
+            List<Account> accounts = accountService.getAllAccountsById(userId);
+            return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
+        }
+
     }
 
     public ResponseEntity<Account> getUserAccounts(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to get.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
         Account accountRequested = accountService.getByIBAN(iban);
-        return new ResponseEntity<Account>(accountRequested, HttpStatus.OK);
+
+        if(!getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || accountRequested.getUserId() == getLoggedInUser().getId()) {
+            return new ResponseEntity<Account>(accountRequested, HttpStatus.OK);
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account does not belong to currently logged in user.");
+        }
     }
 
     public ResponseEntity<Void> regularEditAccount(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to edit", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody UpdateAccountPutBody body) {
-        accountService.updateExistingAccount(iban, body);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        if (getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)) {
+            accountService.updateExistingAccount(iban, body);
+            return new ResponseEntity<Void>(HttpStatus.OK);
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Customers are not allowed to edit the minimum limit of an account.");
+        }
     }
 
+
+    public User getLoggedInUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String emailAddress = authentication.getName();
+
+        User loggedInUser = userService.getUserByEmailAddress(emailAddress);
+        if (loggedInUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
+        }
+
+        return loggedInUser;
+    }
 }
