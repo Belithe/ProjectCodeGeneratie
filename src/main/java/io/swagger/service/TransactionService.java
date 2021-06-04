@@ -109,7 +109,7 @@ public class TransactionService {
     }
 
     // make a transaction, deposit or withdraw
-    public Transaction updateBalance(String email, Body5 postTransBody) throws Exception {
+    public Transaction updateBalance(String email, PostTransBody postTransBody) throws Exception {
         Transaction transaction = makeObject(postTransBody);
         User user = findUserByEmail(email);
         List<Account> accounts = findAccountById(user);
@@ -184,7 +184,7 @@ public class TransactionService {
     }
 
     // make a transaction object
-    private Transaction makeObject(Body5 postTransBody) {
+    private Transaction makeObject(PostTransBody postTransBody) {
         if (postTransBody.getTransactionType() == null ||
                 postTransBody.getTransferFrom() == null ||
                 postTransBody.getTransferTo() == null || postTransBody.getAmount() == null)

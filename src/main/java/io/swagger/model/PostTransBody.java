@@ -2,21 +2,19 @@ package io.swagger.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.model.TransactionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
- * Body5
+ * PostTransBody
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-03T10:00:39.046Z[GMT]")
 
 
-public class Body5   {
+public class PostTransBody {
   @JsonProperty("transferTo")
   private String transferTo = null;
 
@@ -29,7 +27,7 @@ public class Body5   {
   @JsonProperty("transactionType")
   private TransactionType transactionType = null;
 
-  public Body5 transferTo(String transferTo) {
+  public PostTransBody transferTo(String transferTo) {
     this.transferTo = transferTo;
     return this;
   }
@@ -49,7 +47,7 @@ public class Body5   {
     this.transferTo = transferTo;
   }
 
-  public Body5 transferFrom(String transferFrom) {
+  public PostTransBody transferFrom(String transferFrom) {
     this.transferFrom = transferFrom;
     return this;
   }
@@ -69,7 +67,7 @@ public class Body5   {
     this.transferFrom = transferFrom;
   }
 
-  public Body5 amount(Float amount) {
+  public PostTransBody amount(Float amount) {
     this.amount = amount;
     return this;
   }
@@ -88,7 +86,7 @@ public class Body5   {
     this.amount = amount;
   }
 
-  public Body5 transactionType(TransactionType transactionType) {
+  public PostTransBody transactionType(TransactionType transactionType) {
     this.transactionType = transactionType;
     return this;
   }
@@ -117,11 +115,11 @@ public class Body5   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Body5 body5 = (Body5) o;
-    return Objects.equals(this.transferTo, body5.transferTo) &&
-            Objects.equals(this.transferFrom, body5.transferFrom) &&
-            Objects.equals(this.amount, body5.amount) &&
-            Objects.equals(this.transactionType, body5.transactionType);
+    PostTransBody postTransBody = (PostTransBody) o;
+    return Objects.equals(this.transferTo, postTransBody.transferTo) &&
+            Objects.equals(this.transferFrom, postTransBody.transferFrom) &&
+            Objects.equals(this.amount, postTransBody.amount) &&
+            Objects.equals(this.transactionType, postTransBody.transactionType);
   }
 
   @Override
@@ -132,7 +130,7 @@ public class Body5   {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Body5 {\n");
+    sb.append("class PostTransBody {\n");
 
     sb.append("    transferTo: ").append(toIndentedString(transferTo)).append("\n");
     sb.append("    transferFrom: ").append(toIndentedString(transferFrom)).append("\n");
