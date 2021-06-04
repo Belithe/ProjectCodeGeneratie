@@ -351,9 +351,7 @@ class UserServiceTest {
         assertEquals("Could not find an user with the given user ID.", exception.getReason());
     }
 
-    @Test
-    public void createUserById() {
-        // Execution
+    private CreateUserPostBody getBaseCreateUserPostBody() {
         CreateUserPostBody createUserPostBody = new CreateUserPostBody();
         createUserPostBody.setFirstName("Test");
         createUserPostBody.setLastName("Testosterone");
@@ -364,6 +362,14 @@ class UserServiceTest {
         createUserPostBody.setDayLimit(3000f);
         createUserPostBody.setBirthDate(LocalDate.of(2020, 12, 20));
         createUserPostBody.setPassword("idk");
+
+        return createUserPostBody;
+    }
+
+    @Test
+    public void createUserById() {
+        // Execution
+        CreateUserPostBody createUserPostBody = getBaseCreateUserPostBody();
 
         User user = userService.createUser(createUserPostBody);
 
@@ -377,5 +383,94 @@ class UserServiceTest {
         assertEquals(createUserPostBody.getTransactionLimit(), user.getTransactionLimit());
         assertEquals(createUserPostBody.getDayLimit(), user.getDayLimit());
         assertEquals(createUserPostBody.getBirthDate(), user.getBirthDate());
+    }
+
+    @Test
+    public void createUserWithInvalidEmailAddressShouldThrowException() {
+        // Execution
+        CreateUserPostBody createUserPostBody = getBaseCreateUserPostBody();
+        createUserPostBody.setEmailAddress("qewfqiuwef.com");
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.createUser(createUserPostBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Invalid email address given.", exception.getReason());
+    }
+
+    @Test
+    public void createUserWithInUseEmailAddressShouldThrowException() {
+        // Setup
+        given(userRepository.findByEmailAddress("alice@example.com")).willReturn(expectedUsers.get(0));
+
+        // Execution
+        CreateUserPostBody createUserPostBody = getBaseCreateUserPostBody();
+        createUserPostBody.setEmailAddress("alice@example.com");
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.createUser(createUserPostBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Email address is already in use.", exception.getReason());
+    }
+
+    @Test
+    public void createUserWithoutRolesShouldThrowException() {
+        // Execution
+        CreateUserPostBody createUserPostBody = getBaseCreateUserPostBody();
+        createUserPostBody.setRole(new ArrayList<>());
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.createUser(createUserPostBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("User should have at least one valid role.", exception.getReason());
+    }
+
+    @Test
+    public void createUserWithInvalidRoleShouldThrowException() {
+        // Execution
+        CreateUserPostBody createUserPostBody = getBaseCreateUserPostBody();
+        createUserPostBody.addRoleItem(null);
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.createUser(createUserPostBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Roles field contains invalid value.", exception.getReason());
+    }
+
+    @Test
+    public void createUserWithDuplicateRoleShouldThrowException() {
+        // Execution
+        CreateUserPostBody createUserPostBody = getBaseCreateUserPostBody();
+        createUserPostBody.setRole(new ArrayList<>());
+        createUserPostBody.addRoleItem(UserRole.EMPLOYEE);
+        createUserPostBody.addRoleItem(UserRole.EMPLOYEE);
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.createUser(createUserPostBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Roles field contains duplicate values.", exception.getReason());
+    }
+
+    @Test
+    public void createUserWithValueOfDayLimitLessThanZeroShouldThrowException() {
+        // Execution
+        CreateUserPostBody createUserPostBody = getBaseCreateUserPostBody();
+        createUserPostBody.setDayLimit(-3000f);
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.createUser(createUserPostBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Cannot set day limit to a value less than 0.", exception.getReason());
+    }
+
+    @Test
+    public void createUserWithValueOfTransactionLimitLessThanZeroShouldThrowException() {
+        // Execution
+        CreateUserPostBody createUserPostBody = getBaseCreateUserPostBody();
+        createUserPostBody.setTransactionLimit(BigDecimal.valueOf(-10));
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.createUser(createUserPostBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Cannot set transaction limit to a value less than 0.", exception.getReason());
     }
 }
