@@ -137,7 +137,7 @@ public class UserService {
         return user;
     }
 
-    public User createUser(Body1 body) {
+    public User createUser(Body1 body) throws ResponseStatusException {
         // Perform input validation
         performEmailAddressValidation(body.getEmailAddress());
 
@@ -179,7 +179,7 @@ public class UserService {
         return userRepository.findByEmailAddress(emailAddress);
     }
 
-    private void performEmailAddressValidation(String emailAddress) {
+    private void performEmailAddressValidation(String emailAddress) throws ResponseStatusException {
         if (!checkValidEmailaddress(emailAddress)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email address given.");
         }

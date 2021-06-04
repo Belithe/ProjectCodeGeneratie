@@ -1,23 +1,35 @@
 package io.swagger.service;
 
 import io.swagger.Swagger2SpringBoot;
+import io.swagger.api.UsersApiController;
+import io.swagger.model.Body1;
 import io.swagger.model.User;
 import io.swagger.model.UserRole;
+import io.swagger.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 import org.threeten.bp.LocalDate;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = { Swagger2SpringBoot.class })
+//@RunWith(SpringRunner.class)
+//@WebMvcTest(UsersApiController.class)
 @AutoConfigureMockMvc
 class UserServiceTest {
     @Autowired
@@ -26,55 +38,64 @@ class UserServiceTest {
     @MockBean
     UserService userService;
 
+    Body1 createUserBody;
+
     @BeforeEach
-    public void addUsersToDB() {
-        // Alice is just an employee
-        User alice = new User();
-        alice.firstName("Alice");
-        alice.lastName("Alixon");
-        alice.emailAddress("alice@example.com");
-        alice.addRoleItem(UserRole.EMPLOYEE);
-        alice.phone("+31 6 12345678");
-        alice.transactionLimit(BigDecimal.valueOf(100f));
-        alice.dayLimit(1000f);
-        alice.birthDate(LocalDate.of(2010, 10, 10));
-        alice.password("idk");
-
-        userService.add(alice);
-
-        // Charlie is just a customer
-        User bob = new User();
-        bob.firstName("Bob");
-        bob.lastName("Bobson");
-        bob.emailAddress("bob@example.com");
-        bob.addRoleItem(UserRole.CUSTOMER);
-        bob.phone("+31 6 87654321");
-        bob.transactionLimit(BigDecimal.valueOf(50f));
-        bob.dayLimit(2000f);
-        bob.birthDate(LocalDate.of(2012, 12, 12));
-        bob.password("idk");
-
-        userService.add(bob);
-
-        // Charlie has both the customer and employee role
-        User charlie = new User();
-        charlie.firstName("Charlie");
-        charlie.lastName("Charhan");
-        charlie.emailAddress("charlie@example.com");
-        charlie.addRoleItem(UserRole.CUSTOMER);
-        charlie.addRoleItem(UserRole.EMPLOYEE);
-        charlie.phone("+31 6 12348765");
-        charlie.transactionLimit(BigDecimal.valueOf(200f));
-        charlie.dayLimit(500f);
-        charlie.birthDate(LocalDate.of(1980, 8, 18));
-        charlie.password("idk");
-
-        userService.add(charlie);
+    public void initializeCreateUserBody() {
+        createUserBody = new Body1();
+        createUserBody.firstName("Alice");
+        createUserBody.lastName("Alixon");
+        createUserBody.emailAddress("aliceexample.com");
+        createUserBody.addRoleItem(UserRole.EMPLOYEE);
+        createUserBody.phone("+31 6 12345678");
+        createUserBody.transactionLimit(BigDecimal.valueOf(100f));
+        createUserBody.dayLimit(1000f);
+        createUserBody.birthDate(LocalDate.of(2010, 10, 10));
+        createUserBody.password("idk"); // shhhhh...
     }
 
     @Test
-    public void test() {
-        
+    public void validateEmailAddressIncorrect() throws Exception {
+        mockMvc.perform(post("/users")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\n" +
+                "  \"birthDate\": \"1800-06-02\",\n" +
+                "  \"dayLimit\": 0,\n" +
+                "  \"emailAddress\": \"cheeyau@example\",\n" +
+                "  \"firstName\": \"Cheeyau\",\n" +
+                "  \"lastName\": \"Au\",\n" +
+                "  \"password\": \"idk\",\n" +
+                "  \"phone\": \"+31 6 12345678\",\n" +
+                "  \"role\": [\n" +
+                "    \"customer\"\n" +
+                "  ],\n" +
+                "  \"transactionLimit\": 100\n" +
+                "}"))
+                .andExpect(
+                        status().isBadRequest()
+                );
+    }
+
+    @Test
+    public void validateEmailAddressCorrect() throws Exception {
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\n" +
+                        "  \"birthDate\": \"1800-06-02\",\n" +
+                        "  \"dayLimit\": 0,\n" +
+                        "  \"emailAddress\": \"cheeyau@example.com\",\n" +
+                        "  \"firstName\": \"Cheeyau\",\n" +
+                        "  \"lastName\": \"Au\",\n" +
+                        "  \"password\": \"idk\",\n" +
+                        "  \"phone\": \"+31 6 12345678\",\n" +
+                        "  \"role\": [\n" +
+                        "    \"customer\"\n" +
+                        "  ],\n" +
+                        "  \"transactionLimit\": 100\n" +
+                        "}"))
+                .andExpect(
+                        status().isBadRequest()
+                );
     }
 
 //    @Test
