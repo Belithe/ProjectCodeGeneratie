@@ -1,9 +1,10 @@
 package io.swagger.service;
 
 import io.swagger.api.NotFoundException;
-import io.swagger.model.Body1;
-import io.swagger.model.Body2;
+import io.swagger.model.CreateUserPostBody;
+import io.swagger.model.UpdateUserPutBody;
 import io.swagger.model.User;
+import io.swagger.model.UserRole;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -94,7 +98,7 @@ public class UserService {
         return user.orElse(null);
     }
 
-    public User updateUserById(int id, Body2 body) {
+    public User updateUserById(int id, UpdateUserPutBody body) {
         User user = this.getUserById(id);
 
         if (user == null) {
@@ -123,21 +127,26 @@ public class UserService {
             user.setTransactionLimit(body.getTransactionLimit());
         }
 
+        if (body.getRole() != null) {
+            performRoleValidation(body.getRole());
+            user.setRole(body.getRole());
+        }
+
         // Check which fields are set in the request body and only change those fields
         if (body.getFirstName() != null) user.setFirstName(body.getFirstName());
         if (body.getLastName() != null) user.setFirstName(body.getLastName());
         if (body.getBirthDate() != null) user.setBirthDate(body.getBirthDate());
         if (body.getPhone() != null) user.setPhone(body.getPhone());
         if (body.getPassword() != null) user.setPassword(passwordEncoder.encode(body.getPassword()));
-        if (body.getRole() != null) user.setRole(body.getRole());
 
         userRepository.save(user);
         return user;
     }
 
-    public User createUser(Body1 body) {
+    public User createUser(CreateUserPostBody body) {
         // Perform input validation
         performEmailAddressValidation(body.getEmailAddress());
+        performRoleValidation(body.getRole());
 
         if (body.getDayLimit() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot set day limit to a value less than 0.");
@@ -152,12 +161,12 @@ public class UserService {
         user.firstName(body.getFirstName());
         user.lastName(body.getLastName());
         user.emailAddress(body.getEmailAddress());
-        user.role(body.getRole());
         user.phone(body.getPhone());
         user.transactionLimit(body.getTransactionLimit());
         user.dayLimit(body.getDayLimit());
         user.birthDate(body.getBirthDate());
         user.password(body.getPassword()); // Password encoding is done in the 'add' method
+        user.role(body.getRole());
 
         add(user);
         return user;
@@ -182,6 +191,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email address given.");
         }
 
+        // Check if there's already a user with the username
         User otherUser = getUserByEmailAddress(emailAddress);
         if (otherUser != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email address is already in use.");
@@ -191,6 +201,30 @@ public class UserService {
     private boolean checkEmailAddressFormat(String string) {
         String expression = "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
         return Pattern.matches(expression, string);
+    }
+
+    private void performRoleValidation(List<UserRole> roles) {
+        // Check if the array is empty as an user has to have at least one role
+        if (roles.size() == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User should have at least one valid role.");
+        }
+
+        // Check if there's an invalid value in the request in the form of a null value
+        for (UserRole role : roles) {
+            if (role == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Roles field contains invalid value.");
+            }
+        }
+
+        // Check if there are any duplicate values in the request
+        List<UserRole> includedRoles = new ArrayList<>();
+        for (UserRole role : roles) {
+            if (includedRoles.contains(role)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Roles field contains duplicate values.");
+            }
+
+            includedRoles.add(role);
+        }
     }
 }
 

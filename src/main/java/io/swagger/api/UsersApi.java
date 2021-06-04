@@ -5,8 +5,8 @@
  */
 package io.swagger.api;
 
-import io.swagger.model.Body1;
-import io.swagger.model.Body2;
+import io.swagger.model.CreateUserPostBody;
+import io.swagger.model.UpdateUserPutBody;
 import io.swagger.model.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,18 +22,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.bind.annotation.CookieValue;
 
 import javax.validation.Valid;
-import javax.validation.constraints.*;
 import java.util.List;
-import java.util.Map;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
 @Validated
@@ -69,7 +62,7 @@ public interface UsersApi {
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
     @PreAuthorize("hasAuthority('EMPLOYEE')")
-    ResponseEntity<User> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body1 body);
+    ResponseEntity<User> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody CreateUserPostBody body);
 
 
     @Operation(summary = "Delete a specific user by ID.", description = "", security = {
@@ -123,7 +116,7 @@ public interface UsersApi {
     @RequestMapping(value = "/users/{userId}",
         consumes = { "application/json" }, 
         method = RequestMethod.PUT)
-    ResponseEntity<Void> usersUserIdPut(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId, @Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body2 body) throws NotFoundException;
+    ResponseEntity<Void> usersUserIdPut(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId, @Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody UpdateUserPutBody body) throws NotFoundException;
 
     @Operation(summary = "Returns user information about the logged in user.", description = "", security = {
             @SecurityRequirement(name = "AuthToken")    }, tags={ "Customer", "Employee" })

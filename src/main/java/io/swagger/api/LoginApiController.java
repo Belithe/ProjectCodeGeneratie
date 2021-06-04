@@ -1,9 +1,8 @@
 package io.swagger.api;
 
-import io.swagger.model.Body;
+import io.swagger.model.LoginPostBody;
 import io.swagger.model.dto.LoginResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -15,12 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
@@ -44,9 +37,9 @@ public class LoginApiController implements LoginApi {
         this.request = request;
     }
 
-    public ResponseEntity<LoginResponseDTO> loginPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody Body body) {
+    public ResponseEntity<LoginResponseDTO> loginPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required = true, schema = @Schema()) @Valid @RequestBody LoginPostBody loginPostBody) {
 //        try {
-        String token = userService.login(body.getEmailAddress(), body.getPassword());
+        String token = userService.login(loginPostBody.getEmailAddress(), loginPostBody.getPassword());
         LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
         loginResponseDTO.setAuthToken(token);
 
