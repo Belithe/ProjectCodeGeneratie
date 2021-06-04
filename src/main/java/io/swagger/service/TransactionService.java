@@ -92,6 +92,8 @@ public class TransactionService {
         Account account = accountRepository.findAccountByIBAN(iban);
         if (account == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no know account with this number.");
+        if (validateEmail(email) || email.isEmpty() || email == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The email number is incorrect.");
         User user = findUserByEmail(email);
         List<Transaction> transactions = new ArrayList<>();
         for (UserRole userRole : user.getRole().stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList())) {
@@ -109,41 +111,50 @@ public class TransactionService {
     }
 
     // make a transaction, deposit or withdraw
-    public Transaction updateBalance(String email, PostTransBody postTransBody) throws Exception {
+    public Transaction checkTypeOfTransaction(String email, PostTransBody postTransBody) throws Exception {
         Transaction transaction = makeObject(postTransBody);
         User user = findUserByEmail(email);
         List<Account> accounts = findAccountById(user);
-        for (Account account : accounts) {
-            switch (account.getAccountType()) {
-                case CURRENT:
-                    break;
-                case SAVING:
-                    break;
-            }
-            if (transaction.getTransferFrom() == account.getIBAN()) {
-                switch (transaction.getType()) {
-                    case TRANSFER:
-                        checkTransaction(transaction, user, account);
-                        break;
-                    case DEPOSIT:
+        switch (transaction.getType()) {
+            case TRANSFER:
+                // determine the transfer from account
+                for (Account account : accounts) {
+                    if (transaction.getTransferFrom() == account.getIBAN()) {
+                        Account transferToAccount = accountRepository.findAccountByIBAN(transaction.getTransferTo());
+                        User transferToUser = userRepository.findById(transferToAccount.getUserId()).get();
+                        if (transferToAccount.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
+                        if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer to an saving's account of someone else.");
+                        checkTransactionLimits(transaction, user, account);
 
-                        break;
-                    case WITHDRAW:
+                    }
+                    break;
+                }
+                break;
+            case DEPOSIT:
+
+                break;
+            case WITHDRAW:
+                // check if the account got enough to withdraw
+                for (Account account : accounts) {
+                    if (transaction.getTransferFrom() == account.getIBAN()) {
                         if (account.getBalance() <= 0)
                             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The balance can not be 0 or lower");
-                        break;
+
+                    }
                 }
-            } else {
-                throw new Exception("");
-            }
+                break;
         }
         return transactionRepository.save(transaction);
     }
 
+    private void updateBalance() {
 
+    }
 
     // validate transaction to make
-    private void checkTransaction(Transaction transaction, User user, Account account) throws Exception {
+    private void checkTransactionLimits(Transaction transaction, User user, Account account) throws Exception {
         if (transaction == null || user == null || account == null)
             throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "The transaction, user or account is empty");
         // check minimum limit of account
