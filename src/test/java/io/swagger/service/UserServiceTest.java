@@ -5,6 +5,7 @@ import com.sun.net.httpserver.Headers;
 import io.swagger.Swagger2SpringBoot;
 import io.swagger.api.UsersApiController;
 import io.swagger.model.CreateUserPostBody;
+import io.swagger.model.UpdateUserPutBody;
 import io.swagger.model.User;
 import io.swagger.model.UserRole;
 import io.swagger.model.dto.LoginResponseDTO;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -104,20 +106,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void userLoginCheckEmail() {
-        // Setup
-        given(userRepository.findByEmailAddress("alice@example.com")).willReturn(expectedUsers.get(0));
-
-        // Execution
-        String jwtToken = userService.login("alice@example.com", "idk");
-
-        // Assertions
-        assertNull(jwtToken);
-        // eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGljZUBleGFtcGxlLmNvbSIsImF1dGgiOlt7ImF1dGhvcml0eSI6IkVNUExPWUVFIn1dLCJpYXQiOjE2MjI3MTc3MDAsImV4cCI6MTYyMjcyMTMwMH0.n7z3FwVc3adjqP-jUTD0EZ5TWZrZzM_jQ533m5WFPBg
-    }
-
-    @Test
-    public void getAllUsers() {
+    public void getAllUsersShouldReturnListOfUsers() {
         // Setup
         given(userRepository.findAll()).willReturn(expectedUsers);
 
@@ -131,7 +120,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void getUserById() {
+    public void getUserByIdShouldReturnUser() {
         // Setup
         given(userRepository.findById(1)).willReturn(Optional.of(expectedUsers.get(0)));
 
@@ -145,7 +134,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void getNonExistingUserById() {
+    public void getNonExistingUserByIdShouldReturnNull() {
         // Setup
         given(userRepository.findById(1)).willReturn(Optional.empty());
 
@@ -156,42 +145,237 @@ class UserServiceTest {
         assertNull(user);
     }
 
-//    @Test
-//    public UserService makeUserService() {
-//        UserService userService = new UserService();
-//        return userService;
-//    }
-//
-//
-//
-//    //TESTS
-//    @Test
-//    public void userServiceIsNotNull() {
-//        UserService userService = new UserService();
-//        assertNotNull(userService);
-//    }
-//
-//    @Test
-//    public void userLoginCheckEmailFormatValid() {
-//        String emailAddress = "test@gmail.com";
-//        Boolean validEmailaddress = makeUserService().checkValidEmailaddress(emailAddress);
-//        System.out.println("Emailaddress [" + emailAddress + "] is valid: " + validEmailaddress);
-//    }
-//
-//
+    @Test
+    public void getUserByEmailAddress() {
+        // Setup
+        given(userRepository.findByEmailAddress("alice@example.com")).willReturn(expectedUsers.get(0));
 
-//
-//    @Test
-//    public void checkIfLoginCheckWorksAndGetToken() {
-//        String emailAddress = "testus";
-//        String password = "test";
-//        //String token = makeUserService().login(emailAddress, password);
-//        //System.out.println(token);
-//    }
-//
-//    @Test
-//    public void createANewUser(){
-//        UserService userService = makeUserService();
-//    }
+        // Execution
+        User user = userService.getUserByEmailAddress("alice@example.com");
 
+        // Assertions
+        assertNotNull(user);
+        assertEquals("alice@example.com", user.getEmailAddress());
+    }
+
+    @Test
+    public void getNonExistingUserByEmailAddressShouldReturnNull() {
+        // Setup
+        given(userRepository.findByEmailAddress("alice@example.com")).willReturn(null);
+
+        // Execution
+        User user = userService.getUserByEmailAddress("alice@example.com");
+
+        // Assertions
+        assertNull(user);
+    }
+
+    @Test
+    public void updateUserById() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.of(expectedUsers.get(0)));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setFirstName("Test");
+        userPutBody.setLastName("Testosterone");
+        userPutBody.setEmailAddress("test@example.com");
+        userPutBody.addRoleItem(UserRole.CUSTOMER);
+        userPutBody.setPhone("+31 6 87654321");
+        userPutBody.setTransactionLimit(BigDecimal.valueOf(200f));
+        userPutBody.setDayLimit(3000f);
+        userPutBody.setBirthDate(LocalDate.of(2020, 12, 20));
+        userPutBody.setPassword("idk");
+
+        User user = userService.updateUserById(1, userPutBody);
+
+        // Assertions
+        assertNotNull(user);
+        assertEquals(userPutBody.getFirstName(), user.getFirstName());
+        assertEquals(userPutBody.getLastName(), user.getLastName());
+        assertEquals(userPutBody.getEmailAddress(), user.getEmailAddress());
+        assertEquals(userPutBody.getRole(), user.getRole());
+        assertEquals(userPutBody.getPhone(), user.getPhone());
+        assertEquals(userPutBody.getTransactionLimit(), user.getTransactionLimit());
+        assertEquals(userPutBody.getDayLimit(), user.getDayLimit());
+        assertEquals(userPutBody.getBirthDate(), user.getBirthDate());
+    }
+
+    @Test
+    public void updateNonExistingUserByIdShouldThrowException() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.empty());
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setFirstName("Test");
+        userPutBody.setLastName("Testosterone");
+        userPutBody.setEmailAddress("test@example.com");
+        userPutBody.addRoleItem(UserRole.CUSTOMER);
+        userPutBody.setPhone("+31 6 87654321");
+        userPutBody.setTransactionLimit(BigDecimal.valueOf(200f));
+        userPutBody.setDayLimit(3000f);
+        userPutBody.setBirthDate(LocalDate.of(2020, 12, 20));
+        userPutBody.setPassword("idk");
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUserById(1, userPutBody));
+        assertEquals(exception.getStatus(), HttpStatus.NOT_FOUND);
+        assertEquals("Could not find an user with the given user ID.", exception.getReason());
+    }
+
+    @Test
+    public void updateUserWithInvalidEmailAddressShouldThrowException() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.of(expectedUsers.get(0)));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setEmailAddress("ijqfefq.com");
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUserById(1, userPutBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Invalid email address given.", exception.getReason());
+    }
+
+    @Test
+    public void updateUserWithInUseEmailAddressShouldThrowException() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.of(expectedUsers.get(0)));
+        given(userRepository.findByEmailAddress("bob@example.com")).willReturn(expectedUsers.get(0));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setEmailAddress("bob@example.com");
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUserById(1, userPutBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Email address is already in use.", exception.getReason());
+    }
+
+    @Test
+    public void updateUserWithoutRolesShouldThrowException() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.of(expectedUsers.get(0)));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setRole(new ArrayList<>());
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUserById(1, userPutBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("User should have at least one valid role.", exception.getReason());
+    }
+
+    @Test
+    public void updateUserWithInvalidRoleShouldThrowException() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.of(expectedUsers.get(0)));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.addRoleItem(null);
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUserById(1, userPutBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Roles field contains invalid value.", exception.getReason());
+    }
+
+    @Test
+    public void updateUserWithDuplicateRoleShouldThrowException() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.of(expectedUsers.get(0)));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.addRoleItem(UserRole.EMPLOYEE);
+        userPutBody.addRoleItem(UserRole.EMPLOYEE);
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUserById(1, userPutBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Roles field contains duplicate values.", exception.getReason());
+    }
+
+    @Test
+    public void updateUserWithValueOfDayLimitLessThanZeroShouldThrowException() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.of(expectedUsers.get(0)));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setDayLimit(-10f);
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUserById(1, userPutBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Cannot set day limit to a value less than 0.", exception.getReason());
+    }
+
+    @Test
+    public void updateUserWithValueOfTransactionLimitLessThanZeroShouldThrowException() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.of(expectedUsers.get(0)));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setTransactionLimit(BigDecimal.valueOf(-10));
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUserById(1, userPutBody));
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertEquals("Cannot set transaction limit to a value less than 0.", exception.getReason());
+    }
+
+    @Test
+    public void deleteUserById() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.of(expectedUsers.get(0)));
+
+        // Execution
+        userService.deleteUserById(1);
+    }
+
+    @Test
+    public void deleteNonExistingUserByIdShouldThrowException() {
+        // Setup
+        given(userRepository.findById(1)).willReturn(Optional.empty());
+
+        // Execution
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.deleteUserById(1));
+        assertEquals(exception.getStatus(), HttpStatus.NOT_FOUND);
+        assertEquals("Could not find an user with the given user ID.", exception.getReason());
+    }
+
+    @Test
+    public void createUserById() {
+        // Execution
+        CreateUserPostBody createUserPostBody = new CreateUserPostBody();
+        createUserPostBody.setFirstName("Test");
+        createUserPostBody.setLastName("Testosterone");
+        createUserPostBody.setEmailAddress("test@example.com");
+        createUserPostBody.addRoleItem(UserRole.CUSTOMER);
+        createUserPostBody.setPhone("+31 6 87654321");
+        createUserPostBody.setTransactionLimit(BigDecimal.valueOf(200f));
+        createUserPostBody.setDayLimit(3000f);
+        createUserPostBody.setBirthDate(LocalDate.of(2020, 12, 20));
+        createUserPostBody.setPassword("idk");
+
+        User user = userService.createUser(createUserPostBody);
+
+        // Assertions
+        assertNotNull(user);
+        assertEquals(createUserPostBody.getFirstName(), user.getFirstName());
+        assertEquals(createUserPostBody.getLastName(), user.getLastName());
+        assertEquals(createUserPostBody.getEmailAddress(), user.getEmailAddress());
+        assertEquals(createUserPostBody.getRole(), user.getRole());
+        assertEquals(createUserPostBody.getPhone(), user.getPhone());
+        assertEquals(createUserPostBody.getTransactionLimit(), user.getTransactionLimit());
+        assertEquals(createUserPostBody.getDayLimit(), user.getDayLimit());
+        assertEquals(createUserPostBody.getBirthDate(), user.getBirthDate());
+    }
 }

@@ -136,7 +136,7 @@ public class UserService {
 
         // Check which fields are set in the request body and only change those fields
         if (body.getFirstName() != null) user.setFirstName(body.getFirstName());
-        if (body.getLastName() != null) user.setFirstName(body.getLastName());
+        if (body.getLastName() != null) user.setLastName(body.getLastName());
         if (body.getBirthDate() != null) user.setBirthDate(body.getBirthDate());
         if (body.getPhone() != null) user.setPhone(body.getPhone());
         if (body.getPassword() != null) user.setPassword(passwordEncoder.encode(body.getPassword()));
@@ -174,7 +174,7 @@ public class UserService {
         return user;
     }
 
-    public void deleteUserById(int id) throws NotFoundException {
+    public void deleteUserById(int id) {
         User user = this.getUserById(id);
 
         if (user == null) {
