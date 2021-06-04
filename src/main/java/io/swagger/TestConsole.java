@@ -31,27 +31,27 @@ public class TestConsole implements CommandLineRunner {
     @Autowired
     TransactionService transactionService;
 
-    @Autowired
+
 
     @Override
     public void run(String ...args) throws Exception {
-        Transaction transaction = new Transaction();
-        transaction.setTransactionId(1);
-        transaction.setUserPerforming(1);
-        transaction.setTimestamp(OffsetDateTime.of(2020, 01, 01, 10, 10, 10, 0, ZoneOffset.UTC));
-        transaction.setTransferTo("NL01INHO0000000002");
-        transaction.setTransferFrom("NL01INHO0000000003");
-        transaction.setAmount((float) 50);
-        transaction.setType(TransactionType.TRANSFER);
-
-        Transaction transaction2 = new Transaction();
-        transaction2.setTransactionId(2);
-        transaction2.setUserPerforming(1);
-        transaction2.setTimestamp(OffsetDateTime.of(2020, 01, 01, 10, 10, 10, 0, ZoneOffset.UTC));
-        transaction2.setTransferTo("NL01INHO0000000003");
-        transaction2.setTransferFrom("NL01INHO0000000002");
-        transaction2.setAmount((float) 50);
-        transaction2.setType(TransactionType.TRANSFER);
+//        Transaction transaction = new Transaction();
+//        transaction.setTransactionId(1);
+//        transaction.setUserPerforming(1);
+//        transaction.setTimestamp(OffsetDateTime.of(2020, 01, 01, 10, 10, 10, 0, ZoneOffset.UTC));
+//        transaction.setTransferTo("NL01INHO0000000002");
+//        transaction.setTransferFrom("NL01INHO0000000003");
+//        transaction.setAmount((float) 50);
+//        transaction.setType(TransactionType.TRANSFER);
+//
+//        Transaction transaction2 = new Transaction();
+//        transaction2.setTransactionId(2);
+//        transaction2.setUserPerforming(1);
+//        transaction2.setTimestamp(OffsetDateTime.of(2020, 01, 01, 10, 10, 10, 0, ZoneOffset.UTC));
+//        transaction2.setTransferTo("NL01INHO0000000003");
+//        transaction2.setTransferFrom("NL01INHO0000000002");
+//        transaction2.setAmount((float) 50);
+//        transaction2.setType(TransactionType.TRANSFER);
 
 //        User user = new User();
 //        user.birthDate(LocalDate.of(2000, 1, 1));
