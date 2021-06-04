@@ -2,6 +2,8 @@ package io.swagger.service;
 
 import io.swagger.Swagger2SpringBoot;
 import io.swagger.api.UsersApiController;
+import io.swagger.model.CreateUserPostBody;
+import io.swagger.model.UpdateUserPutBody;
 import io.swagger.model.User;
 import io.swagger.model.UserRole;
 import io.swagger.repository.UserRepository;
@@ -138,6 +140,18 @@ public class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "anonymousUser", authorities = { "ROLE_ANONYMOUS" })
+    public void getUserByIdWithoutAuthentication() {
+        // Setup
+        given(userService.getUserById(1)).willReturn(expectedUsers.get(1));
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usersApiController.usersUserIdGet(1));
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+        assertEquals("No authentication token was given.", exception.getReason());
+    }
+
+    @Test
     @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
     public void getUserByIdPerformedByEmployee() {
         // Setup
@@ -150,6 +164,7 @@ public class UserControllerTest {
         // Assertions
         assertNotNull(userResponse);
         assertNotNull(userResponse.getBody());
+        assertEquals(HttpStatus.OK, userResponse.getStatusCode());
         assertEquals(1, userResponse.getBody().getId());
         assertEquals(expectedUsers.get(0), userResponse.getBody());
     }
@@ -172,24 +187,269 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "anonymousUser", authorities = { "ROLE_ANONYMOUS" })
-    public void getUserByIdWithoutAuthentication() {
-        // Setup
-        given(userService.getUserById(1)).willReturn(expectedUsers.get(1));
-
-        // Assertions
-        assertThrows(AuthenticationCredentialsNotFoundException.class, () -> usersApiController.usersUserIdGet(1));
-    }
-
-    @Test
     @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void getUserByIdWithoutProperAuthorization() {
         // Setup
         given(userService.getUserById(1)).willReturn(expectedUsers.get(1));
+        given(userService.getUserByEmailAddress("bob@example.com")).willReturn(expectedUsers.get(1));
 
         // Assertions
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usersApiController.usersUserIdGet(1));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("The current auth token does not provide access to this resource.", exception.getReason());
+    }
+
+    private CreateUserPostBody createBaseUserPostBody() {
+        CreateUserPostBody createUserPostBody = new CreateUserPostBody();
+        createUserPostBody.setFirstName("Test");
+        createUserPostBody.setLastName("Testosterone");
+        createUserPostBody.setEmailAddress("test@example.com");
+        createUserPostBody.addRoleItem(UserRole.CUSTOMER);
+        createUserPostBody.setPhone("+31 6 87654321");
+        createUserPostBody.setTransactionLimit(BigDecimal.valueOf(200f));
+        createUserPostBody.setDayLimit(3000f);
+        createUserPostBody.setBirthDate(LocalDate.of(2020, 12, 20));
+        createUserPostBody.setPassword("idk");
+
+        return createUserPostBody;
+    }
+
+    @Test
+    public void createUserWithoutAuthentication() {
+        // Execution
+        CreateUserPostBody createUserPostBody = createBaseUserPostBody();
+
+        // Assertions
+        assertThrows(AuthenticationCredentialsNotFoundException.class, () -> usersApiController.usersPost(createUserPostBody));
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void createUserPerformedByEmployee() {
+        // Execution
+        CreateUserPostBody createUserPostBody = createBaseUserPostBody();
+        ResponseEntity<User> response = usersApiController.usersPost(createUserPostBody);
+
+        // Assertions
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void createUserPerformedByCustomer() {
+        // Execution
+        CreateUserPostBody createUserPostBody = createBaseUserPostBody();
+
+        // Assertions
+        assertThrows(AccessDeniedException.class, () -> usersApiController.usersPost(createUserPostBody));
+    }
+
+    @Test
+    public void deleteUserWithoutAuthentication() {
+        // Execution
+        CreateUserPostBody createUserPostBody = createBaseUserPostBody();
+
+        // Assertions
+        assertThrows(AuthenticationCredentialsNotFoundException.class, () -> usersApiController.usersUserIdDelete(1));
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void deleteUserPerformedByEmployee() {
+        // Execution
+        ResponseEntity<Void> response = usersApiController.usersUserIdDelete(1);
+
+        // Assertions
+        assertNotNull(response);
+        assertNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void deleteUserPerformedByCustomer() {
+        // Assertions
+        assertThrows(AccessDeniedException.class, () -> usersApiController.usersUserIdDelete(1));
+    }
+
+    @Test
+    @WithMockUser(username = "anonymousUser", authorities = { "ROLE_ANONYMOUS" })
+    public void updateUserWithoutAuthentication() {
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usersApiController.usersUserIdPut(1, userPutBody));
         assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
         assertEquals("No authentication token was given.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void updateUserPerformedByEmployee() {
+        // Setup
+        given(userService.getUserByEmailAddress("alice@example.com")).willReturn(expectedUsers.get(0));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+
+        // Assertions
+        ResponseEntity<Void> response = usersApiController.usersUserIdPut(1, userPutBody);
+        assertNotNull(response);
+        assertNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void updateUserPerformedByCustomer() {
+        // Setup
+        given(userService.getUserByEmailAddress("bob@example.com")).willReturn(expectedUsers.get(1));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+
+        // Assertions
+        ResponseEntity<Void> response = usersApiController.usersUserIdPut(2, userPutBody);
+        assertNotNull(response);
+        assertNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void updateUserPerformedByOtherCustomer() {
+        // Setup
+        given(userService.getUserByEmailAddress("bob@example.com")).willReturn(expectedUsers.get(1));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usersApiController.usersUserIdPut(1, userPutBody));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("The current auth token does not provide access to this resource.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void updateUserPerformedByCustomerDayLimitShouldThrowException() {
+        // Setup
+        given(userService.getUserByEmailAddress("bob@example.com")).willReturn(expectedUsers.get(1));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setDayLimit(10f);
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usersApiController.usersUserIdPut(2, userPutBody));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("Customers cannot change their own day limit.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void updateUserPerformedByCustomerTransactionLimitShouldThrowException() {
+        // Setup
+        given(userService.getUserByEmailAddress("bob@example.com")).willReturn(expectedUsers.get(1));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setTransactionLimit(BigDecimal.valueOf(10));
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usersApiController.usersUserIdPut(2, userPutBody));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("Customers cannot change their own transaction limit.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void updateUserPerformedByCustomerRoleShouldThrowException() {
+        // Setup
+        given(userService.getUserByEmailAddress("bob@example.com")).willReturn(expectedUsers.get(1));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.addRoleItem(UserRole.EMPLOYEE);
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usersApiController.usersUserIdPut(2, userPutBody));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("Customers cannot change their own role.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void updateUserPerformedByCustomerBirthDateShouldThrowException() {
+        // Setup
+        given(userService.getUserByEmailAddress("bob@example.com")).willReturn(expectedUsers.get(1));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setBirthDate(LocalDate.of(2010, 10, 10));
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usersApiController.usersUserIdPut(2, userPutBody));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("Customers cannot change their own birthdate.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void updateUserPerformedByCustomerFirstnameShouldThrowException() {
+        // Setup
+        given(userService.getUserByEmailAddress("bob@example.com")).willReturn(expectedUsers.get(1));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setFirstName("Test");
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usersApiController.usersUserIdPut(2, userPutBody));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("Customers cannot change their firstname of their own.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void updateUserPerformedByCustomerLastnameShouldThrowException() {
+        // Setup
+        given(userService.getUserByEmailAddress("bob@example.com")).willReturn(expectedUsers.get(1));
+
+        // Execution
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setLastName("Test");
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usersApiController.usersUserIdPut(2, userPutBody));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("Customers cannot change their lastname of their own.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "anonymousUser", authorities = { "ROLE_ANONYMOUS" })
+    public void getSelfUserWithoutAuthentication() {
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usersApiController.usersSelfGet());
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+        assertEquals("No authentication token was given.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void getSelfUser() {
+        // Setup
+        given(userService.getUserByEmailAddress("alice@example.com")).willReturn(expectedUsers.get(0));
+
+        // Execution
+        ResponseEntity<User> response = usersApiController.usersSelfGet();
+
+        // Assertions
+        assertNotNull(response);
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1, response.getBody().getId());
     }
 }
