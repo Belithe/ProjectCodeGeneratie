@@ -2,7 +2,7 @@ package io.swagger.service;
 
 import io.swagger.Swagger2SpringBoot;
 import io.swagger.api.UsersApiController;
-import io.swagger.model.Body1;
+import io.swagger.model.CreateUserPostBody;
 import io.swagger.model.User;
 import io.swagger.model.UserRole;
 import io.swagger.repository.UserRepository;
@@ -38,11 +38,11 @@ class UserServiceTest {
     @MockBean
     UserService userService;
 
-    Body1 createUserBody;
+    CreateUserPostBody createUserBody;
 
     @BeforeEach
     public void initializeCreateUserBody() {
-        createUserBody = new Body1();
+        createUserBody = new CreateUserPostBody();
         createUserBody.firstName("Alice");
         createUserBody.lastName("Alixon");
         createUserBody.emailAddress("aliceexample.com");
