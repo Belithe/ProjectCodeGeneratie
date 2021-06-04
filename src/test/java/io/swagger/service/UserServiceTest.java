@@ -104,6 +104,19 @@ class UserServiceTest {
     }
 
     @Test
+    public void userLoginCheckEmail() {
+        // Setup
+        given(userRepository.findByEmailAddress("alice@example.com")).willReturn(expectedUsers.get(0));
+
+        // Execution
+        String jwtToken = userService.login("alice@example.com", "idk");
+
+        // Assertions
+        assertNull(jwtToken);
+        // eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGljZUBleGFtcGxlLmNvbSIsImF1dGgiOlt7ImF1dGhvcml0eSI6IkVNUExPWUVFIn1dLCJpYXQiOjE2MjI3MTc3MDAsImV4cCI6MTYyMjcyMTMwMH0.n7z3FwVc3adjqP-jUTD0EZ5TWZrZzM_jQ533m5WFPBg
+    }
+
+    @Test
     public void getAllUsers() {
         // Setup
         given(userRepository.findAll()).willReturn(expectedUsers);
@@ -143,5 +156,42 @@ class UserServiceTest {
         assertNull(user);
     }
 
+//    @Test
+//    public UserService makeUserService() {
+//        UserService userService = new UserService();
+//        return userService;
+//    }
+//
+//
+//
+//    //TESTS
+//    @Test
+//    public void userServiceIsNotNull() {
+//        UserService userService = new UserService();
+//        assertNotNull(userService);
+//    }
+//
+//    @Test
+//    public void userLoginCheckEmailFormatValid() {
+//        String emailAddress = "test@gmail.com";
+//        Boolean validEmailaddress = makeUserService().checkValidEmailaddress(emailAddress);
+//        System.out.println("Emailaddress [" + emailAddress + "] is valid: " + validEmailaddress);
+//    }
+//
+//
+
+//
+//    @Test
+//    public void checkIfLoginCheckWorksAndGetToken() {
+//        String emailAddress = "testus";
+//        String password = "test";
+//        //String token = makeUserService().login(emailAddress, password);
+//        //System.out.println(token);
+//    }
+//
+//    @Test
+//    public void createANewUser(){
+//        UserService userService = makeUserService();
+//    }
 
 }
