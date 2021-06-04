@@ -21,7 +21,7 @@ public class ApplicationStartupRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         User testUser = new User();
-        testUser.setEmailAddress("testus");
+        testUser.setEmailAddress("testu@gmail.com");
         testUser.setPassword("test");
         //testUser.setRole(Role.ROLE_EMPLOYEE);
         userService.add(testUser);

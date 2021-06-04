@@ -35,11 +35,19 @@ public class UserService {
     public String login(String emailaddress, String password) {
         try {
             //login
+
+            //check if valid input
+            if (password == null || password.length() == 0) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please enter a password.");
+            }
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(emailaddress, password));
             User user = userRepository.findByEmailAddress(emailaddress);
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Could not find an user on this emailaddress.");
+            }
             return jwtTokenProvider.createToken(emailaddress, user.getRoles());
         } catch (AuthenticationException ex) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login failed, because of invalid input.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, ex.getMessage());
         }
     }
 
@@ -47,8 +55,7 @@ public class UserService {
         //Check of het al bestaat
         if (userRepository.findByEmailAddress(user.getEmailAddress()) == null) {
             Boolean validPass = false;
-            if (user.getPassword() != null && user.getPassword().length() != 0)
-            {
+            if (user.getPassword() != null && user.getPassword().length() != 0) {
                 validPass = true;
             }
 
@@ -88,7 +95,9 @@ public class UserService {
         return (List<User>) userRepository.findAll();
     }
 
-    public User getUserById(int id) { return userRepository.findById(id); }
+    public User getUserById(int id) {
+        return userRepository.findById(id);
+    }
 
     public void updateUserById(int id, Body1 body) throws NotFoundException {
         User user = this.getUserById(id);
@@ -119,7 +128,7 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public Boolean checkValidEmailaddress(String emailAddress){
+    public Boolean checkValidEmailaddress(String emailAddress) {
         return EmailValidator.getInstance().isValid(emailAddress);
     }
 }
