@@ -1,8 +1,9 @@
 package io.swagger.api;
 
-import io.swagger.model.Account;
-import io.swagger.model.Body3;
+import io.swagger.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.service.AccountManagementService;
+import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -14,8 +15,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.*;
 import javax.validation.Valid;
@@ -32,8 +37,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T13:47:48.293Z[GMT]")
 @RestController
 public class AccountsApiController implements AccountsApi {
 
@@ -43,62 +49,91 @@ public class AccountsApiController implements AccountsApi {
 
     private final HttpServletRequest request;
 
+    @Autowired
+    AccountManagementService accountService;
+
+    @Autowired
+    UserService userService;
+
+
     @org.springframework.beans.factory.annotation.Autowired
     public AccountsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
     }
 
-    public ResponseEntity<Account> createAccount() {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<Account>(objectMapper.readValue("{\n  \"balance\" : 123.45,\n  \"IBAN\" : \"NL01INHO0000000001\",\n  \"minimumLimit\" : 200,\n  \"userId\" : 42\n}", Account.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<Account>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+    public ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody CreateAccountPostBody body) throws ResponseStatusException {
+        if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
+            accountService.createNewAccount(body);
+            return new ResponseEntity<Account>(HttpStatus.OK);
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-
-        return new ResponseEntity<Account>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
-        String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws NotFoundException {
+        if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
+            accountService.deleteSingleAccount(iban);
+            return new ResponseEntity<Void>(HttpStatus.OK);
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
     }
 
-    public ResponseEntity<List<Account>> getAccounts() {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<List<Account>>(objectMapper.readValue("[ {\n  \"balance\" : 123.45,\n  \"IBAN\" : \"NL01INHO0000000001\",\n  \"minimumLimit\" : 200,\n  \"userId\" : 42\n}, {\n  \"balance\" : 123.45,\n  \"IBAN\" : \"NL01INHO0000000001\",\n  \"minimumLimit\" : 200,\n  \"userId\" : 42\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<List<Account>>(HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<List<Account>> getAccounts(@Min(1) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="50"
+            , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="20") Integer limit,@Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
+            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page, @Parameter(in = ParameterIn.PATH, description = "Current user's id.", required=false, schema=@Schema()) @PathVariable("userId") Integer userId) {
+        if(userId != null) {
+            if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
+                List<Account> accounts = accountService.getAllAccounts();
+
+                page -= 1;
+                int skip = limit * page;
+                accounts = accounts.stream()
+                        .skip(skip)
+                        .limit(limit)
+                        .collect(Collectors.toList());
+
+                return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
+            } else {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             }
+        } else {
+            List<Account> accounts = accountService.getAllAccountsById(userId);
+            return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
         }
 
-        return new ResponseEntity<List<Account>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     public ResponseEntity<Account> getUserAccounts(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to get.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<Account>(objectMapper.readValue("{\n  \"balance\" : 123.45,\n  \"IBAN\" : \"NL01INHO0000000001\",\n  \"minimumLimit\" : 200,\n  \"userId\" : 42\n}", Account.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<Account>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+        Account accountRequested = accountService.getByIBAN(iban);
+
+        if(!getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || accountRequested.getUserId() == getLoggedInUser().getId()) {
+            return new ResponseEntity<Account>(accountRequested, HttpStatus.OK);
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account does not belong to currently logged in user.");
+        }
+    }
+
+    public ResponseEntity<Void> regularEditAccount(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to edit", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody UpdateAccountPutBody body) {
+        if (getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)) {
+            accountService.updateExistingAccount(iban, body);
+            return new ResponseEntity<Void>(HttpStatus.OK);
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Customers are not allowed to edit the minimum limit of an account.");
+        }
+    }
+
+
+    public User getLoggedInUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String emailAddress = authentication.getName();
+
+        User loggedInUser = userService.getUserByEmailAddress(emailAddress);
+        if (loggedInUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
         }
 
-        return new ResponseEntity<Account>(HttpStatus.NOT_IMPLEMENTED);
+        return loggedInUser;
     }
-
-    public ResponseEntity<Void> regularEditAccount(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to edit", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body3 body) {
-        String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
-    }
-
 }

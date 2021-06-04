@@ -6,7 +6,8 @@
 package io.swagger.api;
 
 import io.swagger.model.Account;
-import io.swagger.model.Body3;
+import io.swagger.model.CreateAccountPostBody;
+import io.swagger.model.UpdateAccountPutBody;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -33,7 +34,7 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-05-31T10:47:35.905Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T13:47:48.293Z[GMT]")
 @Validated
 public interface AccountsApi {
 
@@ -49,8 +50,9 @@ public interface AccountsApi {
         @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
     @RequestMapping(value = "/accounts",
         produces = { "application/json" }, 
+        consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Account> createAccount();
+    ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody CreateAccountPostBody body);
 
 
     @Operation(summary = "Delete an account.", description = "Deletes the account with the corresponding IBAN.", security = {
@@ -67,7 +69,7 @@ public interface AccountsApi {
         @ApiResponse(responseCode = "500", description = "An internal server error has occurred.") })
     @RequestMapping(value = "/accounts/{iban}",
         method = RequestMethod.DELETE)
-    ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+    ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws NotFoundException;
 
 
     @Operation(summary = "Gets all accounts.", description = "Returns all accounts.", security = {
@@ -81,7 +83,9 @@ public interface AccountsApi {
     @RequestMapping(value = "/accounts",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<List<Account>> getAccounts();
+    ResponseEntity<List<Account>> getAccounts(@Min(1) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="50"
+            , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="20") Integer limit,@Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
+            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page, @Parameter(in = ParameterIn.PATH, description = "Current user's id.", required=false, schema=@Schema()) @PathVariable("userId") Integer userId);
 
 
     @Operation(summary = "Get the account with the specified IBAN.", description = "Get the account with the specified IBAN.", security = {
@@ -115,7 +119,7 @@ public interface AccountsApi {
     @RequestMapping(value = "/accounts/{iban}",
         consumes = { "application/json" }, 
         method = RequestMethod.PUT)
-    ResponseEntity<Void> regularEditAccount(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to edit", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body3 body);
+    ResponseEntity<Void> regularEditAccount(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to edit", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody UpdateAccountPutBody body);
 
 }
 

@@ -1,3 +1,4 @@
+
 package io.swagger.model;
 
 import java.util.Objects;

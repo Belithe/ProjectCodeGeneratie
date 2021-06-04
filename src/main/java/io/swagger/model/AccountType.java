@@ -1,7 +1,12 @@
 package io.swagger.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.springframework.validation.annotation.Validated;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 /**
  * Gets or Sets AccountType

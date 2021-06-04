@@ -26,7 +26,7 @@ public class TransactionService {
     TransactionRepository transactionRepository;
 
     @Autowired
-    UserRepository userRepository;
+    PasswordEncoder passwordEncoder;
 
     @Autowired
     AccountRepository accountRepository;
@@ -294,8 +294,6 @@ public class TransactionService {
             throw  new ResponseStatusException(HttpStatus.BAD_REQUEST, "Limit can not be below or eqeal 0, offset can not be below 0");
         if (limit == null && offset == null)
             return transactions;
-
-        int size = transactions.size();
 
         if (offset == null)
             offset = 0;
