@@ -133,32 +133,37 @@ public class TransactionService {
         switch (transaction.getType()) {
             case TRANSFER:
                 // determine the transfer from account
-                for (Account account : accounts) {
-                    if (transaction.getTransferFrom() == account.getIBAN() || user.getRole().contains(UserRole.EMPLOYEE)) {
-                        checkTransactionLimits(transaction, user, account);
-                        Account transferToAccount = accountRepository.findAccountByIBAN(transaction.getTransferTo());
-                        if (transferToAccount != null) {
-                            User transferToUser = null;
-                            if (userRepository.findById(transferToAccount.getUserId()).isPresent()) {
-                                transferToUser = userRepository.findById(transferToAccount.getUserId()).get();
+                if (accounts != null) {
+                    for (Account account : accounts) {
+                        if (transaction.getTransferFrom() == account.getIBAN() || user.getRole().contains(UserRole.EMPLOYEE)) {
+                            checkTransactionLimits(transaction, user, account);
+                            Account transferToAccount = accountRepository.findAccountByIBAN(transaction.getTransferTo());
+                            if (transferToAccount != null) {
+                                User transferToUser = null;
+                                if (userRepository.findById(transferToAccount.getUserId()).isPresent()) {
+                                    transferToUser = userRepository.findById(transferToAccount.getUserId()).get();
+                                }
+                                if (transferToUser != null) {
+                                    if (transferToAccount.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
+                                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
+                                    if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
+                                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer to a saving's account of someone else.");
+                                }
+                            } else {
+                                // The transfer to IBAN is registered on this bank
                             }
-                            if (transferToUser != null) {
-                                if (transferToAccount.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
-                                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
-                                if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
-                                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer to a saving's account of someone else.");
-                            }
+                            updateFromBalance(transaction);
+                            updateToBalance(transaction);
                         } else {
-                            // The transfer to IBAN is registered on this bank
+                            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "There is no account associated with the IBAN number to make ");
                         }
-                        updateFromBalance(transaction);
-                        updateToBalance(transaction);
-                    } else {
-                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot transfer from other account other then your own.");
+                        break;
                     }
                     break;
+                } else {
+                    throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Only customers or employees can make transactions with an account that has a IBAN number");
+//                    throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "Im am a teapot. lol");
                 }
-                break;
             case DEPOSIT:
                 updateToBalance(transaction);
                 break;

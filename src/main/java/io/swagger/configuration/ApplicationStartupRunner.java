@@ -113,7 +113,7 @@ public class ApplicationStartupRunner implements ApplicationRunner {
         postDrop.setTransferFrom("");
         postDrop.setTransferTo("NL01INHO0000000002");
 
-        transactionService.createTransaction(alice.getEmailAddress(), postTran);
+        transactionService.createTransaction(bob.getEmailAddress(), postTran);
 
         transactionService.createTransaction(bob.getEmailAddress(), postWith);
 
