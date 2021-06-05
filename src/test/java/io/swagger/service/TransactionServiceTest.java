@@ -43,6 +43,7 @@ class TransactionServiceTest {
     List<Account> expectedAccounts;
     List<Account> expectedAccountsPerUser;
     List<Account> expectedAccountsPerCustomer;
+    List<Account> expectedAccountsPerCustomerEmplyee;
     Account expectedAccountPerIban;
 
     // test transaction
@@ -54,8 +55,9 @@ class TransactionServiceTest {
     List<Transaction> expectedTransactions;
     List<Transaction> expectedTransactionsPerUser;
     List<Transaction> expectedTransactionsByIBAN;
-    List<Transaction> expectedTransactionSave;
-    List<Transaction> expectedTransactionBob;
+    List<Transaction> expectedTransactionSaveCustomer;
+    List<Transaction> expectedTransactionCurrentCustomer;
+    List<Transaction> expectedTransactionByCustomer;
 
     @BeforeEach
     public void setup() {
@@ -63,9 +65,12 @@ class TransactionServiceTest {
         List<Account> accounts = new ArrayList<>();
         List<Account> accountsPerUser = new ArrayList<>();
         List<Account> accountsPerCustomer = new ArrayList<>();
+        List<Account> accountsPerCustomerEmplyee = new ArrayList<>();
         List<Transaction> transactions = new ArrayList<>();
         List<Transaction> transactionsPerUser = new ArrayList<>();
         List<Transaction> transactionsByIBAN = new ArrayList<>();
+        List<Transaction> transactionsByCustomerSaving = new ArrayList<>();
+        List<Transaction> transactionsByCustomerCurrent = new ArrayList<>();
         // Users
 
         // Alice is just an employee
@@ -157,6 +162,7 @@ class TransactionServiceTest {
         accBobSave.userId(2);
         accounts.add(accBobSave);
         accountsPerCustomer.add(accBobSave);
+        accountsPerCustomer.add(accBobSave);
 
         // account Charlie current
         Account accCharlieCurrent = new Account();
@@ -166,10 +172,13 @@ class TransactionServiceTest {
         accCharlieCurrent.minimumLimit(50f);
         accCharlieCurrent.userId(3);
         accounts.add(accCharlieCurrent);
+        accountsPerCustomerEmplyee.add(accCharlieCurrent);
+
         expectedAccountPerIban = accCharlieCurrent;
         expectedAccountsPerCustomer = accountsPerCustomer;
         expectedAccounts = accounts;
         expectedAccountsPerUser = accountsPerUser;
+        expectedAccountsPerCustomerEmplyee = accountsPerCustomerEmplyee;
         // transaction
 
         // transaction alice
@@ -212,7 +221,7 @@ class TransactionServiceTest {
         transactionBobTran.setAmount(50f);
         transactionBobTran.setType(TransactionType.TRANSFER);
         transactions.add(transactionBobTran);
-        transactionsByIBAN.add(transactionBobTran);
+        transactionsByCustomerCurrent.add(transactionBobTran);
 
         // transaction charlie
         Transaction transactionCharlieTran = new Transaction();
@@ -224,13 +233,14 @@ class TransactionServiceTest {
         transactionCharlieTran.setType(TransactionType.TRANSFER);
         transactions.add(transactionCharlieTran);
         transactionsByIBAN.add(transactionCharlieTran);
+        transactionsByCustomerCurrent.add(transactionCharlieTran);
 
         // transaction charlie
         Transaction transactionCharlieTran2 = new Transaction();
         transactionCharlieTran2.setUserPerforming(3);
         transactionCharlieTran2.setTimestamp(OffsetDateTime.of(2020, 1, 1, 10, 10, 10, 0, ZoneOffset.UTC));
         transactionCharlieTran2.setTransferTo("NL01INHO0000000006");
-        transactionCharlieTran2.setTransferFrom("NL01INHO0000000004");
+        transactionCharlieTran2.setTransferFrom("NL01INHO0000000007");
         transactionCharlieTran2.setAmount(50f);
         transactionCharlieTran2.setType(TransactionType.TRANSFER);
         transactions.add(transactionCharlieTran2);
@@ -238,6 +248,7 @@ class TransactionServiceTest {
 
         expectedTransactions = transactions;
         expectedTransactionsByIBAN = transactionsByIBAN;
+        expectedTransactionCurrentCustomer = transactionsByCustomerCurrent;
     }
 
     @Test
@@ -260,10 +271,13 @@ class TransactionServiceTest {
     public void getAllTransactionsShouldReturnListOfTransactionsForCustomer() throws Exception {
         // setup
         for (Account account : expectedAccountsPerCustomer) {
-            given(transactionRepository.findByIban(account.getIBAN())).willReturn(expectedTransactionsByIBAN);
+            if (account.getAccountType() == AccountType.CURRENT)
+                given(transactionRepository.findByIban(account.getIBAN())).willReturn(expectedTransactionCurrentCustomer);
+            if (account.getAccountType() == AccountType.SAVING)
+                given(transactionRepository.findByIban(account.getIBAN())).willReturn(expectedTransactionCurrentCustomer);
         }
         given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
-        given(accountRepository.findAllByUserId(expectedUsers.get(1).getId())).willReturn(expectedAccountsPerUser);
+        given(accountRepository.findAllByUserId(expectedUsers.get(1).getId())).willReturn(expectedAccountsPerCustomer);
 
         // execute
         List<Transaction> transactions = transactionService.getAllTransactions(0,50, expectedUsers.get(1).getEmailAddress());
@@ -272,6 +286,28 @@ class TransactionServiceTest {
         assertNotNull(transactions);
         assertEquals(2, transactions.size());
         assertEquals(transactions.get(0), expectedTransactions.get(3));
+    }
+
+    @Test
+    public void getAllTransactionsShouldReturnListOfTransactionsForEmployeeAlsoCustomer() throws Exception {
+        // setup
+        given(transactionRepository.findAll()).willReturn(expectedTransactions);
+        for (Account account : expectedAccountsPerCustomer) {
+            if (account.getAccountType() == AccountType.CURRENT)
+                given(transactionRepository.findByIban(account.getIBAN())).willReturn(expectedTransactionCurrentCustomer);
+            if (account.getAccountType() == AccountType.SAVING)
+                given(transactionRepository.findByIban(account.getIBAN())).willReturn(expectedTransactionCurrentCustomer);
+        }
+        given(userRepository.findByEmailAddress(expectedUsers.get(2).getEmailAddress())).willReturn(expectedUsers.get(2));
+        given(accountRepository.findAllByUserId(expectedUsers.get(2).getId())).willReturn(expectedAccountsPerCustomerEmplyee);
+
+        // execute
+        List<Transaction> transactions = transactionService.getAllTransactions(0,50, expectedUsers.get(2).getEmailAddress());
+
+        // assertions
+        assertNotNull(transactions);
+        assertEquals(6, transactions.size());
+        assertEquals(transactions, expectedTransactions);
     }
 
     @Test
@@ -289,5 +325,6 @@ class TransactionServiceTest {
         assertEquals(2, transactions.size());
         assertEquals(transactions, expectedTransactionsByIBAN);
     }
+
 
 }
