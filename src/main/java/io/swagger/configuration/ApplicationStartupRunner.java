@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.threeten.bp.LocalDate;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 @Component
 public class ApplicationStartupRunner implements ApplicationRunner {

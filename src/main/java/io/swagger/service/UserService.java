@@ -1,12 +1,12 @@
 package io.swagger.service;
 
-import io.swagger.api.NotFoundException;
 import io.swagger.model.CreateUserPostBody;
 import io.swagger.model.UpdateUserPutBody;
 import io.swagger.model.User;
 import io.swagger.model.UserRole;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,10 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -134,7 +131,7 @@ public class UserService {
 
         // Check which fields are set in the request body and only change those fields
         if (body.getFirstName() != null) user.setFirstName(body.getFirstName());
-        if (body.getLastName() != null) user.setFirstName(body.getLastName());
+        if (body.getLastName() != null) user.setLastName(body.getLastName());
         if (body.getBirthDate() != null) user.setBirthDate(body.getBirthDate());
         if (body.getPhone() != null) user.setPhone(body.getPhone());
         if (body.getPassword() != null) user.setPassword(passwordEncoder.encode(body.getPassword()));
@@ -172,7 +169,7 @@ public class UserService {
         return user;
     }
 
-    public void deleteUserById(int id) throws NotFoundException {
+    public void deleteUserById(int id) {
         User user = this.getUserById(id);
 
         if (user == null) {
@@ -186,8 +183,8 @@ public class UserService {
         return userRepository.findByEmailAddress(emailAddress);
     }
 
-    private void performEmailAddressValidation(String emailAddress) {
-        if (!checkEmailAddressFormat(emailAddress)) {
+    private void performEmailAddressValidation(String emailAddress) throws ResponseStatusException {
+        if (!checkValidEmailaddress(emailAddress)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email address given.");
         }
 
@@ -197,10 +194,9 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email address is already in use.");
         }
     }
-
-    private boolean checkEmailAddressFormat(String string) {
-        String expression = "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
-        return Pattern.matches(expression, string);
+    
+    public Boolean checkValidEmailaddress(String emailAddress){
+        return EmailValidator.getInstance().isValid(emailAddress);
     }
 
     private void performRoleValidation(List<UserRole> roles) {
