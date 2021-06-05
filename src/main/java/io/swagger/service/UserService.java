@@ -34,12 +34,12 @@ public class UserService {
     @Autowired
     JwtTokenProvider jwtTokenProvider;
 
-    public String login(String emailaddress, String password) {
+    public String login(String emailAddress, String password) {
         try {
             //login
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(emailaddress, password));
-            User user = userRepository.findByEmailAddress(emailaddress);
-            return jwtTokenProvider.createToken(emailaddress, user.getRole());
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(emailAddress, password));
+            User user = userRepository.findByEmailAddress(emailAddress);
+            return jwtTokenProvider.createToken(emailAddress, user.getRole());
         } catch (AuthenticationException ex) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login failed, because of invalid input.");
         }
@@ -61,7 +61,7 @@ public class UserService {
             }
             return userRepository.save(user);
         } else {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Emailaddress already being used.");
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Email address already being used.");
         }
     }
 

@@ -16,7 +16,7 @@ public class LoginController {
 
     @PostMapping("/login")
     public String login(@RequestBody LoginDTO login) {
-        return userService.login(login.getEmailaddress(), login.getPassword());
+        return userService.login(login.getEmailAddress(), login.getPassword());
     }
 
     @GetMapping("/test")

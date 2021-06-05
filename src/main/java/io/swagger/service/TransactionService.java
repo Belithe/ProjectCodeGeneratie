@@ -129,12 +129,16 @@ public class TransactionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from to the same account.");
         User user = findUserByEmail(email);
         List<Account> accounts = findAccountById(user);
+        if (accounts == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No accounts found. Only customers or employees can make transactions with an account that has a IBAN number.");
+//            throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "Im am a teapot. lol");
+        }
         transaction.setUserPerforming(user.getId());
         switch (transaction.getType()) {
             case TRANSFER:
                 // determine the transfer from account
                 for (Account account : accounts) {
-                    if (transaction.getTransferFrom() == account.getIBAN() || user.getRole().contains(UserRole.EMPLOYEE)) {
+                    if (transaction.getTransferFrom() == account.getIBAN()) {
                         checkTransactionLimits(transaction, user, account);
                         Account transferToAccount = accountRepository.findAccountByIBAN(transaction.getTransferTo());
                         if (transferToAccount != null) {
@@ -154,11 +158,12 @@ public class TransactionService {
                         updateFromBalance(transaction);
                         updateToBalance(transaction);
                     } else {
-                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot transfer from other account other then your own.");
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "There is no account associated with the IBAN number to make ");
                     }
                     break;
                 }
                 break;
+
             case DEPOSIT:
                 updateToBalance(transaction);
                 break;
