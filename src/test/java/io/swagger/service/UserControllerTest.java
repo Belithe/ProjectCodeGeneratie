@@ -28,6 +28,7 @@ import org.threeten.bp.LocalDate;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -118,6 +119,69 @@ public class UserControllerTest {
         assertNotNull(usersResponse.getBody());
         assertEquals(3, usersResponse.getBody().size());
         assertEquals(expectedUsers, usersResponse.getBody());
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void getAllUsersLimited() {
+        // Setup
+        given(userService.getAllUsers()).willReturn(expectedUsers);
+
+        // Execution
+        ResponseEntity<List<User>> usersResponse = usersApiController.usersGet(2, 1);
+
+        // Assertions
+        assertNotNull(usersResponse);
+        assertNotNull(usersResponse.getBody());
+        assertEquals(2, usersResponse.getBody().size());
+
+        // Need to compare each item as the lists are not the same instance
+        List<User> expectedLimitedUsers = expectedUsers.subList(0, 1);
+        for (int i = 0; i < expectedLimitedUsers.size(); i++) {
+            User expectedUser = expectedLimitedUsers.get(i);
+            User respondedUser = usersResponse.getBody().get(i);
+
+            assertEquals(expectedUser, respondedUser);
+        }
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void getAllUsersLimitedSecondPage() {
+        // Setup
+        given(userService.getAllUsers()).willReturn(expectedUsers);
+
+        // Execution
+        ResponseEntity<List<User>> usersResponse = usersApiController.usersGet(2, 2);
+
+        // Assertions
+        assertNotNull(usersResponse);
+        assertNotNull(usersResponse.getBody());
+        assertEquals(1, usersResponse.getBody().size());
+
+        // Need to compare each item as the lists are not the same instance
+        List<User> expectedLimitedUsers = expectedUsers.subList(2, 2);
+        for (int i = 0; i < expectedLimitedUsers.size(); i++) {
+            User expectedUser = expectedLimitedUsers.get(i);
+            User respondedUser = usersResponse.getBody().get(i);
+
+            assertEquals(expectedUser, respondedUser);
+        }
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void getAllUsersLimitedThirdPage() {
+        // Setup
+        given(userService.getAllUsers()).willReturn(expectedUsers);
+
+        // Execution
+        ResponseEntity<List<User>> usersResponse = usersApiController.usersGet(2, 3);
+
+        // Assertions
+        assertNotNull(usersResponse);
+        assertNotNull(usersResponse.getBody());
+        assertEquals(0, usersResponse.getBody().size());
     }
 
     @Test
