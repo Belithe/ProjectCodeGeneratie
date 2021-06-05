@@ -33,6 +33,7 @@ public class TransactionService {
 
     private OffsetDateTime localTime;
     private static final String bankIban = "NL01INHO0000000001";
+    private List<UserRole> allUserRoll;
 
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[\\\\w!#$%&’*+/=?`{|}~^-]+(?:\\\\.[\\\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\\\.)+[a-zA-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
@@ -76,24 +77,33 @@ public class TransactionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User could not been found, please try to login again.");
         List<Account> accounts = findAccountById(user);
         List<Transaction> transactions = new ArrayList<>();
-        for (UserRole userRole : user.getRole()) {
-            switch (userRole) {
-                case EMPLOYEE:
-                    for (Account account : accounts) {
-                        transactions.addAll(transactionRepository.findAll());
-                    }
-                    break;
-                case CUSTOMER:
-                    for (Account account : accounts) {
-                        transactions.addAll(transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(account.getIBAN(), account.getIBAN()));
-                    }
-                    break;
+        allUserRoll = new ArrayList<>();
+        allUserRoll.add(UserRole.EMPLOYEE);
+        allUserRoll.add(UserRole.CUSTOMER);
+        if (user.getRole().containsAll(allUserRoll)) {
+            for (Account account : accounts) {
+                transactions.addAll(transactionRepository.findByIban(account.getIBAN()));
+            }
+            List<Transaction> allTran = transactionRepository.findAll();
+            allTran.removeAll(transactions);
+            transactions.addAll(allTran);
+        } else {
+            for (UserRole userRole : user.getRole()) {
+                switch (userRole) {
+                    case EMPLOYEE:
+                        transactions = transactionRepository.findAll();
+                        break;
+                    case CUSTOMER:
+                        for (Account account : accounts) {
+                            transactions.addAll(transactionRepository.findByIban(account.getIBAN()));
+                        }
+                        break;
+                }
             }
         }
         if (transactions.size() == 0) {
             return transactions;
         }
-
         return createPage(offset, limit, transactions);
     }
 
@@ -110,11 +120,11 @@ public class TransactionService {
         List<Transaction> transactions = new ArrayList<>();
         for (UserRole userRole : user.getRole().stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList())) {
             if(userRole == UserRole.EMPLOYEE) {
-                transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(iban, iban);
+                transactions = transactionRepository.findByIban(iban);
                 break;
             }
             if (userRole == UserRole.CUSTOMER && account.getIBAN().equals(iban)) {
-                transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(iban, iban);
+                transactions = transactionRepository.findByIban(iban);
             } else {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to this account.");
             }

@@ -6,7 +6,9 @@ import io.swagger.model.*;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.repository.UserRepository;
+
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +21,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.BDDMockito.given;
+
 @SpringBootTest(classes =  {Swagger2SpringBoot.class })
 @AutoConfigureMockMvc
 class TransactionServiceTest {
@@ -27,26 +33,39 @@ class TransactionServiceTest {
     // test users
     @MockBean
     UserRepository userRepository;
+
     List<User> expectedUsers;
 
     // test accounts
     @MockBean
     AccountRepository accountRepository;
+
     List<Account> expectedAccounts;
+    List<Account> expectedAccountsPerUser;
+    List<Account> expectedAccountsPerCustomer;
+    Account expectedAccountPerIban;
 
     // test transaction
     @Autowired
     TransactionService transactionService;
     @MockBean
     TransactionRepository transactionRepository;
-    List<Transaction> expectedTransaction;
+
+    List<Transaction> expectedTransactions;
+    List<Transaction> expectedTransactionsPerUser;
+    List<Transaction> expectedTransactionsByIBAN;
+    List<Transaction> expectedTransactionSave;
+    List<Transaction> expectedTransactionBob;
 
     @BeforeEach
     public void setup() {
         List<User> users = new ArrayList<>();
         List<Account> accounts = new ArrayList<>();
+        List<Account> accountsPerUser = new ArrayList<>();
+        List<Account> accountsPerCustomer = new ArrayList<>();
         List<Transaction> transactions = new ArrayList<>();
-
+        List<Transaction> transactionsPerUser = new ArrayList<>();
+        List<Transaction> transactionsByIBAN = new ArrayList<>();
         // Users
 
         // Alice is just an employee
@@ -107,6 +126,7 @@ class TransactionServiceTest {
         accAliceCurrent.minimumLimit(50f);
         accAliceCurrent.userId(1);
         accounts.add(accAliceCurrent);
+        accountsPerUser.add(accAliceCurrent);
 
         // account alice saving
         Account accAliceSave = new Account();
@@ -116,6 +136,7 @@ class TransactionServiceTest {
         accAliceSave.minimumLimit(50f);
         accAliceSave.userId(1);
         accounts.add(accAliceSave);
+        accountsPerUser.add(accAliceSave);
 
         // account Bob current
         Account accBobCurrent = new Account();
@@ -125,6 +146,7 @@ class TransactionServiceTest {
         accBobCurrent.minimumLimit(50f);
         accBobCurrent.userId(2);
         accounts.add(accBobCurrent);
+        accountsPerCustomer.add(accBobCurrent);
 
         // account Bob saving
         Account accBobSave = new Account();
@@ -134,6 +156,7 @@ class TransactionServiceTest {
         accBobSave.minimumLimit(50f);
         accBobSave.userId(2);
         accounts.add(accBobSave);
+        accountsPerCustomer.add(accBobSave);
 
         // account Charlie current
         Account accCharlieCurrent = new Account();
@@ -143,17 +166,128 @@ class TransactionServiceTest {
         accCharlieCurrent.minimumLimit(50f);
         accCharlieCurrent.userId(3);
         accounts.add(accCharlieCurrent);
-
+        expectedAccountPerIban = accCharlieCurrent;
+        expectedAccountsPerCustomer = accountsPerCustomer;
         expectedAccounts = accounts;
-
+        expectedAccountsPerUser = accountsPerUser;
         // transaction
 
-        Transaction transactionAlice = new Transaction();
-        transactionAlice.setUserPerforming(1);
-        transactionAlice.setTimestamp(OffsetDateTime.of(2020, 01, 01, 10, 10, 10, 0, ZoneOffset.UTC));
-        transactionAlice.setTransferTo("NL01INHO0000000002");
-        transactionAlice.setTransferFrom("NL01INHO0000000003");
-        transactionAlice.setAmount(50f);
-        transactionAlice.setType(TransactionType.TRANSFER);
+        // transaction alice
+        Transaction transactionAliceTran = new Transaction();
+        transactionAliceTran.setUserPerforming(1);
+        transactionAliceTran.setTimestamp(OffsetDateTime.of(2020, 1, 1, 10, 10, 10, 0, ZoneOffset.UTC));
+        transactionAliceTran.setTransferTo("NL01INHO0000000002");
+        transactionAliceTran.setTransferFrom("NL01INHO0000000003");
+        transactionAliceTran.setAmount(50f);
+        transactionAliceTran.setType(TransactionType.TRANSFER);
+        transactions.add(transactionAliceTran);
+        transactionsPerUser.add(transactionAliceTran);
+
+        Transaction transactionAliceWithDraw = new Transaction();
+        transactionAliceWithDraw.setUserPerforming(1);
+        transactionAliceWithDraw.setTimestamp(OffsetDateTime.of(2020, 1, 01, 10, 10, 10, 0, ZoneOffset.UTC));
+        transactionAliceWithDraw.setTransferTo("");
+        transactionAliceWithDraw.setTransferFrom("NL01INHO0000000002");
+        transactionAliceWithDraw.setAmount(50f);
+        transactionAliceWithDraw.setType(TransactionType.WITHDRAW);
+        transactions.add(transactionAliceWithDraw);
+        transactionsPerUser.add(transactionAliceWithDraw);
+
+        Transaction transactionAliceDep = new Transaction();
+        transactionAliceDep.setUserPerforming(1);
+        transactionAliceDep.setTimestamp(OffsetDateTime.of(2020, 1, 1, 10, 10, 10, 0, ZoneOffset.UTC));
+        transactionAliceDep.setTransferTo("NL01INHO0000000002");
+        transactionAliceDep.setTransferFrom("");
+        transactionAliceDep.setAmount(50f);
+        transactionAliceDep.setType(TransactionType.DEPOSIT);
+        transactions.add(transactionAliceDep);
+        transactionsPerUser.add(transactionAliceDep);
+
+        // transaction bob
+        Transaction transactionBobTran = new Transaction();
+        transactionBobTran.setUserPerforming(2);
+        transactionBobTran.setTimestamp(OffsetDateTime.of(2020, 1, 1, 10, 10, 10, 0, ZoneOffset.UTC));
+        transactionBobTran.setTransferTo("NL01INHO0000000004");
+        transactionBobTran.setTransferFrom("NL01INHO0000000002");
+        transactionBobTran.setAmount(50f);
+        transactionBobTran.setType(TransactionType.TRANSFER);
+        transactions.add(transactionBobTran);
+        transactionsByIBAN.add(transactionBobTran);
+
+        // transaction charlie
+        Transaction transactionCharlieTran = new Transaction();
+        transactionCharlieTran.setUserPerforming(3);
+        transactionCharlieTran.setTimestamp(OffsetDateTime.of(2020, 1, 1, 10, 10, 10, 0, ZoneOffset.UTC));
+        transactionCharlieTran.setTransferTo("NL01INHO0000000004");
+        transactionCharlieTran.setTransferFrom("NL01INHO0000000006");
+        transactionCharlieTran.setAmount(50f);
+        transactionCharlieTran.setType(TransactionType.TRANSFER);
+        transactions.add(transactionCharlieTran);
+        transactionsByIBAN.add(transactionCharlieTran);
+
+        // transaction charlie
+        Transaction transactionCharlieTran2 = new Transaction();
+        transactionCharlieTran2.setUserPerforming(3);
+        transactionCharlieTran2.setTimestamp(OffsetDateTime.of(2020, 1, 1, 10, 10, 10, 0, ZoneOffset.UTC));
+        transactionCharlieTran2.setTransferTo("NL01INHO0000000006");
+        transactionCharlieTran2.setTransferFrom("NL01INHO0000000004");
+        transactionCharlieTran2.setAmount(50f);
+        transactionCharlieTran2.setType(TransactionType.TRANSFER);
+        transactions.add(transactionCharlieTran2);
+        transactionsByIBAN.add(transactionCharlieTran2);
+
+        expectedTransactions = transactions;
+        expectedTransactionsByIBAN = transactionsByIBAN;
     }
+
+    @Test
+    public void getAllTransactionsShouldReturnListOfTransactionsForEmployee() throws Exception {
+        // setup
+        given(transactionRepository.findAll()).willReturn(expectedTransactions);
+        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
+        given(accountRepository.findAllByUserId(expectedUsers.get(0).getId())).willReturn(expectedAccountsPerUser);
+
+        // execute
+        List<Transaction> transactions = transactionService.getAllTransactions(0,50, expectedUsers.get(0).getEmailAddress());
+
+        // assertions
+        assertNotNull(transactions);
+        assertEquals(6, transactions.size());
+        assertEquals(transactions, expectedTransactions);
+    }
+
+    @Test
+    public void getAllTransactionsShouldReturnListOfTransactionsForCustomer() throws Exception {
+        // setup
+        for (Account account : expectedAccountsPerCustomer) {
+            given(transactionRepository.findByIban(account.getIBAN())).willReturn(expectedTransactionsByIBAN);
+        }
+        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
+        given(accountRepository.findAllByUserId(expectedUsers.get(1).getId())).willReturn(expectedAccountsPerUser);
+
+        // execute
+        List<Transaction> transactions = transactionService.getAllTransactions(0,50, expectedUsers.get(1).getEmailAddress());
+
+        // assertions
+        assertNotNull(transactions);
+        assertEquals(2, transactions.size());
+        assertEquals(transactions.get(0), expectedTransactions.get(3));
+    }
+
+    @Test
+    public void getAllTransactionsByIbanShouldReturnListOfTransactionsByIban() throws Exception {
+        // setup
+        given(transactionRepository.findByIban(expectedAccounts.get(4).getIBAN())).willReturn(expectedTransactionsByIBAN);
+        given(userRepository.findByEmailAddress(expectedUsers.get(2).getEmailAddress())).willReturn(expectedUsers.get(2));
+        given(accountRepository.findAccountByIBAN(expectedAccounts.get(4).getIBAN())).willReturn(expectedAccountPerIban);
+
+        // execute
+        List<Transaction> transactions = transactionService.getTransActionsByIBAN(expectedUsers.get(2).getEmailAddress(),expectedAccounts.get(4).getIBAN());
+
+        // assertions
+        assertNotNull(transactions);
+        assertEquals(2, transactions.size());
+        assertEquals(transactions, expectedTransactionsByIBAN);
+    }
+
 }
