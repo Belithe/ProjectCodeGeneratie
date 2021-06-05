@@ -129,41 +129,41 @@ public class TransactionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from to the same account.");
         User user = findUserByEmail(email);
         List<Account> accounts = findAccountById(user);
+        if (accounts == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No accounts found. Only customers or employees can make transactions with an account that has a IBAN number.");
+//            throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "Im am a teapot. lol");
+        }
         transaction.setUserPerforming(user.getId());
         switch (transaction.getType()) {
             case TRANSFER:
                 // determine the transfer from account
-                if (accounts != null) {
-                    for (Account account : accounts) {
-                        if (transaction.getTransferFrom() == account.getIBAN() || user.getRole().contains(UserRole.EMPLOYEE)) {
-                            checkTransactionLimits(transaction, user, account);
-                            Account transferToAccount = accountRepository.findAccountByIBAN(transaction.getTransferTo());
-                            if (transferToAccount != null) {
-                                User transferToUser = null;
-                                if (userRepository.findById(transferToAccount.getUserId()).isPresent()) {
-                                    transferToUser = userRepository.findById(transferToAccount.getUserId()).get();
-                                }
-                                if (transferToUser != null) {
-                                    if (transferToAccount.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
-                                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
-                                    if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
-                                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer to a saving's account of someone else.");
-                                }
-                            } else {
-                                // The transfer to IBAN is registered on this bank
+                for (Account account : accounts) {
+                    if (transaction.getTransferFrom() == account.getIBAN()) {
+                        checkTransactionLimits(transaction, user, account);
+                        Account transferToAccount = accountRepository.findAccountByIBAN(transaction.getTransferTo());
+                        if (transferToAccount != null) {
+                            User transferToUser = null;
+                            if (userRepository.findById(transferToAccount.getUserId()).isPresent()) {
+                                transferToUser = userRepository.findById(transferToAccount.getUserId()).get();
                             }
-                            updateFromBalance(transaction);
-                            updateToBalance(transaction);
+                            if (transferToUser != null) {
+                                if (transferToAccount.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
+                                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
+                                if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
+                                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer to a saving's account of someone else.");
+                            }
                         } else {
-                            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "There is no account associated with the IBAN number to make ");
+                            // The transfer to IBAN is registered on this bank
                         }
-                        break;
+                        updateFromBalance(transaction);
+                        updateToBalance(transaction);
+                    } else {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "There is no account associated with the IBAN number to make ");
                     }
                     break;
-                } else {
-                    throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Only customers or employees can make transactions with an account that has a IBAN number");
-//                    throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "Im am a teapot. lol");
                 }
+                break;
+
             case DEPOSIT:
                 updateToBalance(transaction);
                 break;
