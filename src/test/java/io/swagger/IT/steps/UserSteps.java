@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.swagger.model.User;
+import io.swagger.model.UpdateUserPutBody;
 import io.swagger.model.dto.ExceptionDTO;
 import io.swagger.model.dto.LoginDTO;
 import io.swagger.model.dto.LoginResponseDTO;
@@ -21,7 +21,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Objects;
 
 public class UserSteps {
@@ -181,6 +180,19 @@ public class UserSteps {
             // Perform request
             HttpEntity<String> entity = new HttpEntity<>(null, headers);
             stringResponse = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("Someone makes a PUT request to the \\/users/{int} API endpoint without an authentication token")
+    public void someoneMakesAPUTRequestToTheUsersAPIEndpointWithoutAnAuthenticationToken(int userId) throws URISyntaxException {
+        try {
+            // Create request
+            URI uri = new URI(baseUrl + "/users/" + userId);
+
+            // Perform request
+            restTemplate.getForEntity(uri, ExceptionDTO.class);
         } catch (HttpClientErrorException e) {
             httpClientErrorException = e;
         }

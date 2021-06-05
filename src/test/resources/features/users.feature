@@ -26,3 +26,7 @@ Feature: User tests
   Scenario: Get other user form the API performed by customer
     When A customer makes a request to the /users/1 API endpoint and they are that not the same user as requested
     Then The server will return a 403 forbidden
+
+  Scenario: Update user without authentication
+    When Someone makes a PUT request to the /users/2 API endpoint without an authentication token
+    Then The server will return a 401 unauthorized
