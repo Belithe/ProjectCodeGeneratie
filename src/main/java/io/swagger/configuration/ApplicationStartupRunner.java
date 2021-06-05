@@ -87,6 +87,14 @@ public class ApplicationStartupRunner implements ApplicationRunner {
         account.setUserId(2);
         accountRepository.save(account);
 
+        Account accountBobSave = new Account();
+        accountBobSave.setBalance(1000f);
+        accountBobSave.setAccountType(AccountType.CURRENT);
+        accountBobSave.setIBAN("NL01INHO0000000003");
+        accountBobSave.setMinimumLimit(50f);
+        accountBobSave.setUserId(2);
+        accountRepository.save(accountBobSave);
+
         Account accountSave = new Account();
         accountSave.setBalance(1000f);
         accountSave.setAccountType(AccountType.SAVING);
@@ -99,7 +107,7 @@ public class ApplicationStartupRunner implements ApplicationRunner {
         postTran.setAmount(50f);
         postTran.setTransactionType(TransactionType.TRANSFER);
         postTran.setTransferFrom("NL01INHO0000000002");
-        postTran.setTransferTo("NL01INHO0000000004");
+        postTran.setTransferTo("NL01INHO0000000003");
 
         PostTransBody postWith = new PostTransBody();
         postWith.setAmount(50f);
