@@ -116,9 +116,22 @@ public class AccountControllerTest {
         alice.birthDate(LocalDate.of(2010, 10, 10));
         alice.password("idk");
 
+        User bob = new User();
+        bob.id(2);
+        bob.firstName("Bob");
+        bob.lastName("Bobbery");
+        bob.emailAddress("bob@example.com");
+        bob.addRoleItem(UserRole.CUSTOMER);
+        bob.phone("+31 6 12345678");
+        bob.transactionLimit(BigDecimal.valueOf(200f));
+        bob.dayLimit(2000f);
+        bob.birthDate(LocalDate.of(2000, 10, 10));
+        bob.password("idk");
+
         expectedAccounts = accounts;
 
         given(userService.getUserByEmailAddress("alice@example.com")).willReturn(alice);
+        given(userService.getUserByEmailAddress("bob@example.com")).willReturn(bob);
     }
 
     // Successful get all
@@ -199,14 +212,50 @@ public class AccountControllerTest {
         assertEquals(0, AccountsResponse.getBody().size());
     }
 
+
     // Successful get by id
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void getAccountsByOthersIdAsEmployee() {
+        // Setup
+        given(accountManagementService.getAllAccountsById(4)).willReturn(expectedAccounts.subList(3,4));
+
+        // Execution
+        ResponseEntity<List<Account>> gottenAccounts = accountsApiController.getAccounts(20, 1, 4);
+
+        // Assertions
+        assertEquals(2, gottenAccounts.getBody().size());
+        assertEquals(expectedAccounts.subList(3,4), gottenAccounts.getBody());
+    }
 
     @Test
     @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
-    public void getAccountsByOthersId() {
+    public void getAccountsByOwnIdAsEmployee() {
         // Setup
-        given(accountManagementService.getAllAccountsById(4)).willReturn(expectedAccounts.subList(3,4));
+        given(accountManagementService.getAllAccountsById(1)).willReturn(expectedAccounts.subList(0,0));
+
+        // Execution
+        ResponseEntity<List<Account>> gottenAccounts = accountsApiController.getAccounts(20, 1, 1);
+
+        // Assertions
+        assertEquals(1, gottenAccounts.getBody().size());
+        assertEquals(expectedAccounts.subList(3,4), gottenAccounts.getBody());
     }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void getAccountsByOwnIdAsCustomer() {
+        // Setup
+        given(accountManagementService.getAllAccountsById(2)).willReturn(expectedAccounts.subList(1,1));
+
+        // Execution
+        ResponseEntity<List<Account>> gottenAccounts = accountsApiController.getAccounts(20, 1, 2);
+
+        // Assertions
+        assertEquals(1, gottenAccounts.getBody().size());
+        assertEquals(expectedAccounts.subList(3,4), gottenAccounts.getBody());
+    }
+
 
     // Failed get all
     @Test
@@ -223,7 +272,7 @@ public class AccountControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "alice@example.com", authorities = { "CUSTOMER" })
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void getAllAccountsWithoutProperAuthorization() {
         // Setup
         given(accountManagementService.getAllAccounts()).willReturn(expectedAccounts);
@@ -235,4 +284,124 @@ public class AccountControllerTest {
 
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     }
+
+    // Failed get by id
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void getAccountsByOthersIdAsCustomer() {
+        // Setup
+        given(accountManagementService.getAllAccountsById(4)).willReturn(expectedAccounts.subList(3,4));
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            accountsApiController.getAccounts(20, 1, 4);
+        });
+
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+
+    // Get by IBAN
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void getAccountByIBANAsEmployee() {
+        // Setup
+        given(accountManagementService.getByIBAN("NL19INHO6296399613")).willReturn(expectedAccounts.get(0));
+
+        // Executions
+        ResponseEntity<Account> retrievedAccount = accountsApiController.getAccountsByIBAN("NL19INHO6296399613");
+
+        // Assertions
+        assertEquals(expectedAccounts.get(0),retrievedAccount.getBody());
+
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void getAccountByOwnedIBANAsCustomer() {
+        // Setup
+        given(accountManagementService.getByIBAN("NL19INHO1259637692")).willReturn(expectedAccounts.get(1));
+
+        // Executions
+        ResponseEntity<Account> retrievedAccount = accountsApiController.getAccountsByIBAN("NL19INHO1259637692");
+
+        // Assertions
+        assertEquals(expectedAccounts.get(1),retrievedAccount.getBody());
+
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void getAccountByOtherIBANAsCustomer() {
+        // Setup
+        given(accountManagementService.getByIBAN("NL19INHO6296399613")).willReturn(expectedAccounts.get(0));
+
+        // Executions
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            accountsApiController.getAccountsByIBAN("NL19INHO6296399613");
+        });
+
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+
+    // Create test
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void createAccountAsEmployee() {
+        CreateAccountPostBody testBody = new CreateAccountPostBody();
+        testBody.setUserId(2);
+        testBody.setAccountType(AccountType.CURRENT);
+        testBody.setIBAN("NL19INHO3286319395");
+        testBody.setMinimumLimit(200f);
+
+        // Execution
+        ResponseEntity<Account> responseEntity = accountsApiController.createAccount(testBody);
+
+        // Assertions
+        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void createAccountAsCustomer() {
+        CreateAccountPostBody testBody = new CreateAccountPostBody();
+        testBody.setUserId(1);
+        testBody.setAccountType(AccountType.CURRENT);
+        testBody.setIBAN("NL19INHO3286319395");
+        testBody.setMinimumLimit(200f);
+
+        // Execution
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            accountsApiController.createAccount(testBody);
+        });
+        // Assertions
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+
+    // Delete test
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void deleteAccountAsEmployee() {
+        // Execution
+        ResponseEntity<Void> responseEntity = accountsApiController.deleteAccount("NL19INHO3286319395");
+
+        // Assertions
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void deleteAccountAsCustomer() {
+        // Execution
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            accountsApiController.deleteAccount("NL19INHO3286319395");
+        });
+        // Assertions
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+
 }

@@ -58,7 +58,7 @@ public class AccountsApiController implements AccountsApi {
         }
     }
 
-    public ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws NotFoundException {
+    public ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws ResponseStatusException {
         if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
             accountService.deleteSingleAccount(iban);
             return new ResponseEntity<Void>(HttpStatus.OK);
@@ -104,7 +104,7 @@ public class AccountsApiController implements AccountsApi {
 
     }
 
-    public ResponseEntity<Account> getUserAccounts(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to get.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
+    public ResponseEntity<Account> getAccountsByIBAN(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to get.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
         Account accountRequested = accountService.getByIBAN(iban);
 
         if(!getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || accountRequested.getUserId() == getLoggedInUser().getId()) {
