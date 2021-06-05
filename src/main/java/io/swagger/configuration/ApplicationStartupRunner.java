@@ -1,7 +1,11 @@
 package io.swagger.configuration;
 
-import io.swagger.model.User;
-import io.swagger.model.UserRole;
+import io.swagger.model.*;
+import io.swagger.repository.AccountRepository;
+import io.swagger.repository.TransactionRepository;
+import io.swagger.repository.UserRepository;
+import io.swagger.service.AccountManagementService;
+import io.swagger.service.TransactionService;
 import io.swagger.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -10,13 +14,24 @@ import org.springframework.stereotype.Component;
 import org.threeten.bp.LocalDate;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 @Component
 public class ApplicationStartupRunner implements ApplicationRunner {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    TransactionService transactionService;
+//
+//    @Autowired
+//    AccountManagementService accountManagementService;
+//
+//    @Autowired
+//    TransactionRepository transactionRepository;
+//
+    @Autowired
+    AccountRepository accountRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -62,6 +77,55 @@ public class ApplicationStartupRunner implements ApplicationRunner {
         charlie.password("idk");
 
         userService.add(charlie);
+
+        // Add account for
+        Account account = new Account();
+        account.setBalance(1000f);
+        account.setAccountType(AccountType.CURRENT);
+        account.setIBAN("NL01INHO0000000002");
+        account.setMinimumLimit(50f);
+        account.setUserId(2);
+        accountRepository.save(account);
+
+        Account accountBobSave = new Account();
+        accountBobSave.setBalance(1000f);
+        accountBobSave.setAccountType(AccountType.CURRENT);
+        accountBobSave.setIBAN("NL01INHO0000000003");
+        accountBobSave.setMinimumLimit(50f);
+        accountBobSave.setUserId(2);
+        accountRepository.save(accountBobSave);
+
+        Account accountSave = new Account();
+        accountSave.setBalance(1000f);
+        accountSave.setAccountType(AccountType.SAVING);
+        accountSave.setIBAN("NL01INHO0000000004");
+        accountSave.setMinimumLimit(50f);
+        accountSave.setUserId(3);
+        accountRepository.save(accountSave);
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(50f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000002");
+        postTran.setTransferTo("NL01INHO0000000003");
+
+        PostTransBody postWith = new PostTransBody();
+        postWith.setAmount(50f);
+        postWith.setTransactionType(TransactionType.WITHDRAW);
+        postWith.setTransferFrom("NL01INHO0000000002");
+        postWith.setTransferTo("");
+
+        PostTransBody postDrop = new PostTransBody();
+        postDrop.setAmount(50f);
+        postDrop.setTransactionType(TransactionType.DEPOSIT);
+        postDrop.setTransferFrom("");
+        postDrop.setTransferTo("NL01INHO0000000002");
+
+        transactionService.createTransaction(bob.getEmailAddress(), postTran);
+
+        transactionService.createTransaction(bob.getEmailAddress(), postWith);
+
+        transactionService.createTransaction(charlie.getEmailAddress(), postDrop);
     }
 }
 

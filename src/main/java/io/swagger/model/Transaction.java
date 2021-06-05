@@ -2,8 +2,6 @@ package io.swagger.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.model.TransactionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.threeten.bp.OffsetDateTime;
 import org.springframework.validation.annotation.Validated;
@@ -12,7 +10,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
  * Transaction

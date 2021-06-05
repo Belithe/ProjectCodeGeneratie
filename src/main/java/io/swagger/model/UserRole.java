@@ -1,13 +1,7 @@
 package io.swagger.model;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonValue;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.validation.annotation.Validated;
-
-import javax.persistence.Entity;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 

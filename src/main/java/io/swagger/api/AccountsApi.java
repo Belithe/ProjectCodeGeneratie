@@ -19,20 +19,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.List;
-import java.util.Map;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T13:47:48.293Z[GMT]")
 @Validated
@@ -85,7 +76,7 @@ public interface AccountsApi {
         method = RequestMethod.GET)
     ResponseEntity<List<Account>> getAccounts(@Min(1) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="50"
             , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="20") Integer limit,@Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
-            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page, @Parameter(in = ParameterIn.PATH, description = "Current user's id.", required=false, schema=@Schema()) @PathVariable("userId") Integer userId);
+            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page, @Parameter(in = ParameterIn.QUERY, description = "Current user's id.", required=false, schema=@Schema()) Integer userId);
 
 
     @Operation(summary = "Get the account with the specified IBAN.", description = "Get the account with the specified IBAN.", security = {

@@ -4,15 +4,9 @@ import io.swagger.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.service.AccountManagementService;
 import io.swagger.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +15,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T13:47:48.293Z[GMT]")
@@ -82,8 +69,11 @@ public class AccountsApiController implements AccountsApi {
 
     public ResponseEntity<List<Account>> getAccounts(@Min(1) @Max(50) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="50"
             , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="20") Integer limit,@Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
-            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page, @Parameter(in = ParameterIn.PATH, description = "Current user's id.", required=false, schema=@Schema()) @PathVariable("userId") Integer userId) {
+            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page, @Parameter(in = ParameterIn.QUERY, description = "Current user's id.", required=false, schema=@Schema()) Integer userId) {
         if(userId != null) {
+            List<Account> accounts = accountService.getAllAccountsById(userId);
+            return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
+        } else {
             if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
                 List<Account> accounts = accountService.getAllAccounts();
 
@@ -98,9 +88,6 @@ public class AccountsApiController implements AccountsApi {
             } else {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             }
-        } else {
-            List<Account> accounts = accountService.getAllAccountsById(userId);
-            return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
         }
 
     }

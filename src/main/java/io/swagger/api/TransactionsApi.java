@@ -5,7 +5,7 @@
  */
 package io.swagger.api;
 
-import io.swagger.model.Body5;
+import io.swagger.model.PostTransBody;
 import io.swagger.model.Transaction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,18 +20,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.bind.annotation.CookieValue;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.List;
-import java.util.Map;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2021-06-02T14:07:43.568Z[GMT]")
 @Validated
@@ -52,7 +47,7 @@ public interface TransactionsApi {
             method = RequestMethod.GET)
     ResponseEntity<List<Transaction>> transactionsGet(@Min(1) @Max(1000) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="1000"
             , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="100") Integer limit, @Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
-            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page);
+            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page) throws Exception;
 
 
     @Operation(summary = "Get all transactions by IBAN number.", description = "", security = {
@@ -68,7 +63,7 @@ public interface TransactionsApi {
     @RequestMapping(value = "/transactions/{iban}",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<Transaction>> transactionsIbanGet(@Parameter(in = ParameterIn.PATH, description = "Get all transaction by IBAN number.", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+    ResponseEntity<List<Transaction>> transactionsIbanGet(@Parameter(in = ParameterIn.PATH, description = "Get all transaction by IBAN number.", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws Exception;
 
 
     @Operation(summary = "Add a new transaction.", description = "", security = {
@@ -85,7 +80,7 @@ public interface TransactionsApi {
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<Transaction> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody Body5 body);
+    ResponseEntity<Transaction> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody PostTransBody body) throws Exception;
 
 }
 

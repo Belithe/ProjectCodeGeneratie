@@ -2,15 +2,12 @@ package io.swagger.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.model.AccountType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
  * Account
@@ -46,8 +43,8 @@ public class Account   {
    * @return balance
    **/
   @Schema(example = "123.45", description = "")
-  
-    public Float getBalance() {
+
+  public Float getBalance() {
     return balance;
   }
 
@@ -65,8 +62,8 @@ public class Account   {
    * @return IBAN
    **/
   @Schema(example = "NL01INHO0000000001", description = "")
-  
-    public String getIBAN() {
+
+  public String getIBAN() {
     return IBAN;
   }
 
@@ -84,8 +81,8 @@ public class Account   {
    * @return minimumLimit
    **/
   @Schema(example = "200", description = "")
-  
-    public Float getMinimumLimit() {
+
+  public Float getMinimumLimit() {
     return minimumLimit;
   }
 
@@ -158,7 +155,7 @@ public class Account   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Account {\n");
-    
+
     sb.append("    balance: ").append(toIndentedString(balance)).append("\n");
     sb.append("    IBAN: ").append(toIndentedString(IBAN)).append("\n");
     sb.append("    minimumLimit: ").append(toIndentedString(minimumLimit)).append("\n");
