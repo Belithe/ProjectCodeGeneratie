@@ -166,7 +166,7 @@ class AccountManagementServiceTest {
             accountManagementService.getAllAccountsById(99);
         });
         // Assertions
-        assertTrue(exception.getStatus() == HttpStatus.NOT_FOUND);
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     }
 
     // Put tests
@@ -189,7 +189,7 @@ class AccountManagementServiceTest {
                 accountManagementService.updateExistingAccount("0", new UpdateAccountPutBody().minimumLimit(200f));
                 });
         // Assertions
-        assertTrue(exception.getStatus() == HttpStatus.NOT_FOUND);
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     }
 
     @Test
@@ -205,8 +205,7 @@ class AccountManagementServiceTest {
         // Assertions
 
         assertEquals(exception.getStatus(), HttpStatus.NO_CONTENT);
-        assertTrue(exception.getMessage().contains("No minimum limit was supplied"));
-
+        assertEquals("No minimum limit was supplied", exception.getReason());
     }
 
     // Create tests
@@ -241,7 +240,7 @@ class AccountManagementServiceTest {
 
         // Assertions
         assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
-        assertTrue(exception.getMessage().contains("Account with supplied IBAN was already found"));
+        assertEquals("Account with supplied IBAN was already found", exception.getReason());
 
     }
 
@@ -258,7 +257,7 @@ class AccountManagementServiceTest {
 
         // Assertions
         assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
-        assertTrue(exception.getMessage().contains("One or more fields was not given"));
+        assertEquals("One or more fields was not given", exception.getReason());
     }
 
     @Test
@@ -274,7 +273,7 @@ class AccountManagementServiceTest {
 
         // Assertions
         assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
-        assertTrue(exception.getMessage().contains("One or more fields was not given"));
+        assertEquals("One or more fields was not given", exception.getReason());
     }
 
     @Test
@@ -290,7 +289,7 @@ class AccountManagementServiceTest {
 
         // Assertions
         assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
-        assertTrue(exception.getMessage().contains("One or more fields was not given"));
+        assertEquals("One or more fields was not given", exception.getReason());
     }
 
     @Test
@@ -306,7 +305,7 @@ class AccountManagementServiceTest {
 
         // Assertions
         assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
-        assertTrue(exception.getMessage().contains("One or more fields was not given"));
+        assertEquals("One or more fields was not given", exception.getReason());
     }
 
     @Test
@@ -322,7 +321,7 @@ class AccountManagementServiceTest {
 
         // Assertions
         assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
-        assertTrue(exception.getMessage().contains("IBAN does not match official pattern"));
+        assertEquals("IBAN does not match official pattern", exception.getReason());
 
     }
 
