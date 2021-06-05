@@ -82,14 +82,15 @@ public class AccountManagementService {
     }
 
     public void createNewAccount(CreateAccountPostBody accountToCreate) throws ResponseStatusException {
-        if(!Pattern.matches("^NL\\d{2}INHO\\d{10}", "hi lol")){
+        if (accountToCreate.getUserId() == null || accountToCreate.getIBAN() == null || accountToCreate.getMinimumLimit() == null || accountToCreate.getAccountType() == null || accountRepository.findAccountByIBAN(accountToCreate.getIBAN()) != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if(!Pattern.matches("^NL\\d{2}INHO\\d{10}$", accountToCreate.getIBAN())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         } else {
             Account accountToAdd = new Account();
 
-            if(accountToCreate.getUserId() == null || accountToCreate.getIBAN() == null || accountToCreate.getMinimumLimit() == null || accountToCreate.getAccountType() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-            }
             accountToAdd.setUserId(accountToCreate.getUserId());
             accountToAdd.setIBAN(accountToCreate.getIBAN());
             accountToAdd.setMinimumLimit(accountToCreate.getMinimumLimit());
@@ -98,9 +99,6 @@ public class AccountManagementService {
             accountToAdd.setBalance(0F);
             accountRepository.save(accountToAdd);
         }
-
-
     }
-
 }
 

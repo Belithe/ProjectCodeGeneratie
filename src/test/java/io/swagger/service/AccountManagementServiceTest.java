@@ -109,7 +109,7 @@ class AccountManagementServiceTest {
 
         // Assertions
         assertNotNull(accounts);
-        assertEquals(3, accounts.size());
+        assertEquals(5, accounts.size());
         assertEquals(accounts, expectedAccounts);
     }
 
