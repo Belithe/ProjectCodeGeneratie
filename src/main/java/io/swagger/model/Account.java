@@ -43,8 +43,8 @@ public class Account   {
    * @return balance
    **/
   @Schema(example = "123.45", description = "")
-  
-    public Float getBalance() {
+
+  public Float getBalance() {
     return balance;
   }
 
@@ -62,8 +62,8 @@ public class Account   {
    * @return IBAN
    **/
   @Schema(example = "NL01INHO0000000001", description = "")
-  
-    public String getIBAN() {
+
+  public String getIBAN() {
     return IBAN;
   }
 
@@ -81,8 +81,8 @@ public class Account   {
    * @return minimumLimit
    **/
   @Schema(example = "200", description = "")
-  
-    public Float getMinimumLimit() {
+
+  public Float getMinimumLimit() {
     return minimumLimit;
   }
 
@@ -155,7 +155,7 @@ public class Account   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Account {\n");
-    
+
     sb.append("    balance: ").append(toIndentedString(balance)).append("\n");
     sb.append("    IBAN: ").append(toIndentedString(IBAN)).append("\n");
     sb.append("    minimumLimit: ").append(toIndentedString(minimumLimit)).append("\n");
