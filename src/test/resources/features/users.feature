@@ -30,3 +30,15 @@ Feature: User tests
   Scenario: Update user without authentication
     When Someone makes a PUT request to the /users/2 API endpoint without an authentication token
     Then The server will return a 401 unauthorized
+
+  Scenario: Update user performed by employee
+    When An employee makes a PUT request to the /users/2 API endpoint
+    Then The server will return a 200 ok
+
+  Scenario: Update user performed by customer
+    When A customer makes a PUT request to the /users/2 API endpoint updating fields they have access to
+    Then The server will return a 200 ok
+
+  Scenario: Update user blacklisted fields performed by customer
+    When A customer makes a PUT request to the /users/2 API endpoint updating fields they have do not access to
+    Then The server will return a 403 forbidden

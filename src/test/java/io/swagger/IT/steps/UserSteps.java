@@ -8,6 +8,7 @@ import io.swagger.model.UpdateUserPutBody;
 import io.swagger.model.dto.ExceptionDTO;
 import io.swagger.model.dto.LoginDTO;
 import io.swagger.model.dto.LoginResponseDTO;
+import org.hibernate.sql.Update;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -185,14 +186,89 @@ public class UserSteps {
         }
     }
 
-    @When("Someone makes a PUT request to the \\/users/{int} API endpoint without an authentication token")
-    public void someoneMakesAPUTRequestToTheUsersAPIEndpointWithoutAnAuthenticationToken(int userId) throws URISyntaxException {
+    @When("Someone makes a PUT request to the \\/users\\/{int} API endpoint without an authentication token")
+    public void someoneMakesAPUTRequestToTheUsersAPIEndpointWithoutAnAuthenticationToken(int userId) throws URISyntaxException, JsonProcessingException {
         try {
             // Create request
             URI uri = new URI(baseUrl + "/users/" + userId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json");
+
+            // Create body
+            UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+            userPutBody.setFirstName("test");
+
+            String requestBody = objectMapper.writeValueAsString(userPutBody);
 
             // Perform request
-            restTemplate.getForEntity(uri, ExceptionDTO.class);
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+            restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("An employee makes a PUT request to the \\/users\\/{int} API endpoint")
+    public void anEmployeeMakesAPUTRequestToTheUsersAPIEndpoint(int userId) throws JsonProcessingException, URISyntaxException {
+        // Create request
+        URI uri = new URI(baseUrl + "/users/" + userId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        headers.add("Authorization", getJwtToken("alice@example.com", "idk"));
+
+        // Create body
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setFirstName("Bob");
+
+        String requestBody = objectMapper.writeValueAsString(userPutBody);
+
+        // Perform request
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+        stringResponse = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
+    }
+
+    @Then("The server will return a {int} ok")
+    public void theServerWillReturnAOk(int statusCode) {
+        Assert.assertEquals(statusCode, stringResponse.getStatusCodeValue());
+    }
+
+    @When("A customer makes a PUT request to the \\/users\\/{int} API endpoint updating fields they have access to")
+    public void aCustomerMakesAPUTRequestToTheUsersAPIEndpointUpdatingFieldsTheyHaveAccessTo(int userId) throws URISyntaxException, JsonProcessingException {
+        // Create request
+        URI uri = new URI(baseUrl + "/users/" + userId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        headers.add("Authorization", getJwtToken("bob@example.com", "idk"));
+
+        // Create body
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setPassword("idk");
+
+        String requestBody = objectMapper.writeValueAsString(userPutBody);
+
+        // Perform request
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+        stringResponse = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
+    }
+
+    @When("A customer makes a PUT request to the \\/users\\/{int} API endpoint updating fields they have do not access to")
+    public void aCustomerMakesAPUTRequestToTheUsersAPIEndpointUpdatingFieldsTheyHaveDoNotAccessTo(int userId) throws JsonProcessingException, URISyntaxException {
+        try {
+            // Create request
+            URI uri = new URI(baseUrl + "/users/" + userId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json");
+            headers.add("Authorization", getJwtToken("bob@example.com", "idk"));
+
+            // Create body
+            UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+            userPutBody.setFirstName("Bob");
+
+            String requestBody = objectMapper.writeValueAsString(userPutBody);
+
+            // Perform request
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+            restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
         } catch (HttpClientErrorException e) {
             httpClientErrorException = e;
         }
