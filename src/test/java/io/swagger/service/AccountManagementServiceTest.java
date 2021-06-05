@@ -204,7 +204,8 @@ class AccountManagementServiceTest {
 
         // Assertions
 
-        assertTrue(exception.getStatus() == HttpStatus.NO_CONTENT);
+        assertEquals(exception.getStatus(), HttpStatus.NO_CONTENT);
+        assertTrue(exception.getMessage().contains("No minimum limit was supplied"));
 
     }
 
@@ -239,7 +240,8 @@ class AccountManagementServiceTest {
         });
 
         // Assertions
-        assertTrue(exception.getStatus() == HttpStatus.BAD_REQUEST);
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertTrue(exception.getMessage().contains("Account with supplied IBAN was already found"));
 
     }
 
@@ -255,7 +257,8 @@ class AccountManagementServiceTest {
         });
 
         // Assertions
-        assertTrue(exception.getStatus() == HttpStatus.BAD_REQUEST);
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertTrue(exception.getMessage().contains("One or more fields was not given"));
     }
 
     @Test
@@ -270,7 +273,8 @@ class AccountManagementServiceTest {
         });
 
         // Assertions
-        assertTrue(exception.getStatus() == HttpStatus.BAD_REQUEST);
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertTrue(exception.getMessage().contains("One or more fields was not given"));
     }
 
     @Test
@@ -285,7 +289,8 @@ class AccountManagementServiceTest {
         });
 
         // Assertions
-        assertTrue(exception.getStatus() == HttpStatus.BAD_REQUEST);
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertTrue(exception.getMessage().contains("One or more fields was not given"));
     }
 
     @Test
@@ -300,7 +305,25 @@ class AccountManagementServiceTest {
         });
 
         // Assertions
-        assertTrue(exception.getStatus() == HttpStatus.BAD_REQUEST);
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertTrue(exception.getMessage().contains("One or more fields was not given"));
+    }
+
+    @Test
+    public void createAccountIllegalIBAN() {
+        //Setup
+        CreateAccountPostBody badAccount = getBaseCreateAccountBody();
+        badAccount.setIBAN("ILLEGAL");
+
+        // Execution
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            accountManagementService.createNewAccount(badAccount);
+        });
+
+        // Assertions
+        assertEquals(exception.getStatus(), HttpStatus.BAD_REQUEST);
+        assertTrue(exception.getMessage().contains("IBAN does not match official pattern"));
+
     }
 
     // Delete tests
@@ -324,6 +347,6 @@ class AccountManagementServiceTest {
         });
 
         // Assertions
-        assertTrue(exception.getStatus() == HttpStatus.NOT_FOUND);
+        assertEquals(exception.getStatus(), HttpStatus.NOT_FOUND);
     }
 }

@@ -64,7 +64,7 @@ public class AccountManagementService {
         if (body.getMinimumLimit() != null) {
             accountToEdit.setMinimumLimit(body.getMinimumLimit());
         } else {
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT);
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No minimum limit was supplied");
         }
 
         accountRepository.save(accountToEdit);
@@ -82,12 +82,12 @@ public class AccountManagementService {
     }
 
     public void createNewAccount(CreateAccountPostBody accountToCreate) throws ResponseStatusException {
-        if (accountToCreate.getUserId() == null || accountToCreate.getIBAN() == null || accountToCreate.getMinimumLimit() == null || accountToCreate.getAccountType() == null || accountRepository.findAccountByIBAN(accountToCreate.getIBAN()) != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-
-        if(!Pattern.matches("^NL\\d{2}INHO\\d{10}$", accountToCreate.getIBAN())){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (accountToCreate.getUserId() == null || accountToCreate.getIBAN() == null || accountToCreate.getMinimumLimit() == null || accountToCreate.getAccountType() == null ) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more fields was not given");
+        } else if (accountRepository.findAccountByIBAN(accountToCreate.getIBAN()) != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account with supplied IBAN was already found");
+        } else if(!Pattern.matches("^NL\\d{2}INHO\\d{10}$", accountToCreate.getIBAN())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "IBAN does not match official pattern");
         } else {
             Account accountToAdd = new Account();
 
