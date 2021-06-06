@@ -59,7 +59,7 @@ public class AccountsApiController implements AccountsApi {
     }
 
     public ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws ResponseStatusException {
-        if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
+        if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) && iban.equals("NL01INHO0000000001")){
             accountService.deleteSingleAccount(iban);
             return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
         } else {
@@ -96,6 +96,11 @@ public class AccountsApiController implements AccountsApi {
                         .limit(limit)
                         .collect(Collectors.toList());
 
+                if(page == 0) {
+                    //remove bank account from getAll
+                    accounts.remove(0);
+                }
+
                 return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
             } else {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The current auth token does not provide access to this resource.");
@@ -106,23 +111,19 @@ public class AccountsApiController implements AccountsApi {
     public ResponseEntity<Account> getAccountsByIBAN(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to get.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
         Account accountRequested = accountService .getByIBAN(iban);
 
-        if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || accountRequested.getUserId() == getLoggedInUser().getId()) {
+        if((getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || accountRequested.getUserId() == getLoggedInUser().getId()) && !iban.equals("NL01INHO0000000001")) {
             return new ResponseEntity<Account>(accountRequested, HttpStatus.OK);
-        } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The current auth token does not provide access to this resource.");
         } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The current auth token does not provide access to this resource.");
         }
     }
 
     public ResponseEntity<Void> regularEditAccount(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to edit", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody UpdateAccountPutBody body) {
-        if (getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)) {
+        if (getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) && !iban.equals("NL01INHO0000000001")) {
             accountService.updateExistingAccount(iban, body);
             return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-        } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The current auth token does not provide access to this resource.");
         } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The current auth token does not provide access to this resource.");
         }
     }
 

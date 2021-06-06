@@ -54,6 +54,15 @@ public class AccountControllerTest {
     public void setup(){
         List<Account> accounts = new ArrayList<>();
 
+        Account accountBank = new Account();
+        accountBank.setMinimumLimit(0f);
+        accountBank.setBalance(0f);
+        accountBank.setAccountType(AccountType.CURRENT);
+        accountBank.setIBAN("NL01INHO0000000001");
+        accountBank.setUserId(null);
+
+        accounts.add(accountBank);
+
         // Account 1 is a saving account
         Account account1 = new Account();
         account1.setMinimumLimit(0f);
@@ -320,6 +329,21 @@ public class AccountControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void getAccountByBankIBANAsEmployee() {
+        // Setup
+        given(accountManagementService.getByIBAN("NL01INHO0000000001")).willReturn(expectedAccounts.get(0));
+
+        // Executions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            accountsApiController.getAccountsByIBAN("NL01INHO0000000001");
+        });
+
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+
+    }
+
+    @Test
     @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void getAccountByOwnedIBANAsCustomer() {
         // Setup
@@ -401,6 +425,17 @@ public class AccountControllerTest {
         // Execution
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             accountsApiController.deleteAccount("NL19INHO3286319395");
+        });
+        // Assertions
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void deleteBankAccountAsEmployee() {
+        // Execution
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            accountsApiController.deleteAccount("NL01INHO0000000001");
         });
         // Assertions
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
