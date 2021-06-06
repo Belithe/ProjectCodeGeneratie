@@ -1,4 +1,4 @@
-package io.swagger.service;
+package io.swagger.controller;
 
 import io.swagger.Swagger2SpringBoot;
 import io.swagger.api.UsersApiController;
@@ -8,6 +8,7 @@ import io.swagger.model.User;
 import io.swagger.model.UserRole;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
+import io.swagger.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
