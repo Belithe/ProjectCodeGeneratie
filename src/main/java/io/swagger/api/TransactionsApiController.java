@@ -51,9 +51,9 @@ public class TransactionsApiController implements TransactionsApi {
     }
 
     // get transaction for user
-    public ResponseEntity<List<Transaction>> transactionsGet(@Min(1) @Max(1000) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="1000"
-            , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="20") Integer limit,@Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
-            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page) throws Exception {
+    public ResponseEntity<List<Transaction>> transactionsGet(@Min(0) @Max(1000) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="0", maximum="1000"
+            , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="20") Integer limit,@Min(0)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="0"
+            , defaultValue="0")) @Valid @RequestParam(value = "page", required = false, defaultValue="0") Integer page) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String emailAddress = authentication.getName();
@@ -95,6 +95,11 @@ public class TransactionsApiController implements TransactionsApi {
         if (loggedInUser == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
         }
+        if (body.getTransactionType() == null ||
+                body.getTransferFrom() == null ||
+                body.getTransferTo() == null ||
+                body.getAmount() == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of the input (type, transfer from, transfer to or amount) is missing.");
 
         Transaction transaction = transactionService.createTransaction(loggedInUser.getEmailAddress(), body);
         return new ResponseEntity<Transaction>(transaction, HttpStatus.OK);

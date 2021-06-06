@@ -45,9 +45,9 @@ public interface TransactionsApi {
     @RequestMapping(value = "/transactions",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<Transaction>> transactionsGet(@Min(1) @Max(1000) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1", maximum="1000"
-            , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="100") Integer limit, @Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
-            , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page) throws Exception;
+    ResponseEntity<List<Transaction>> transactionsGet(@Min(0) @Max(1000) @Parameter(in = ParameterIn.QUERY, description = "The number of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="0", maximum="1000"
+            , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="100") Integer limit, @Min(0)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="0"
+            , defaultValue="0")) @Valid @RequestParam(value = "page", required = false, defaultValue="0") Integer page) throws Exception;
 
 
     @Operation(summary = "Get all transactions by IBAN number.", description = "", security = {
