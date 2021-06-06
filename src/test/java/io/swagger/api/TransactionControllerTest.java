@@ -486,21 +486,6 @@ public class TransactionControllerTest {
 
     @Test
     @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
-    public void postTransactionMakeObjectWithInvalidNullShouldThrowExceptionController() throws Exception {
-        // setup
-        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
-        given(accountRepository.findAccountByIBAN(expectedAccountsPerCustomer.get(0).getIBAN())).willReturn(expectedAccountsPerUser.get(0));
-        expectedPostTran.get(0).setTransferTo(null);
-
-        // assertions
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsPost(expectedPostTran.get(0)));
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-        assertEquals("One of the input (type, transfer from, transfer to or amount) is missing.", exception.getReason());
-        expectedPostTran.get(0).setTransferTo("NL01INHO0000000006");
-    }
-
-    @Test
-    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void postTransactionMakeObjectWithInvalidWithdrawShouldThrowExceptionController() throws Exception {
         // setup
         given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
