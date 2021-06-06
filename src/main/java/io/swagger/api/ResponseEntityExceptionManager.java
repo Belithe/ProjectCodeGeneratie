@@ -17,8 +17,13 @@ public class ResponseEntityExceptionManager extends ResponseEntityExceptionHandl
     @Order(3)
     @ExceptionHandler(value = {Exception.class})
     protected ResponseEntity<Object> handleResponseException(Exception ex, WebRequest request) {
-        ExceptionDTO dto = new ExceptionDTO(ex.getMessage());
-        return handleExceptionInternal(ex, dto.toString(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        if (ex.getMessage().contains("Access is denied")) {
+            ExceptionDTO dto = new ExceptionDTO(HttpStatus.UNAUTHORIZED,"Please login with a token.");
+            return handleExceptionInternal(ex, dto.toString(), new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+        } else {
+            ExceptionDTO dto = new ExceptionDTO(ex.getMessage());
+            return handleExceptionInternal(ex, dto.toString(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        }
     }
 
     @Order(1)
