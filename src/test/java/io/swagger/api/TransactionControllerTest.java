@@ -502,9 +502,9 @@ public class TransactionControllerTest {
     @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void postTransactionMakeObjectWithInvalidNullShouldThrowExceptionController() throws Exception {
         // setup
-        expectedPostTran.get(0).setTransferTo("");
         given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
         given(accountRepository.findAccountByIBAN(expectedAccountsPerCustomer.get(0).getIBAN())).willReturn(expectedAccountsPerUser.get(0));
+        expectedPostTran.get(0).setTransferTo(null);
 
         // assertions
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsPost(expectedPostTran.get(0)));
@@ -517,12 +517,14 @@ public class TransactionControllerTest {
     @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void postTransactionMakeObjectWithInvalidWithdrawShouldThrowExceptionController() throws Exception {
         // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
+        given(accountRepository.findAccountByIBAN(expectedAccountsPerCustomer.get(0).getIBAN())).willReturn(expectedAccountsPerUser.get(0));
         expectedPostTran.get(1).setTransferFrom("fnw94ntnn4t");
 
         // assertions
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsPost(expectedPostTran.get(1)));
-        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
         assertEquals("The IBAN to transfer from is incorrect.", exception.getReason());
         expectedPostTran.get(0).setTransferFrom("NL01INHO0000000002");
     }
