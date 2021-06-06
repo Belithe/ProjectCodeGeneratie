@@ -1,4 +1,4 @@
-package io.swagger.controller;
+package io.swagger.api;
 
 import io.swagger.Swagger2SpringBoot;
 import io.swagger.api.UsersApiController;
@@ -299,7 +299,7 @@ public class UserControllerTest {
 
         // Assertions
         assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
     @Test
@@ -330,7 +330,7 @@ public class UserControllerTest {
         // Assertions
         assertNotNull(response);
         assertNull(response.getBody());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     @Test
@@ -365,7 +365,7 @@ public class UserControllerTest {
         ResponseEntity<Void> response = usersApiController.usersUserIdPut(1, userPutBody);
         assertNotNull(response);
         assertNull(response.getBody());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     @Test
@@ -381,7 +381,7 @@ public class UserControllerTest {
         ResponseEntity<Void> response = usersApiController.usersUserIdPut(2, userPutBody);
         assertNotNull(response);
         assertNull(response.getBody());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     @Test

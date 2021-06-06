@@ -148,6 +148,13 @@ public class TransactionService {
         switch (transaction.getType()) {
             case TRANSFER:
                 // determine the transfer from account
+                Boolean checker = false;
+                for (Account account : accounts) {
+                    if (account.getIBAN().contains(transaction.getTransferFrom()))
+                        checker = true;
+                }
+                if (!checker)
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "There is no account associated with the IBAN number to make the transaction.");
                 for (Account account : accounts) {
                     if (transaction.getTransferFrom() == account.getIBAN()) {
                         checkTransactionLimits(transaction, user, account);
@@ -159,19 +166,16 @@ public class TransactionService {
                             }
                             if (transferToUser != null) {
                                 if (transferToAccount.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
-                                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
-                                if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
                                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer to a saving's account of someone else.");
+                                if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
+                                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
                             }
                         } else {
                             // The transfer to IBAN is registered on this bank
                         }
                         updateFromBalance(transaction);
                         updateToBalance(transaction);
-                    } else {
-                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "There is no account associated with the IBAN number to make ");
                     }
-                    break;
                 }
                 break;
 
