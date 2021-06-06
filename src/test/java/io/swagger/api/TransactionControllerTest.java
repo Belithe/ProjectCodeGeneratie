@@ -458,32 +458,17 @@ public class TransactionControllerTest {
         assertEquals("The IBAN number is incorrect.", exception.getReason());
     }
 
-//    @Test
-//    public void getAllTransactionsByIbanWithInvalidUserShouldThrowExceptionNotFoundController() {
-//        // Execution
-//        String iban = expectedAccounts.get(0).getIBAN();
-//        String email = "test@test.com";
-//
-//        // Assertions
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.getTransActionsByIBAN(email, iban));
-//        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
-//        assertEquals("There is no know account with this number.", exception.getReason());
-//    }
+    @Test
+    public void getAllTransactionsByIbanOfBankShouldThrowExceptionNotFound() {
+        // Execution
+        String iban = "NL01INHO0000000001";
 
-//    @Test
-//    public void getAllTransactionsByIbanWithInvalidEmailAddressShouldThrowExceptionController() {
-//        // given
-//        given(accountRepository.findAccountByIBAN(expectedAccounts.get(0).getIBAN())).willReturn(expectedAccounts.get(0));
-//
-//        // Execution
-//        String iban = expectedAccounts.get(0).getIBAN();
-//        String email = "qewfqiuwef.com";
-//
-//        // Assertions
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.getTransActionsByIBAN(email, iban));
-//        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
-//        assertEquals("The email  is incorrect.", exception.getReason());
-//    }
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsIbanGet(iban));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("You can not access this account.", exception.getReason());
+    }
+
 
     @Test
     @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
@@ -533,10 +518,11 @@ public class TransactionControllerTest {
     @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void postTransactionMakeObjectWithInvalidDepositShouldThrowExceptionController() throws Exception {
         // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
+        given(accountRepository.findAccountByIBAN(expectedAccountsPerCustomer.get(0).getIBAN())).willReturn(expectedAccountsPerUser.get(0));
         expectedPostTran.get(2).setTransferTo("fnw94ntnn4t");
 
         // assertions
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(1).getEmailAddress(), expectedPostTran.get(2)));
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsPost(expectedPostTran.get(2)));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
         assertEquals("The IBAN to transfer to is incorrect.", exception.getReason());
@@ -547,6 +533,8 @@ public class TransactionControllerTest {
     @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void postTransactionMakeObjectWithInvalidTransactionToShouldThrowExceptionController() throws Exception {
         // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
+        given(accountRepository.findAccountByIBAN(expectedAccountsPerCustomer.get(0).getIBAN())).willReturn(expectedAccountsPerUser.get(0));
         expectedPostTran.get(0).setTransferTo("fnw94ntnn4t");
 
         // assertions
@@ -556,127 +544,136 @@ public class TransactionControllerTest {
         expectedPostTran.get(0).setTransferTo("NL01INHO0000000002");
     }
 
-//    @Test
-//    public void postTransactionMakeObjectWithInvalidTransactionFromShouldThrowExceptionController() throws Exception {
-//        // setup
-//        expectedPostTran.get(0).setTransferFrom("fnw94ntnn4t");
-//
-//        // assertions
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(1).getEmailAddress(), expectedPostTran.get(0)));
-//        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-//        assertEquals("The IBAN to transfer from is incorrect.", exception.getReason());
-//        expectedPostTran.get(0).setTransferFrom("NL01INHO0000000006");
-//    }
-//
-//    @Test
-//    public void postTransactionWithInvalidBalanceMinimumShouldThrowExceptionController() throws Exception {
-//        // setup
-//        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
-//        given(accountRepository.findAllByUserId(expectedAccountsPerUser.get(0).getUserId())).willReturn(expectedAccountsPerUser);
-//
-//        PostTransBody postTran = new PostTransBody();
-//        postTran.setAmount(1050f);
-//        postTran.setTransactionType(TransactionType.TRANSFER);
-//        postTran.setTransferFrom("NL01INHO0000000002");
-//        postTran.setTransferTo("NL01INHO0000000004");
-//
-//        // assertions
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(0).getEmailAddress(), postTran));
-//        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-//        assertEquals("The balance would fall below the minimum limit defined by user, change the limit or amount of the transaction.", exception.getReason());
-//    }
-//
-//    @Test
-//    public void postTransactionWithInvalidFromToYouShouldThrowExceptionController() throws Exception {
-//        // setup
-//        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
-//        given(accountRepository.findAllByUserId(expectedAccountsPerUser.get(0).getUserId())).willReturn(expectedAccountsPerUser);
-//
-//        PostTransBody postTran = new PostTransBody();
-//        postTran.setAmount(1050f);
-//        postTran.setTransactionType(TransactionType.TRANSFER);
-//        postTran.setTransferFrom("NL01INHO0000000004");
-//        postTran.setTransferTo("NL01INHO0000000002");
-//
-//        // assertions
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(0).getEmailAddress(), postTran));
-//        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
-//        assertEquals("There is no account associated with the IBAN number to make the transaction.", exception.getReason());
-//    }
-//
-//    @Test
-//    public void postTransactionWithInvalidUserMinimumLimitShouldThrowExceptionController() throws Exception {
-//        // setup
-//        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
-//        given(accountRepository.findAllByUserId(expectedAccountsPerUser.get(0).getUserId())).willReturn(expectedAccountsPerUser);
-//
-//        PostTransBody postTran = new PostTransBody();
-//        postTran.setAmount(975f);
-//        postTran.setTransactionType(TransactionType.TRANSFER);
-//        postTran.setTransferFrom("NL01INHO0000000002");
-//        postTran.setTransferTo("NL01INHO0000000004");
-//
-//        // assertions
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(0).getEmailAddress(), postTran));
-//        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-//        assertEquals("The balance would fall below the minimum limit defined by user, change the limit or amount of the transaction.", exception.getReason());
-//    }
-//
-//    @Test
-//    public void postTransactionWithInvalidAmountMinimumLimitShouldThrowExceptionController() throws Exception {
-//        // setup
-//        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
-//        given(accountRepository.findAllByUserId(expectedAccountsPerCustomer.get(0).getUserId())).willReturn(expectedAccountsPerCustomer);
-//
-//        PostTransBody postTran = new PostTransBody();
-//        postTran.setAmount(50f);
-//        postTran.setTransactionType(TransactionType.TRANSFER);
-//        postTran.setTransferFrom("NL01INHO0000000004");
-//        postTran.setTransferTo("NL01INHO0000000002");
-//
-//        // assertions
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(1).getEmailAddress(), postTran));
-//        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-//        assertEquals("The amount of the transaction overseeded the limit of a transaction defined by the user, change the limit or amount of the transaction.", exception.getReason());
-//    }
-//
-//    @Test
-//    public void postTransactionOnOtherSavingAccountShouldThrowExceptionController() throws Exception {
-//        // setup
-//        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
-//        given(accountRepository.findAllByUserId(expectedAccountsPerCustomer.get(0).getUserId())).willReturn(expectedAccountsPerCustomer);
-//
-//        PostTransBody postTran = new PostTransBody();
-//        postTran.setAmount(5f);
-//        postTran.setTransactionType(TransactionType.TRANSFER);
-//        postTran.setTransferFrom("NL01INHO0000000005");
-//        postTran.setTransferTo("NL01INHO0000000006");
-//
-//        given(accountRepository.findAccountByIBAN(postTran.getTransferTo())).willReturn(expectedAccounts.get(4));
-//        given(userRepository.findById(3)).willReturn(Optional.of(expectedUsers.get(2)));
-//        // assertions
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(1).getEmailAddress(), postTran));
-//        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-//        assertEquals("You can not transfer from your saving's account to someone else account.", exception.getReason());
-//    }
-//
-//    @Test
-//    public void postTransactionOnYourSavingAccountShouldThrowExceptionController() throws Exception {
-//        // setup
-//        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
-//        given(accountRepository.findAllByUserId(expectedAccountsPerUser.get(0).getUserId())).willReturn(expectedAccountsPerUser);
-//
-//        PostTransBody postTran = new PostTransBody();
-//        postTran.setAmount(5f);
-//        postTran.setTransactionType(TransactionType.TRANSFER);
-//        postTran.setTransferFrom("NL01INHO0000000002");
-//        postTran.setTransferTo("NL01INHO0000000005");
-//
-//        given(accountRepository.findAccountByIBAN(postTran.getTransferTo())).willReturn(expectedAccounts.get(3));
-//        given(userRepository.findById(2)).willReturn(Optional.of(expectedUsers.get(1)));
-//        // assertions
-//        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(0).getEmailAddress(), postTran));
-//        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-//        assertEquals("You can not transfer to a saving's account of someone else.", exception.getReason());
-//    }
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void postTransactionMakeObjectWithInvalidTransactionFromShouldThrowExceptionController() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
+        given(accountRepository.findAccountByIBAN(expectedAccountsPerCustomer.get(0).getIBAN())).willReturn(expectedAccountsPerUser.get(0));
+        expectedPostTran.get(0).setTransferFrom("fnw94ntnn4t");
+
+        // assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsPost(expectedPostTran.get(0)));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("The IBAN to transfer from is incorrect.", exception.getReason());
+        expectedPostTran.get(0).setTransferFrom("NL01INHO0000000006");
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void postTransactionWithInvalidBalanceMinimumShouldThrowExceptionController() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
+        given(accountRepository.findAllByUserId(expectedAccountsPerUser.get(0).getUserId())).willReturn(expectedAccountsPerUser);
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(1050f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000002");
+        postTran.setTransferTo("NL01INHO0000000004");
+
+        // assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsPost(postTran));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("The balance would fall below the minimum limit defined by user, change the limit or amount of the transaction.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void postTransactionWithInvalidFromToYouShouldThrowExceptionController() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
+        given(accountRepository.findAllByUserId(expectedAccountsPerUser.get(0).getUserId())).willReturn(expectedAccountsPerUser);
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(1050f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000004");
+        postTran.setTransferTo("NL01INHO0000000002");
+
+        // assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsPost(postTran));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("There is no account associated with the IBAN number to make the transaction.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void postTransactionWithInvalidUserMinimumLimitShouldThrowExceptionController() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
+        given(accountRepository.findAllByUserId(expectedAccountsPerUser.get(0).getUserId())).willReturn(expectedAccountsPerUser);
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(975f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000002");
+        postTran.setTransferTo("NL01INHO0000000004");
+
+        // assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsPost(postTran));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("The balance would fall below the minimum limit defined by user, change the limit or amount of the transaction.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void postTransactionWithInvalidAmountMinimumLimitShouldThrowExceptionController() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
+        given(accountRepository.findAllByUserId(expectedAccountsPerCustomer.get(0).getUserId())).willReturn(expectedAccountsPerCustomer);
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(50f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000004");
+        postTran.setTransferTo("NL01INHO0000000002");
+
+        // assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsPost(postTran));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("The amount of the transaction overseeded the limit of a transaction defined by the user, change the limit or amount of the transaction.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
+    public void postTransactionOnOtherSavingAccountShouldThrowExceptionController() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
+        given(accountRepository.findAllByUserId(expectedAccountsPerCustomer.get(0).getUserId())).willReturn(expectedAccountsPerCustomer);
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(5f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000005");
+        postTran.setTransferTo("NL01INHO0000000006");
+
+        given(accountRepository.findAccountByIBAN(postTran.getTransferTo())).willReturn(expectedAccounts.get(4));
+        given(userRepository.findById(3)).willReturn(Optional.of(expectedUsers.get(2)));
+        // assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsPost(postTran));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("You can not transfer from your saving's account to someone else account.", exception.getReason());
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void postTransactionOnYourSavingAccountShouldThrowExceptionController() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
+        given(accountRepository.findAllByUserId(expectedAccountsPerUser.get(0).getUserId())).willReturn(expectedAccountsPerUser);
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(5f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000002");
+        postTran.setTransferTo("NL01INHO0000000005");
+
+        given(accountRepository.findAccountByIBAN(postTran.getTransferTo())).willReturn(expectedAccounts.get(3));
+        given(userRepository.findById(2)).willReturn(Optional.of(expectedUsers.get(1)));
+        // assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsPost(postTran));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("You can not transfer to a saving's account of someone else.", exception.getReason());
+    }
 }

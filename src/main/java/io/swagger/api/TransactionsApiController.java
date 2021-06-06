@@ -63,7 +63,7 @@ public class TransactionsApiController implements TransactionsApi {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
         }
 
-        List<Transaction> transactions = transactionService.getAllTransactions(limit, page, emailAddress);
+        List<Transaction> transactions = transactionService.getAllTransactions(page, limit, emailAddress);
         return new ResponseEntity<List<Transaction>>(transactions, HttpStatus.OK);
     }
 
