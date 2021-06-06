@@ -6,7 +6,7 @@ Feature: User tests
 
   Scenario: Login without password
     When Someone try to login without password
-    Then The server will return a 401 unauthorized
+    Then The server will return a 422 unprocessable_entity
 
   Scenario: Login without emailaddress and without password
     When Someone try to login without emailaddress and without password
