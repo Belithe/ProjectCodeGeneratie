@@ -32,6 +32,21 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Java EE 6-Java EE 6" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:cucumber-java:6.10.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:cucumber-core:6.10.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:cucumber-gherkin:6.10.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:cucumber-gherkin-messages:6.10.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:messages:15.0.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:tag-expressions:3.0.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:cucumber-expressions:10.3.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:datatable:3.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:cucumber-plugin:6.10.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:docstring:6.10.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:html-formatter:13.0.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:create-meta:4.0.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.apiguardian:apiguardian-api:1.1.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.cucumber:cucumber-junit:6.10.4" level="project" />
+    <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.5" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:2.1.16.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:2.1.16.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.1.16.RELEASE" level="project" />
