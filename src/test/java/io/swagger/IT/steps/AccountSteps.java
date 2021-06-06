@@ -134,7 +134,7 @@ public class AccountSteps {
 
     // Returns with httpStatus
     @Then("The server will return a number {int} {word}")
-    public void theServerWillReturnAOk(int statusCode) {
+    public void theServerWillReturnAOk(int statusCode, String statusName) {
         Assert.assertEquals(statusCode, stringResponse.getStatusCodeValue());
     }
 
