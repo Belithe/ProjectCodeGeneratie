@@ -44,6 +44,15 @@ class AccountManagementServiceTest {
     public void setup(){
         List<Account> accounts = new ArrayList<>();
 
+        Account accountBank = new Account();
+        accountBank.setMinimumLimit(0f);
+        accountBank.setBalance(0f);
+        accountBank.setAccountType(AccountType.CURRENT);
+        accountBank.setIBAN("NL01INHO0000000001");
+        accountBank.setUserId(null);
+
+        accounts.add(accountBank);
+
         // Account 1 is a saving account
         Account account1 = new Account();
         account1.setMinimumLimit(0f);

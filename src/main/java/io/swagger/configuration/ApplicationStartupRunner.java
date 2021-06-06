@@ -80,6 +80,16 @@ public class ApplicationStartupRunner implements ApplicationRunner {
         userService.add(charlie);
 
         // Add account for
+        // Bank
+
+        Account bank = new Account();
+        bank.setBalance(0f);
+        bank.setAccountType(AccountType.CURRENT);
+        bank.setIBAN("NL01INHO0000000001");
+        bank.setMinimumLimit(0f);
+        bank.setUserId(null);
+        accountRepository.save(bank);
+
         Account account = new Account();
         account.setBalance(1000f);
         account.setAccountType(AccountType.CURRENT);

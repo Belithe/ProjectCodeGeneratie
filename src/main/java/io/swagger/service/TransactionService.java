@@ -5,6 +5,7 @@ import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.repository.UserRepository;
 
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -33,19 +34,19 @@ public class TransactionService {
 
     private OffsetDateTime localTime;
     private static final String bankIban = "NL01INHO0000000001";
+    private List<UserRole> allUserRoll;
 
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[\\\\w!#$%&’*+/=?`{|}~^-]+(?:\\\\.[\\\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\\\.)+[a-zA-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
-    public static boolean validateEmail(String emailStr) {
-        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
-        return matcher.find();
+    public Boolean validateEmail(String emailStr) {
+        return EmailValidator.getInstance().isValid(emailStr);
     }
 
     public static final Pattern VALID_IBAN_REGEX =
             Pattern.compile("^NL\\d{2}INHO\\d{10}$", Pattern.CASE_INSENSITIVE);
 
-    public static boolean validateIBAN(String iban) {
+    public Boolean validateIBAN(String iban) {
         Matcher matcher = VALID_IBAN_REGEX.matcher(iban);
         return matcher.find();
     }
@@ -53,7 +54,7 @@ public class TransactionService {
     public static final Pattern VALID_MONEY_REGEX =
             Pattern.compile("^[+-]?[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\\.[0-9]{2})?|(?:\\.[0-9]{3})*(?:,[0-9]{2})?)$");
 
-    public static boolean validateAmount(String amount) {
+    public Boolean validateAmount(String amount) {
         Matcher matcher = VALID_MONEY_REGEX.matcher(amount);
         return matcher.find();
     }
@@ -61,7 +62,7 @@ public class TransactionService {
     public static final Pattern VALID_INTEGER_REGEX =
             Pattern.compile("^([0-9]+$)?");
 
-    public static boolean validateInteger(String integer) {
+    public Boolean validateInteger(String integer) {
         Matcher matcher = VALID_INTEGER_REGEX.matcher(integer);
         return matcher.find();
     }
@@ -70,30 +71,40 @@ public class TransactionService {
     public List<Transaction> getAllTransactions(Integer offset, Integer limit, String email) throws Exception {
 //        if (validateInteger(limit)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The limit is invalid.");
 ////        if (validateInteger(offset)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The offset is invalid.");
-        if (validateEmail(email)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The email is invalid.");
+        if (!validateEmail(email))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The email is invalid.");
         User user = findUserByEmail(email);
         if (user == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User could not been found, please try to login again.");
         List<Account> accounts = findAccountById(user);
         List<Transaction> transactions = new ArrayList<>();
-        for (UserRole userRole : user.getRole()) {
-            switch (userRole) {
-                case EMPLOYEE:
-                    for (Account account : accounts) {
-                        transactions.addAll(transactionRepository.findAll());
-                    }
-                    break;
-                case CUSTOMER:
-                    for (Account account : accounts) {
-                        transactions.addAll(transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(account.getIBAN(), account.getIBAN()));
-                    }
-                    break;
+        allUserRoll = new ArrayList<>();
+        allUserRoll.add(UserRole.EMPLOYEE);
+        allUserRoll.add(UserRole.CUSTOMER);
+        if (user.getRole().containsAll(allUserRoll)) {
+            for (Account account : accounts) {
+                transactions.addAll(transactionRepository.findByIban(account.getIBAN()));
+            }
+            List<Transaction> allTran = transactionRepository.findAll();
+            allTran.removeAll(transactions);
+            transactions.addAll(allTran);
+        } else {
+            for (UserRole userRole : user.getRole()) {
+                switch (userRole) {
+                    case EMPLOYEE:
+                        transactions = transactionRepository.findAll();
+                        break;
+                    case CUSTOMER:
+                        for (Account account : accounts) {
+                            transactions.addAll(transactionRepository.findByIban(account.getIBAN()));
+                        }
+                        break;
+                }
             }
         }
         if (transactions.size() == 0) {
             return transactions;
         }
-
         return createPage(offset, limit, transactions);
     }
 
@@ -104,19 +115,19 @@ public class TransactionService {
         Account account = accountRepository.findAccountByIBAN(iban);
         if (account == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no know account with this number.");
-        if (validateEmail(email) || email.isEmpty() || email == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The email number is incorrect.");
+        if (!validateEmail(email) || email.isEmpty() || email == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The email  is incorrect.");
         User user = findUserByEmail(email);
         List<Transaction> transactions = new ArrayList<>();
         for (UserRole userRole : user.getRole().stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList())) {
             if(userRole == UserRole.EMPLOYEE) {
-                transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(iban, iban);
+                transactions = transactionRepository.findByIban(iban);
                 break;
             }
-            if (userRole == UserRole.CUSTOMER && account.getIBAN().equals(iban)) {
-                transactions = transactionRepository.findTransactionsByTransferToOrTransferFromOrderByTimestampDesc(iban, iban);
+            if (userRole == UserRole.CUSTOMER && account.getIBAN().equals(iban) && account.getUserId() == user.getId()) {
+                transactions = transactionRepository.findByIban(iban);
             } else {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to this account.");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to this account.");
             }
         }
         return transactions;
@@ -137,6 +148,13 @@ public class TransactionService {
         switch (transaction.getType()) {
             case TRANSFER:
                 // determine the transfer from account
+                Boolean checker = false;
+                for (Account account : accounts) {
+                    if (account.getIBAN().contains(transaction.getTransferFrom()))
+                        checker = true;
+                }
+                if (!checker)
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "There is no account associated with the IBAN number to make the transaction.");
                 for (Account account : accounts) {
                     if (transaction.getTransferFrom() == account.getIBAN()) {
                         checkTransactionLimits(transaction, user, account);
@@ -148,19 +166,16 @@ public class TransactionService {
                             }
                             if (transferToUser != null) {
                                 if (transferToAccount.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
-                                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
-                                if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
                                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer to a saving's account of someone else.");
+                                if (account.getAccountType() == AccountType.SAVING && transferToUser.getId() != user.getId())
+                                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not transfer from your saving's account to someone else account.");
                             }
                         } else {
                             // The transfer to IBAN is registered on this bank
                         }
                         updateFromBalance(transaction);
                         updateToBalance(transaction);
-                    } else {
-                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "There is no account associated with the IBAN number to make ");
                     }
-                    break;
                 }
                 break;
 
@@ -178,7 +193,8 @@ public class TransactionService {
                 }
                 break;
         }
-        return transactionRepository.save(transaction);
+        transactionRepository.save(transaction);
+        return transaction;
     }
 
     // update from account
@@ -244,8 +260,9 @@ public class TransactionService {
     private Transaction makeObject(PostTransBody postTransBody) {
         if (postTransBody.getTransactionType() == null ||
                 postTransBody.getTransferFrom() == null ||
-                postTransBody.getTransferTo() == null || postTransBody.getAmount() == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One of the input (type, transfer from, transfer to or amount) is missing.");
+                postTransBody.getTransferTo() == null ||
+                postTransBody.getAmount() == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of the input (type, transfer from, transfer to or amount) is missing.");
         localTime = OffsetDateTime.now();
         Transaction transaction = new Transaction();
 
@@ -254,18 +271,18 @@ public class TransactionService {
                 transaction.setTransferTo("ATM");
                 if (!validateIBAN(postTransBody.getTransferFrom()))
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer from is incorrect.");
-                transaction.setTransferTo(postTransBody.getTransferFrom());
+                transaction.setTransferFrom(postTransBody.getTransferFrom());
                 break;
             case DEPOSIT:
                 transaction.setTransferFrom("ATM");
                 if (!validateIBAN(postTransBody.getTransferTo()))
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer to is incorrect.");
-                transaction.setTransferFrom(postTransBody.getTransferTo());
+                transaction.setTransferTo(postTransBody.getTransferTo());
                 break;
             case TRANSFER:
                 if (!validateIBAN(postTransBody.getTransferTo()))
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer to is incorrect.");
-                if (!validateIBAN(postTransBody.getTransferTo()))
+                if (!validateIBAN(postTransBody.getTransferFrom()))
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer from is incorrect.");
                 transaction.setTransferFrom(postTransBody.getTransferFrom());
                 transaction.setTransferTo(postTransBody.getTransferTo());
@@ -295,8 +312,8 @@ public class TransactionService {
 
     // create page of list transaction
     private List<Transaction>createPage(Integer offset, Integer limit, List<Transaction> transactions) throws Exception {
-        if (limit <= 0 || offset < 0)
-            throw  new ResponseStatusException(HttpStatus.BAD_REQUEST, "Limit can not be below or eqeal 0, offset can not be below 0");
+        if (limit <= 0 || offset < 0 || offset > limit)
+            throw  new ResponseStatusException(HttpStatus.BAD_REQUEST, "Limit can not be below or eqeal 0, offset can not be below 0, offset can not be higher then limit");
         if (limit == null && offset == null)
             return transactions;
 
