@@ -288,7 +288,7 @@ public class TransactionService {
 
     // find account by user
     private List<Account> findAccountById(User user) {
-        if (accountRepository.findAllByUserId(user.getId()).size() <= 0)
+        if (user == null || accountRepository.findAllByUserId(user.getId()).size() <= 0)
             return null;
         return accountRepository.findAllByUserId(user.getId());
     }
