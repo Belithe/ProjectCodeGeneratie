@@ -218,7 +218,7 @@ public class AccountControllerTest {
     @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
     public void getAccountsByOthersIdAsEmployee() {
         // Setup
-        given(accountManagementService.getAllAccountsById(4)).willReturn(expectedAccounts.subList(3,4));
+        given(accountManagementService.getAllAccountsById(4)).willReturn(expectedAccounts.subList(3,5));
 
         // Execution
         ResponseEntity<List<Account>> gottenAccounts = accountsApiController.getAccounts(20, 1, 4);
@@ -232,7 +232,7 @@ public class AccountControllerTest {
     @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
     public void getAccountsByOwnIdAsEmployee() {
         // Setup
-        given(accountManagementService.getAllAccountsById(1)).willReturn(expectedAccounts.subList(0,0));
+        given(accountManagementService.getAllAccountsById(1)).willReturn(expectedAccounts.subList(0,1));
 
         // Execution
         ResponseEntity<List<Account>> gottenAccounts = accountsApiController.getAccounts(20, 1, 1);
@@ -246,14 +246,14 @@ public class AccountControllerTest {
     @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void getAccountsByOwnIdAsCustomer() {
         // Setup
-        given(accountManagementService.getAllAccountsById(2)).willReturn(expectedAccounts.subList(1,1));
+        given(accountManagementService.getAllAccountsById(2)).willReturn(expectedAccounts.subList(1,2));
 
         // Execution
         ResponseEntity<List<Account>> gottenAccounts = accountsApiController.getAccounts(20, 1, 2);
 
         // Assertions
         assertEquals(1, gottenAccounts.getBody().size());
-        assertEquals(expectedAccounts.subList(3,4), gottenAccounts.getBody());
+        assertEquals(expectedAccounts.subList(1,2), gottenAccounts.getBody());
     }
 
 
@@ -290,7 +290,7 @@ public class AccountControllerTest {
     @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void getAccountsByOthersIdAsCustomer() {
         // Setup
-        given(accountManagementService.getAllAccountsById(4)).willReturn(expectedAccounts.subList(3,4));
+        given(accountManagementService.getAllAccountsById(4)).willReturn(expectedAccounts.subList(3,5));
 
         // Assertions
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {

@@ -105,9 +105,9 @@ public class AccountsApiController implements AccountsApi {
     }
 
     public ResponseEntity<Account> getAccountsByIBAN(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to get.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
-        Account accountRequested = accountService.getByIBAN(iban);
+        Account accountRequested = accountService .getByIBAN(iban);
 
-        if(!getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || accountRequested.getUserId() == getLoggedInUser().getId()) {
+        if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || accountRequested.getUserId() == getLoggedInUser().getId()) {
             return new ResponseEntity<Account>(accountRequested, HttpStatus.OK);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account does not belong to currently logged in user.");
@@ -126,11 +126,14 @@ public class AccountsApiController implements AccountsApi {
 
     public User getLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No account token was given");
+        }
         String emailAddress = authentication.getName();
 
         User loggedInUser = userService.getUserByEmailAddress(emailAddress);
         if (loggedInUser == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Logged in user was not found in database.");
         }
 
         return loggedInUser;
