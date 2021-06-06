@@ -1,4 +1,4 @@
-package io.swagger.controller;
+package io.swagger.api;
 
 import io.swagger.Swagger2SpringBoot;
 import io.swagger.api.UsersApiController;
