@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.server.ResponseStatusException;
 import org.threeten.bp.LocalDate;
@@ -32,6 +33,9 @@ import static org.mockito.BDDMockito.given;
 class UserServiceTest {
     @Autowired
     UserService userService;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @MockBean
     UserRepository userRepository;
@@ -53,7 +57,7 @@ class UserServiceTest {
         alice.transactionLimit(BigDecimal.valueOf(100f));
         alice.dayLimit(1000f);
         alice.birthDate(LocalDate.of(2010, 10, 10));
-        alice.password("idk");
+        alice.password(passwordEncoder.encode("idk"));
 
         users.add(alice);
 
@@ -68,7 +72,7 @@ class UserServiceTest {
         bob.transactionLimit(BigDecimal.valueOf(50f));
         bob.dayLimit(2000f);
         bob.birthDate(LocalDate.of(2012, 12, 12));
-        bob.password("idk");
+        bob.password(passwordEncoder.encode("idk"));
 
         users.add(bob);
 
@@ -84,13 +88,61 @@ class UserServiceTest {
         charlie.transactionLimit(BigDecimal.valueOf(200f));
         charlie.dayLimit(500f);
         charlie.birthDate(LocalDate.of(1980, 8, 18));
-        charlie.password("idk");
+        charlie.password(passwordEncoder.encode("idk"));
 
         users.add(charlie);
-        userRepository.findById
+
         expectedUsers = users;
     }
 
+    // LOGIN
+    @Test
+    public void userLoginCheckEmail() {
+        // Setup
+        given(userRepository.findByEmailAddress("alice@example.com")).willReturn(expectedUsers.get(0));
+
+        // Execution
+        String jwtToken = userService.login("alice@example.com", "idk");
+
+        // Assertions
+        assertNotNull(jwtToken);
+        // eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGljZUBleGFtcGxlLmNvbSIsImF1dGgiOlt7ImF1dGhvcml0eSI6IkVNUExPWUVFIn1dLCJpYXQiOjE2MjI3MTc3MDAsImV4cCI6MTYyMjcyMTMwMH0.n7z3FwVc3adjqP-jUTD0EZ5TWZrZzM_jQ533m5WFPBg
+    }
+
+    @Test
+    public void getResponseStatusExceptionIfNoPassword() {
+        // Execution
+        Exception exception = assertThrows(ResponseStatusException.class, () -> {
+            userService.login("alice@example.com", "");
+        });
+    }
+
+    @Test
+    public void getResponseStatusExceptionIfNoEmailaddress() {
+        // Execution
+        Exception exception = assertThrows(ResponseStatusException.class, () -> {
+            userService.login("", "idk");
+        });
+    }
+
+    @Test
+    public void getResponseStatusExceptionIfNoEmailaddressAndNoPassword() {
+        // Execution
+        Exception exception = assertThrows(ResponseStatusException.class, () -> {
+            userService.login("", "");
+        });
+    }
+
+    @Test
+    public void getResponseStatusExceptionIfEmailAddress() {
+        // Execution
+        Exception exception = assertThrows(ResponseStatusException.class, () -> {
+            userService.login("aliceexample.com", "idk");
+        });
+    }
+
+
+    //USERS
     @Test
     public void getAllUsersShouldReturnListOfUsers() {
         // Setup

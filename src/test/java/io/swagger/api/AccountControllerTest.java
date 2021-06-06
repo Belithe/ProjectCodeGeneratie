@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.server.ResponseStatusException;
 import org.threeten.bp.LocalDate;
 
@@ -27,6 +28,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 
+@ActiveProfiles("unitTesting")
 @SpringBootTest(classes = { Swagger2SpringBoot.class })
 @AutoConfigureMockMvc
 public class AccountControllerTest {
@@ -226,7 +228,7 @@ public class AccountControllerTest {
 
         // Assertions
         assertEquals(2, gottenAccounts.getBody().size());
-        assertEquals(expectedAccounts.subList(3,4), gottenAccounts.getBody());
+        assertEquals(expectedAccounts.subList(3,5), gottenAccounts.getBody());
     }
 
     @Test
@@ -240,7 +242,7 @@ public class AccountControllerTest {
 
         // Assertions
         assertEquals(1, gottenAccounts.getBody().size());
-        assertEquals(expectedAccounts.subList(3,4), gottenAccounts.getBody());
+        assertEquals(expectedAccounts.subList(0,1), gottenAccounts.getBody());
     }
 
     @Test

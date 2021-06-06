@@ -66,12 +66,12 @@ public class UsersApiController implements UsersApi {
 
     public ResponseEntity<User> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody CreateUserPostBody body) {
         userService.createUser(body);
-        return new ResponseEntity<User>(HttpStatus.OK);
+        return new ResponseEntity<User>(HttpStatus.CREATED);
     }
 
     public ResponseEntity<Void> usersUserIdDelete(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
         userService.deleteUserById(userId);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 
     public ResponseEntity<User> usersUserIdGet(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
@@ -117,7 +117,7 @@ public class UsersApiController implements UsersApi {
         }
 
         userService.updateUserById(userId, body);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 
     public ResponseEntity<User> usersSelfGet() {

@@ -52,7 +52,7 @@ public class AccountSteps {
     }
 
     // Check any thrown error
-    @Then("The server will return a number {int} {string} error")
+    @Then("The server will return a number {int} {word} error")
     public void theServerWillReturnAUnauthorized(int expectedHttpStatusCode, String httpStatusString) {
         Assert.assertNotNull(httpClientErrorException);
         Assert.assertEquals(expectedHttpStatusCode, httpClientErrorException.getRawStatusCode());
@@ -197,27 +197,6 @@ public class AccountSteps {
         } catch (HttpClientErrorException e) {
             httpClientErrorException = e;
         }
-    }
-
-
-    // Expect string value
-    @And("The returned JSON objects contains a field of {string} with value of {string}")
-    public void theReturnedJSONObjectsContainsAFieldOfWithValueOf(String key, String expectedValue) throws JSONException {
-        // Parse
-        JSONObject jsonObject = new JSONObject(stringResponse.getBody());
-
-        // Assertions
-        Assert.assertEquals(expectedValue, jsonObject.get(key));
-    }
-
-    // Expect field in exception
-    @And("The returned JSON exception object contains a field of {string} with value of {string}")
-    public void theReturnedJSONExceptionObjectContainsAFieldOfWithValueOf(String key, String expectedValue) throws JSONException {
-        // Parse
-        JSONObject jsonObject = new JSONObject(httpClientErrorException.getResponseBodyAsString());
-
-        // Assertions
-        Assert.assertEquals(expectedValue, jsonObject.get(key));
     }
 
 
@@ -402,3 +381,4 @@ public class AccountSteps {
         }
     }
 }
+
