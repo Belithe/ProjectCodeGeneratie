@@ -87,7 +87,7 @@ class UserServiceTest {
         charlie.password("idk");
 
         users.add(charlie);
-
+        userRepository.findById
         expectedUsers = users;
     }
 
