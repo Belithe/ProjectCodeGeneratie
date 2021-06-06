@@ -392,7 +392,7 @@ public class AccountControllerTest {
         ResponseEntity<Void> responseEntity = accountsApiController.deleteAccount("NL19INHO3286319395");
 
         // Assertions
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
     }
 
     @Test

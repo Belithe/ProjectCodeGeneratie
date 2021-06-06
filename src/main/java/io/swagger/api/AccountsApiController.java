@@ -53,8 +53,10 @@ public class AccountsApiController implements AccountsApi {
         if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
             accountService.createNewAccount(body);
             return new ResponseEntity<Account>(HttpStatus.CREATED);
-        } else {
+        } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -62,8 +64,10 @@ public class AccountsApiController implements AccountsApi {
         if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
             accountService.deleteSingleAccount(iban);
             return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-        } else {
+        } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -82,8 +86,10 @@ public class AccountsApiController implements AccountsApi {
                         .collect(Collectors.toList());
 
                 return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
-            } else {
+            } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            } else {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
             }
         } else {
             if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
@@ -97,8 +103,10 @@ public class AccountsApiController implements AccountsApi {
                         .collect(Collectors.toList());
 
                 return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
-            } else {
+            } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            } else {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
             }
         }
 
@@ -109,8 +117,10 @@ public class AccountsApiController implements AccountsApi {
 
         if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || accountRequested.getUserId() == getLoggedInUser().getId()) {
             return new ResponseEntity<Account>(accountRequested, HttpStatus.OK);
+        } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account does not belong to currently logged in user.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -118,8 +128,10 @@ public class AccountsApiController implements AccountsApi {
         if (getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)) {
             accountService.updateExistingAccount(iban, body);
             return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+        } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Customers are not allowed to edit the minimum limit of an account.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
     }
 
