@@ -22,12 +22,12 @@ Feature: Account tests
   Scenario: Get a single account from the API performed by employee
     When An employee makes a request to the /accounts/NL01INHO0000000002 API endpoint
     Then The server will return a number 200 ok
-    And The returned JSON objects contains a field of "iban" with value of "NL01INHO0000000002"
+    And The returned account JSON objects contains a field of "IBAN" with value of "NL01INHO0000000002"
 
   Scenario: Get own account from the API performed by customer
     When A customer makes a request to the /accounts/NL01INHO0000000002 API endpoint and they own that IBAN
     Then The server will return a number 200 ok
-    And The returned JSON objects contains a field of "iban" with value of "NL01INHO0000000002"
+    And The returned account JSON objects contains a field of "IBAN" with value of "NL01INHO0000000002"
 
   Scenario: Get other's account from the API performed by customer
     When A customer makes a request to the /accounts/NL01INHO0000000004 API endpoint and they do not own that IBAN

@@ -58,6 +58,14 @@ public class AccountSteps {
         Assert.assertEquals(expectedHttpStatusCode, httpClientErrorException.getRawStatusCode());
     }
 
+    @And("The returned account JSON objects contains a field of {string} with value of {string}")
+    public void theReturnedAccountJSONObjectsContainsAFieldOfWithValueOf(String key, String expectedValue) throws JSONException {
+        // Parse
+        JSONObject jsonObject = new JSONObject(stringResponse.getBody());
+
+        // Assertions
+        Assert.assertEquals(expectedValue, jsonObject.get(key));
+    }
 
     // Employee request /accounts/
     @When("An employee makes a request to the /accounts API endpoint")
@@ -245,21 +253,25 @@ public class AccountSteps {
     // Request PUT Customer
     @When("A customer makes a PUT request to the \\/accounts\\/{word} API endpoint updating fields they have access to")
     public void aCustomerMakesAPUTRequestToTheAccountsAPIEndpointUpdatingFieldsTheyHaveAccessTo(String iban) throws URISyntaxException, JsonProcessingException {
-        // Create request
-        URI uri = new URI(baseUrl + "/accounts/" + iban);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json");
-        headers.add("Authorization", getJwtToken("bob@example.com", "idk"));
+        try {
+            // Create request
+            URI uri = new URI(baseUrl + "/accounts/" + iban);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json");
+            headers.add("Authorization", getJwtToken("bob@example.com", "idk"));
 
-        // Create body
-        UpdateAccountPutBody accountPutBody = new UpdateAccountPutBody();
-        accountPutBody.setMinimumLimit(200f);
+            // Create body
+            UpdateAccountPutBody accountPutBody = new UpdateAccountPutBody();
+            accountPutBody.setMinimumLimit(200f);
 
-        String requestBody = objectMapper.writeValueAsString(accountPutBody);
+            String requestBody = objectMapper.writeValueAsString(accountPutBody);
 
-        // Perform request
-        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-        stringResponse = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
+            // Perform request
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+            stringResponse = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
     }
 
 
@@ -351,7 +363,11 @@ public class AccountSteps {
 
         // Create body
         String requestBody = "{\n" +
-                "  \"minimumLimit\": \"200\n\"}";
+                "  \"accountType\": \"current\",\n" +
+                "  \"iban\": \"NL02INHO0123456789\",\n" +
+                "  \"minimumLimit\": 200,\n" +
+                "  \"userId\": 2\n" +
+                "}";
 
         // Perform request
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
