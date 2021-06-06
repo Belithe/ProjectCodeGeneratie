@@ -3,7 +3,7 @@ Feature: Transaction tests
     When Someone makes a request to the /transactions API endpoint without an authentication token
     Then The server will return a 403 forbidden error
 
-  Scenario: Get all users from the API performed by employee
+  Scenario: Get all transactions from the API performed by employee
     When An employee makes a request to the /transactions API endpoint
     Then The server will return list of 3 transactions
     And The transfer from IBAN will be "NL01INHO0000000003" and "NL01INHO0000000002""

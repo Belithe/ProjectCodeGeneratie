@@ -401,4 +401,9 @@ public class TransactionSteps {
         }
     }
 
+    @Then("The server will return a {int} unauthorize error")
+    public void theServerWillReturnAUnauthorizeError(int expectedStatusCode) {
+        Assert.assertNotNull(httpClientErrorException);
+        Assert.assertEquals(expectedStatusCode, httpClientErrorException.getRawStatusCode());
+    }
 }
