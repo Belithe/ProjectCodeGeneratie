@@ -317,6 +317,16 @@ public class UserSteps {
         Assert.assertEquals(statusCode, stringResponse.getStatusCodeValue());
     }
 
+    @Then("The server will return a {int} no content")
+    public void theServerWillReturnANoContent(int statusCode) {
+        Assert.assertEquals(statusCode, stringResponse.getStatusCodeValue());
+    }
+
+    @Then("The server will return a {int} created")
+    public void theServerWillReturnACreated(int statusCode) {
+        Assert.assertEquals(statusCode, stringResponse.getStatusCodeValue());
+    }
+
     @When("A customer makes a PUT request to the \\/users\\/{int} API endpoint updating fields they have access to")
     public void aCustomerMakesAPUTRequestToTheUsersAPIEndpointUpdatingFieldsTheyHaveAccessTo(int userId) throws URISyntaxException, JsonProcessingException {
         // Create request

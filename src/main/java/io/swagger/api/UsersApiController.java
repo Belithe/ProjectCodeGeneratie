@@ -88,7 +88,7 @@ public class UsersApiController implements UsersApi {
         }
 
         User user = userService.getUserById(userId);
-        return new ResponseEntity<User>(user, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<User>(user, HttpStatus.OK);
     }
 
     public ResponseEntity<Void> usersUserIdPut(@Parameter(in = ParameterIn.PATH, description = "The ID of an user.", required=true, schema=@Schema()) @PathVariable("userId") Integer userId,@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody UpdateUserPutBody body) {
