@@ -494,4 +494,29 @@ public class UserSteps {
             httpClientErrorException = e;
         }
     }
+
+    @When("Someone makes a GET request to the \\/users\\/self API endpoint without an authentication token")
+    public void someoneMakesAGETRequestToTheUsersSelfAPIEndpointWithoutAnAuthenticationToken() throws URISyntaxException {
+        try {
+            // Create request
+            URI uri = new URI(baseUrl + "/users/self");
+
+            // Perform request
+            restTemplate.getForEntity(uri, ExceptionDTO.class);
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("Someone makes a GET request to the \\/users\\/self API endpoint providing a authentication token")
+    public void someoneMakesAGETRequestToTheUsersSelfAPIEndpointProvidingAAuthenticationToken() throws URISyntaxException, JsonProcessingException {
+        // Create request
+        URI uri = new URI(baseUrl + "/users/self");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", getJwtToken("bob@example.com", "idk"));
+
+        // Perform request
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+        stringResponse = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+    }
 }

@@ -90,3 +90,18 @@ Feature: User tests
   Scenario: Delete user performed by employee
     When An employee makes a DELETE request to the /users/7 API endpoint
     Then The server will return a 200 ok
+
+  Scenario: Get the current user without authentication
+    When Someone makes a GET request to the /users/self API endpoint without an authentication token
+    Then The server will return a 401 unauthorized
+
+  Scenario: Get the current user with token
+    When Someone makes a GET request to the /users/self API endpoint providing a authentication token
+    Then The server will return a 401 unauthorized
+    And The returned JSON objects contains a field of "emailAddress" with value of "bob@example.com"
+    And The returned JSON objects contains a field of "firstName" with value of "Bob"
+    And The returned JSON objects contains a field of "lastName" with value of "Bobson"
+    And The returned JSON objects contains a field of "birthDate" with value of "2012-12-12"
+    And The returned JSON objects contains a field of "phone" with value of "+31 6 87654321"
+    And The returned JSON objects contains a field of "dayLimit" with value of 2000.0
+    And The returned JSON objects contains a field of "transactionLimit" with value of 50.0
