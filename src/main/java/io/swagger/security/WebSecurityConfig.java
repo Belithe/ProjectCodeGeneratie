@@ -32,9 +32,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.authorizeRequests()
                 .antMatchers("/login").permitAll()
+                .antMatchers("/users/**").permitAll()
                 .antMatchers("/accounts").permitAll()
                 .antMatchers("/accounts/**").permitAll()
-                .antMatchers("/users/**").permitAll()
+                .antMatchers("/transactions").permitAll()
+                .antMatchers("/transactions/**").permitAll()
                 .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/swagger-ui").permitAll()
                 .antMatchers("/swagger-resources/**").permitAll()

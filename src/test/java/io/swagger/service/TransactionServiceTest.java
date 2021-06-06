@@ -665,4 +665,3 @@ class TransactionServiceTest {
         assertEquals("You can not transfer to a saving's account of someone else.", exception.getReason());
     }
 }
-
