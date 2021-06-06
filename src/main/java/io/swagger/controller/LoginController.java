@@ -18,9 +18,4 @@ public class LoginController {
     public String login(@RequestBody LoginDTO login) {
         return userService.login(login.getEmailAddress(), login.getPassword());
     }
-
-    @GetMapping("/test")
-    public String hello(){
-        return "Hello";
-    }
 }
