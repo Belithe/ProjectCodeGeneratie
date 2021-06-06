@@ -41,6 +41,6 @@ public class ExceptionDTO {
         Integer statusCode = this.statusCode;
         String statusMsg = this.statusMsg;
         String message = this.exceptionMsg;
-        return "{\n  \"error\": \"" + statusCode + "\",\n  \"Statusname\": \"" + statusMsg + "\", \n  \"message\": \"" + message + "\"\n}";
+        return "{\n  \"error\": \"" + statusCode + "\",\n  \"statusName\": \"" + statusMsg + "\", \n  \"message\": \"" + message + "\"\n}";
     }
 }

@@ -386,7 +386,11 @@ public class AccountSteps {
 
             // Create body
             String requestBody = "{\n" +
-                    "  \"minimumLimit\": \"200\n\"}";
+                    "  \"accountType\": \"current\",\n" +
+                    "  \"IBAN\": \"NL02INHO0123456780\",\n" +
+                    "  \"minimumLimit\": 200,\n" +
+                    "  \"userId\": 2\n" +
+                    "}";
 
             // Perform request
             HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);

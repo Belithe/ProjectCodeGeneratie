@@ -53,10 +53,8 @@ public class AccountsApiController implements AccountsApi {
         if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
             accountService.createNewAccount(body);
             return new ResponseEntity<Account>(HttpStatus.CREATED);
-        } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The current auth token does not provide access to this resource.");
         }
     }
 
@@ -64,10 +62,8 @@ public class AccountsApiController implements AccountsApi {
         if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
             accountService.deleteSingleAccount(iban);
             return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-        } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The current auth token does not provide access to this resource.");
         }
     }
 
@@ -86,13 +82,11 @@ public class AccountsApiController implements AccountsApi {
                         .collect(Collectors.toList());
 
                 return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
-            } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             } else {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The current auth token does not provide access to this resource.");
             }
         } else {
-            if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
+            if (getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)) {
                 List<Account> accounts = accountService.getAllAccounts();
 
                 page -= 1;
@@ -103,13 +97,10 @@ public class AccountsApiController implements AccountsApi {
                         .collect(Collectors.toList());
 
                 return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
-            } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             } else {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The current auth token does not provide access to this resource.");
             }
         }
-
     }
 
     public ResponseEntity<Account> getAccountsByIBAN(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to get.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
@@ -118,9 +109,9 @@ public class AccountsApiController implements AccountsApi {
         if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || accountRequested.getUserId() == getLoggedInUser().getId()) {
             return new ResponseEntity<Account>(accountRequested, HttpStatus.OK);
         } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The current auth token does not provide access to this resource.");
         } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
         }
     }
 
@@ -129,23 +120,20 @@ public class AccountsApiController implements AccountsApi {
             accountService.updateExistingAccount(iban, body);
             return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
         } else if (getLoggedInUser().getRole().contains(UserRole.CUSTOMER)){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The current auth token does not provide access to this resource.");
         } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
         }
     }
 
 
     public User getLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No account token was given");
-        }
-        String emailAddress = authentication.getName();
 
+        String emailAddress = authentication.getName();
         User loggedInUser = userService.getUserByEmailAddress(emailAddress);
         if (loggedInUser == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Logged in user was not found in database.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
         }
 
         return loggedInUser;
