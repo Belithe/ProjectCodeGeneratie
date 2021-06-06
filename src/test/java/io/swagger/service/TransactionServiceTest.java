@@ -23,6 +23,7 @@ import org.threeten.bp.ZoneOffset;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -103,8 +104,8 @@ class TransactionServiceTest {
         bob.emailAddress("bob@example.com");
         bob.addRoleItem(UserRole.CUSTOMER);
         bob.phone("+31 6 87654321");
-        bob.transactionLimit(BigDecimal.valueOf(50f));
-        bob.dayLimit(2000f);
+        bob.transactionLimit(BigDecimal.valueOf(20f));
+        bob.dayLimit(30f);
         bob.birthDate(LocalDate.of(2012, 12, 12));
         bob.password("idk");
 
@@ -120,7 +121,7 @@ class TransactionServiceTest {
         charlie.addRoleItem(UserRole.EMPLOYEE);
         charlie.phone("+31 6 12348765");
         charlie.transactionLimit(BigDecimal.valueOf(200f));
-        charlie.dayLimit(500f);
+        charlie.dayLimit(0f);
         charlie.birthDate(LocalDate.of(1980, 8, 18));
         charlie.password("idk");
 
@@ -155,7 +156,7 @@ class TransactionServiceTest {
         accBobCurrent.balance(50f);
         accBobCurrent.accountType(AccountType.CURRENT);
         accBobCurrent.IBAN("NL01INHO0000000004");
-        accBobCurrent.minimumLimit(50f);
+        accBobCurrent.minimumLimit(0f);
         accBobCurrent.userId(2);
         accounts.add(accBobCurrent);
         accountsPerCustomer.add(accBobCurrent);
@@ -165,7 +166,7 @@ class TransactionServiceTest {
         accBobSave.balance(50f);
         accBobSave.accountType(AccountType.SAVING);
         accBobSave.IBAN("NL01INHO0000000005");
-        accBobSave.minimumLimit(50f);
+        accBobSave.minimumLimit(40f);
         accBobSave.userId(2);
         accounts.add(accBobSave);
         accountsPerCustomer.add(accBobSave);
@@ -288,8 +289,8 @@ class TransactionServiceTest {
         PostTransBody postTran = new PostTransBody();
         postTran.setAmount(50f);
         postTran.setTransactionType(TransactionType.TRANSFER);
-        postTran.setTransferFrom("NL01INHO0000000006");
-        postTran.setTransferTo("NL01INHO0000000002");
+        postTran.setTransferFrom("NL01INHO0000000002");
+        postTran.setTransferTo("NL01INHO0000000003");
         posts.add(postTran);
 
         PostTransBody postWith = new PostTransBody();
@@ -387,11 +388,11 @@ class TransactionServiceTest {
     @Test
     public void postTransactionOnCurrentAccount() throws Exception {
         // setup
-        given(userRepository.findByEmailAddress(expectedUsers.get(2).getEmailAddress())).willReturn(expectedUsers.get(2));
-        given(accountRepository.findAllByUserId(expectedAccounts.get(4).getUserId())).willReturn(expectedAccountsPerCustomerEmplyee);
+        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
+        given(accountRepository.findAllByUserId(expectedAccounts.get(0).getUserId())).willReturn(expectedAccountsPerUser);
 
         // execute
-        Transaction postTrans = transactionService.createTransaction(expectedUsers.get(2).getEmailAddress(), expectedPostTran.get(0));
+        Transaction postTrans = transactionService.createTransaction(expectedUsers.get(0).getEmailAddress(), expectedPostTran.get(0));
 
         // assertions
         assertNotNull(postTrans);
@@ -399,7 +400,7 @@ class TransactionServiceTest {
         assertEquals(expectedPostTran.get(0).getTransferFrom() , postTrans.getTransferFrom());
         assertEquals(expectedPostTran.get(0).getTransferTo() , postTrans.getTransferTo());
         assertEquals(expectedPostTran.get(0).getTransactionType() , postTrans.getType());
-        assertEquals(expectedUsers.get(2).getId(), postTrans.getUserPerforming());
+        assertEquals(expectedUsers.get(0).getId(), postTrans.getUserPerforming());
     }
 
     @Test
@@ -613,37 +614,84 @@ class TransactionServiceTest {
 
         // assertions
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(0).getEmailAddress(), postTran));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("There is no account associated with the IBAN number to make the transaction.", exception.getReason());
+    }
+
+    @Test
+    public void postTransactionWithInvalidUserMinimumLimitShouldThrowException() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
+        given(accountRepository.findAllByUserId(expectedAccountsPerUser.get(0).getUserId())).willReturn(expectedAccountsPerUser);
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(975f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000002");
+        postTran.setTransferTo("NL01INHO0000000004");
+
+        // assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(0).getEmailAddress(), postTran));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
         assertEquals("The balance would fall below the minimum limit defined by user, change the limit or amount of the transaction.", exception.getReason());
     }
+
+    @Test
+    public void postTransactionWithInvalidAmountMinimumLimitShouldThrowException() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
+        given(accountRepository.findAllByUserId(expectedAccountsPerCustomer.get(0).getUserId())).willReturn(expectedAccountsPerCustomer);
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(50f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000004");
+        postTran.setTransferTo("NL01INHO0000000002");
+
+        // assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(1).getEmailAddress(), postTran));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("The amount of the transaction overseeded the limit of a transaction defined by the user, change the limit or amount of the transaction.", exception.getReason());
+    }
+
+    @Test
+    public void postTransactionOnOtherSavingAccountShouldThrowException() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(1).getEmailAddress())).willReturn(expectedUsers.get(1));
+        given(accountRepository.findAllByUserId(expectedAccountsPerCustomer.get(0).getUserId())).willReturn(expectedAccountsPerCustomer);
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(5f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000005");
+        postTran.setTransferTo("NL01INHO0000000006");
+
+        given(accountRepository.findAccountByIBAN(postTran.getTransferTo())).willReturn(expectedAccounts.get(4));
+        given(userRepository.findById(3)).willReturn(Optional.of(expectedUsers.get(2)));
+        // assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(1).getEmailAddress(), postTran));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("You can not transfer from your saving's account to someone else account.", exception.getReason());
+    }
+
+    @Test
+    public void postTransactionOnYourSavingAccountShouldThrowException() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
+        given(accountRepository.findAllByUserId(expectedAccountsPerUser.get(0).getUserId())).willReturn(expectedAccountsPerUser);
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(5f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000002");
+        postTran.setTransferTo("NL01INHO0000000005");
+
+        given(accountRepository.findAccountByIBAN(postTran.getTransferTo())).willReturn(expectedAccounts.get(3));
+        given(userRepository.findById(2)).willReturn(Optional.of(expectedUsers.get(1)));
+        // assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.createTransaction(expectedUsers.get(0).getEmailAddress(), postTran));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("You can not transfer to a saving's account of someone else.", exception.getReason());
+    }
 }
 
-
-// post transaction
-// 400 BAD_REQUEST "The balance would fall below the minimum limit defined by user, change the limit or amount of the transaction."
-//        PostTransBody postTran = new PostTransBody();
-//        postTran.setAmount(1050f);
-//        postTran.setTransactionType(TransactionType.TRANSFER);
-//        postTran.setTransferFrom("NL01INHO0000000002");
-//        postTran.setTransferTo("NL01INHO0000000004");
-
-// 403 FORBIDDEN "You cannot transfer from other account other then your own."
-//        PostTransBody postTran = new PostTransBody();
-//        postTran.setAmount(1010f);
-//        postTran.setTransactionType(TransactionType.TRANSFER);
-//        postTran.setTransferFrom("NL01INHO0000000004");
-//        postTran.setTransferTo("NL01INHO0000000010");
-
-// 400 BAD_REQUEST "The balance would fall below the minimum limit defined by user, change the limit or amount of the transaction."
-//        PostTransBody postTran = new PostTransBody();
-//        postTran.setAmount(1010f);
-//        postTran.setTransactionType(TransactionType.TRANSFER);
-//        postTran.setTransferFrom("NL01INHO0000000002");
-//        postTran.setTransferTo("NL01INHO0000000010");
-
-// 400 BAD_REQUEST "The amount of the transaction overseeded the limit of a transaction defined by the user, change the limit or amount of the transaction."
-//        PostTransBody postTran = new PostTransBody();
-//        postTran.setAmount(50f);
-//        postTran.setTransactionType(TransactionType.TRANSFER);
-//        postTran.setTransferFrom("NL01INHO0000000002");
-//        postTran.setTransferTo("NL01INHO0000000004");
