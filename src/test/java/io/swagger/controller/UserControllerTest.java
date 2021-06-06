@@ -1,4 +1,4 @@
-package io.swagger.service;
+package io.swagger.controller;
 
 import io.swagger.Swagger2SpringBoot;
 import io.swagger.api.UsersApiController;
@@ -8,6 +8,7 @@ import io.swagger.model.User;
 import io.swagger.model.UserRole;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
+import io.swagger.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.server.ResponseStatusException;
 import org.threeten.bp.LocalDate;
 
@@ -35,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 
+@ActiveProfiles("unitTesting")
 @SpringBootTest(classes = { Swagger2SpringBoot.class })
 @AutoConfigureMockMvc
 public class UserControllerTest {
