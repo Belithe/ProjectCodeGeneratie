@@ -42,7 +42,7 @@ public class ResponseEntityExceptionManager extends ResponseEntityExceptionHandl
 
     @Order(3)
     @ExceptionHandler(value = { AccessDeniedException.class })
-    protected ResponseEntity<Object> handleResponseAAException(Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleAccessDeniedException(Exception ex, WebRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && userService.getUserByEmailAddress(authentication.getName()) != null) {
