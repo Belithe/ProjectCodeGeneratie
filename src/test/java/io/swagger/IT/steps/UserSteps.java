@@ -174,21 +174,30 @@ public class UserSteps {
     }
 
     @And("The returned JSON objects contains a field of {string} with value of {string}")
-    public void theReturnedJSONObjectsContainsAFieldOfWithValueOf(String key, String value) throws JSONException {
+    public void theReturnedJSONObjectsContainsAFieldOfWithValueOf(String key, String expectedValue) throws JSONException {
         // Parse
         JSONObject jsonObject = new JSONObject(stringResponse.getBody());
 
         // Assertions
-        Assert.assertEquals(value, jsonObject.get(key));
+        Assert.assertEquals(expectedValue, jsonObject.get(key));
     }
 
     @And("The returned JSON objects contains a field of {string} with value of {float}")
-    public void theReturnedJSONObjectsContainsAFieldOfWithValueOf(String key, float floatValue) throws JSONException {
+    public void theReturnedJSONObjectsContainsAFieldOfWithValueOf(String key, float expectedFloatValue) throws JSONException {
         // Parse
         JSONObject jsonObject = new JSONObject(stringResponse.getBody());
 
         // Assertions
-        Assert.assertEquals((double) floatValue, jsonObject.get(key));
+        Assert.assertEquals((double) expectedFloatValue, jsonObject.get(key));
+    }
+
+    @And("The returned JSON exception object contains a field of {string} with value of {string}")
+    public void theReturnedJSONExceptionObjectContainsAFieldOfWithValueOf(String key, String expectedValue) throws JSONException {
+        // Parse
+        JSONObject jsonObject = new JSONObject(httpClientErrorException.getResponseBodyAsString());
+
+        // Assertions
+        Assert.assertEquals(expectedValue, jsonObject.get(key));
     }
 
     @When("A customer makes a request to the \\/users\\/{int} API endpoint and they are that not the same user as requested")

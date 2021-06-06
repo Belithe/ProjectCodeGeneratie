@@ -57,6 +57,7 @@ Feature: User tests
   Scenario: Update user blacklisted fields performed by customer
     When A customer makes a PUT request to the /users/2 API endpoint updating fields they have do not access to
     Then The server will return a 403 forbidden
+    And The returned JSON exception object contains a field of "message" with value of "Customers cannot change their firstname of their own."
 
   Scenario: Update user blacklisted fields performed by employee
     When An employee makes a PUT request to the /users/2 API endpoint updating fields the customer does not have access to
