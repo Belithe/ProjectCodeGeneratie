@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.threeten.bp.LocalDate;
 
@@ -22,6 +24,9 @@ public class ApplicationStartupRunner implements ApplicationRunner {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Autowired
     TransactionService transactionService;
@@ -41,7 +46,7 @@ public class ApplicationStartupRunner implements ApplicationRunner {
         alice.transactionLimit(BigDecimal.valueOf(100f));
         alice.dayLimit(1000f);
         alice.birthDate(LocalDate.of(2010, 10, 10));
-        alice.password("idk");
+        alice.password(passwordEncoder.encode("idk"));
 
         userService.add(alice);
 
@@ -55,7 +60,7 @@ public class ApplicationStartupRunner implements ApplicationRunner {
         bob.transactionLimit(BigDecimal.valueOf(50f));
         bob.dayLimit(2000f);
         bob.birthDate(LocalDate.of(2012, 12, 12));
-        bob.password("idk");
+        bob.password(passwordEncoder.encode("idk"));
 
         userService.add(bob);
 
@@ -70,7 +75,7 @@ public class ApplicationStartupRunner implements ApplicationRunner {
         charlie.transactionLimit(BigDecimal.valueOf(200f));
         charlie.dayLimit(500f);
         charlie.birthDate(LocalDate.of(1980, 8, 18));
-        charlie.password("idk");
+        charlie.password(passwordEncoder.encode("idk"));
 
         userService.add(charlie);
 

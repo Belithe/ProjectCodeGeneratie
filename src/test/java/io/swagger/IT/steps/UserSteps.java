@@ -56,6 +56,59 @@ public class UserSteps {
         return "Bearer " + Objects.requireNonNull(responseDTO.getBody()).getAuthToken();
     }
 
+
+    @When("Someone try to login without emailaddress")
+    public void someoneTryToLoginWithoutEmailaddress() throws URISyntaxException, JsonProcessingException {
+        try {
+            getJwtToken("", "idk");
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("Someone try to login with wrong emailaddress format")
+    public void someoneTryToLoginWithWrongEmailaddressFormat() throws URISyntaxException, JsonProcessingException {
+        try {
+            getJwtToken("aliceexample.com", "idk");
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("Someone try to login without password")
+    public void someoneTryToLoginWithoutPassword() throws URISyntaxException, JsonProcessingException {
+        try {
+            getJwtToken("alice@example.com", "");
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("Someone try to login without emailaddress and without password")
+    public void someoneTryToLoginWithoutEmailaddressAndWithoutPassword() throws URISyntaxException, JsonProcessingException {
+        try {
+            getJwtToken("", "");
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @Then("The server will return a {int} unprocessable_entity")
+    public void theServerWillReturnAUnprocessable_entity(int expectedHttpStatusCode) {
+        Assert.assertNotNull(httpClientErrorException);
+        Assert.assertEquals(expectedHttpStatusCode, httpClientErrorException.getRawStatusCode());
+    }
+
+    @When("Someone try to login with wrong emailaddress and password combination")
+    public void someoneTryToLoginWithWrongEmailaddressAndPasswordCombination() throws URISyntaxException, JsonProcessingException {
+        try {
+            getJwtToken("alice@example.com", "wrongpassword");
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+
     @When("Someone makes a request to the /users API endpoint without an authentication token")
     public void iMakeARequestToTheUsersAPIEndpointWithoutAnAuthenticationToken() throws URISyntaxException {
         try {
@@ -74,6 +127,7 @@ public class UserSteps {
         Assert.assertNotNull(httpClientErrorException);
         Assert.assertEquals(expectedHttpStatusCode, httpClientErrorException.getRawStatusCode());
     }
+
 
     @When("An employee makes a request to the /users API endpoint")
     public void anEmployeeMakesARequestToTheUsersAPIEndpoint() throws URISyntaxException, JsonProcessingException {
@@ -493,5 +547,30 @@ public class UserSteps {
         } catch (HttpClientErrorException e) {
             httpClientErrorException = e;
         }
+    }
+
+    @When("Someone makes a GET request to the \\/users\\/self API endpoint without an authentication token")
+    public void someoneMakesAGETRequestToTheUsersSelfAPIEndpointWithoutAnAuthenticationToken() throws URISyntaxException {
+        try {
+            // Create request
+            URI uri = new URI(baseUrl + "/users/self");
+
+            // Perform request
+            restTemplate.getForEntity(uri, ExceptionDTO.class);
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("Someone makes a GET request to the \\/users\\/self API endpoint providing a authentication token")
+    public void someoneMakesAGETRequestToTheUsersSelfAPIEndpointProvidingAAuthenticationToken() throws URISyntaxException, JsonProcessingException {
+        // Create request
+        URI uri = new URI(baseUrl + "/users/self");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", getJwtToken("bob@example.com", "idk"));
+
+        // Perform request
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+        stringResponse = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
     }
 }
