@@ -114,7 +114,7 @@ public class AccountSteps {
     }
 
     // Check returned account list IBANs
-    @And("The IBANs will be {string} and {string}")
+    @And("The IBANs will be {word} and {word}")
     public void theIBANsWillBeAnd(String iban1, String iban2) throws JSONException {
         JSONArray jsonArray = new JSONArray(stringResponse.getBody());
         Assert.assertEquals(iban1, jsonArray.getJSONObject(0).get("iban"));
@@ -123,7 +123,7 @@ public class AccountSteps {
 
 
     // Returns matching IBAN account
-    @Then("The server will return the account with the matching IBAN of {string}")
+    @Then("The server will return the account with the matching IBAN of {word}")
     public void theServerWillReturnTheAccountWithTheMatchingIban(String expectedIban) throws JSONException {
         // Parse
         JSONObject jsonObject = new JSONObject(stringResponse.getBody());
@@ -140,7 +140,7 @@ public class AccountSteps {
 
 
     // Unauthorized request /accounts/IBAN
-    @When("Someone makes a request to the \\/accounts\\/{string} API endpoint without an authentication token")
+    @When("Someone makes a request to the \\/accounts\\/{word} API endpoint without an authentication token")
     public void someoneMakesARequestToTheAccountsAPIEndpointWithoutAnAuthenticationToken(String iban) throws URISyntaxException {
         try {
             // Create request
@@ -154,7 +154,7 @@ public class AccountSteps {
     }
 
     // Employee request /accounts/IBAN
-    @When("An employee makes a request to the \\/accounts\\/{string} API endpoint")
+    @When("An employee makes a request to the \\/accounts\\/{word} API endpoint")
     public void anEmployeeMakesARequestToTheAccountsAPIEndpoint(String iban) throws URISyntaxException, JsonProcessingException {
         // Create request
         URI uri = new URI(baseUrl + "/accounts/" + iban);
@@ -168,7 +168,7 @@ public class AccountSteps {
     }
 
     // Customer request /accounts/IBAN while owned
-    @When("A customer makes a request to the \\/accounts\\/{string} API endpoint and they own that IBAN")
+    @When("A customer makes a request to the \\/accounts\\/{word} API endpoint and they own that IBAN")
     public void aCustomerMakesARequestToTheAccountsAPIEndpointAndTheyOwnTheIBAN(String iban) throws URISyntaxException, JsonProcessingException {
         // Create request
         URI uri = new URI(baseUrl + "/accounts/" + iban);
@@ -182,7 +182,7 @@ public class AccountSteps {
     }
 
     // Customer request /accounts/IBAN not owned
-    @When("A customer makes a request to the \\/accounts\\/{string} API endpoint and they do not own that IBAN")
+    @When("A customer makes a request to the \\/accounts\\/{word} API endpoint and they do not own that IBAN")
     public void aCustomerMakesARequestToTheAccountsAPIEndpointAndTheyAreThatNotTheSameAccountAsRequested(String iban) throws URISyntaxException, JsonProcessingException {
         try {
             // Create request
@@ -201,7 +201,7 @@ public class AccountSteps {
 
 
     // Request PUT unauthorized
-    @When("Someone makes a PUT request to the \\/accounts\\/{string} API endpoint without an authentication token")
+    @When("Someone makes a PUT request to the \\/accounts\\/{word} API endpoint without an authentication token")
     public void someoneMakesAPUTRequestToTheAccountsAPIEndpointWithoutAnAuthenticationToken(String iban) throws URISyntaxException, JsonProcessingException {
         try {
             // Create request
@@ -224,7 +224,7 @@ public class AccountSteps {
     }
 
     // Request PUT Employee
-    @When("An employee makes a PUT request to the \\/accounts\\/{string} API endpoint")
+    @When("An employee makes a PUT request to the \\/accounts\\/{word} API endpoint")
     public void anEmployeeMakesAPUTRequestToTheAccountsAPIEndpoint(String iban) throws JsonProcessingException, URISyntaxException {
         // Create request
         URI uri = new URI(baseUrl + "/accounts/" + iban);
@@ -244,7 +244,7 @@ public class AccountSteps {
     }
 
     // Request PUT Customer
-    @When("A customer makes a PUT request to the \\/accounts\\/{string} API endpoint updating fields they have access to")
+    @When("A customer makes a PUT request to the \\/accounts\\/{word} API endpoint updating fields they have access to")
     public void aCustomerMakesAPUTRequestToTheAccountsAPIEndpointUpdatingFieldsTheyHaveAccessTo(String iban) throws URISyntaxException, JsonProcessingException {
         // Create request
         URI uri = new URI(baseUrl + "/accounts/" + iban);
@@ -265,7 +265,7 @@ public class AccountSteps {
 
 
     //Request DELETE Unauthorized
-    @When("Someone makes a DELETE request to the \\/accounts\\/{string} API endpoint without an authentication token")
+    @When("Someone makes a DELETE request to the \\/accounts\\/{word} API endpoint without an authentication token")
     public void someoneMakesADELETERequestToTheAccountsAPIEndpointWithoutAnAuthenticationToken(String iban) throws URISyntaxException {
         try {
             // Create request
@@ -279,7 +279,7 @@ public class AccountSteps {
     }
 
     //Request DELETE employee
-    @When("An employee makes a DELETE request to the \\/accounts\\/{string} API endpoint")
+    @When("An employee makes a DELETE request to the \\/accounts\\/{word} API endpoint")
     public void anEmployeeMakesADELETERequestToTheAccountsAPIEndpoint(String iban) throws URISyntaxException, JsonProcessingException {
         // Create request
         URI uri = new URI(baseUrl + "/accounts/" + iban);
@@ -292,7 +292,7 @@ public class AccountSteps {
     }
 
     //Request DELETE customer
-    @When("A customer makes a DELETE request to the \\/accounts\\/{string} API endpoint")
+    @When("A customer makes a DELETE request to the \\/accounts\\/{word} API endpoint")
     public void aCustomerMakesADELETERequestToTheAccountsAPIEndpoint(String iban) throws URISyntaxException, JsonProcessingException {
         try {
             // Create request
