@@ -59,6 +59,8 @@ class TransactionServiceTest {
     List<Transaction> expectedTransactionCurrentCustomer;
     List<Transaction> expectedTransactionByCustomer;
 
+    List<PostTransBody> expectedPostTran;
+
     @BeforeEach
     public void setup() {
         List<User> users = new ArrayList<>();
@@ -71,6 +73,7 @@ class TransactionServiceTest {
         List<Transaction> transactionsByIBAN = new ArrayList<>();
         List<Transaction> transactionsByCustomerSaving = new ArrayList<>();
         List<Transaction> transactionsByCustomerCurrent = new ArrayList<>();
+        List<PostTransBody> posts = new ArrayList<>();
         // Users
 
         // Alice is just an employee
@@ -249,6 +252,58 @@ class TransactionServiceTest {
         expectedTransactions = transactions;
         expectedTransactionsByIBAN = transactionsByIBAN;
         expectedTransactionCurrentCustomer = transactionsByCustomerCurrent;
+
+        // post transaction
+        // 400 BAD_REQUEST "The balance would fall below the minimum limit defined by user, change the limit or amount of the transaction."
+//        PostTransBody postTran = new PostTransBody();
+//        postTran.setAmount(1050f);
+//        postTran.setTransactionType(TransactionType.TRANSFER);
+//        postTran.setTransferFrom("NL01INHO0000000002");
+//        postTran.setTransferTo("NL01INHO0000000004");
+
+        // 403 FORBIDDEN "You cannot transfer from other account other then your own."
+//        PostTransBody postTran = new PostTransBody();
+//        postTran.setAmount(1010f);
+//        postTran.setTransactionType(TransactionType.TRANSFER);
+//        postTran.setTransferFrom("NL01INHO0000000004");
+//        postTran.setTransferTo("NL01INHO0000000010");
+
+        // 400 BAD_REQUEST "The balance would fall below the minimum limit defined by user, change the limit or amount of the transaction."
+//        PostTransBody postTran = new PostTransBody();
+//        postTran.setAmount(1010f);
+//        postTran.setTransactionType(TransactionType.TRANSFER);
+//        postTran.setTransferFrom("NL01INHO0000000002");
+//        postTran.setTransferTo("NL01INHO0000000010");
+
+        // 400 BAD_REQUEST "The amount of the transaction overseeded the limit of a transaction defined by the user, change the limit or amount of the transaction."
+//        PostTransBody postTran = new PostTransBody();
+//        postTran.setAmount(50f);
+//        postTran.setTransactionType(TransactionType.TRANSFER);
+//        postTran.setTransferFrom("NL01INHO0000000002");
+//        postTran.setTransferTo("NL01INHO0000000004");
+
+        PostTransBody postTran = new PostTransBody();
+        postTran.setAmount(50f);
+        postTran.setTransactionType(TransactionType.TRANSFER);
+        postTran.setTransferFrom("NL01INHO0000000006");
+        postTran.setTransferTo("NL01INHO0000000002");
+        posts.add(postTran);
+
+        PostTransBody postWith = new PostTransBody();
+        postWith.setAmount(50f);
+        postWith.setTransactionType(TransactionType.WITHDRAW);
+        postWith.setTransferFrom("NL01INHO0000000006");
+        postWith.setTransferTo("");
+        posts.add(postWith);
+
+        PostTransBody postDrop = new PostTransBody();
+        postDrop.setAmount(50f);
+        postDrop.setTransactionType(TransactionType.DEPOSIT);
+        postDrop.setTransferFrom("");
+        postDrop.setTransferTo("NL01INHO0000000006");
+        posts.add(postDrop);
+
+        expectedPostTran = posts;
     }
 
     @Test
@@ -324,6 +379,24 @@ class TransactionServiceTest {
         assertNotNull(transactions);
         assertEquals(2, transactions.size());
         assertEquals(transactions, expectedTransactionsByIBAN);
+    }
+
+
+    @Test
+    public void postTransactionOnCurrentAccount() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(2).getEmailAddress())).willReturn(expectedUsers.get(2));
+        given(accountRepository.findAllByUserId(expectedAccounts.get(4).getUserId())).willReturn(expectedAccountsPerCustomerEmplyee);
+
+        // execute
+        Transaction postTrans = transactionService.createTransaction(expectedUsers.get(2).getEmailAddress(), expectedPostTran.get(0));
+
+        // assertions
+        assertNotNull(postTrans);
+        assertEquals(expectedPostTran.get(0).getAmount() , postTrans.getAmount());
+        assertEquals(expectedPostTran.get(0).getTransferFrom() , postTrans.getTransferFrom());
+        assertEquals(expectedPostTran.get(0).getTransferTo() , postTrans.getTransferTo());
+        assertEquals(expectedPostTran.get(0).getTransactionType() , postTrans.getType());
     }
 
 
