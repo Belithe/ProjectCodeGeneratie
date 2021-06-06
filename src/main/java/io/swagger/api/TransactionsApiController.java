@@ -98,5 +98,6 @@ public class TransactionsApiController implements TransactionsApi {
 
         Transaction transaction = transactionService.createTransaction(loggedInUser.getEmailAddress(), body);
         return new ResponseEntity<Transaction>(transaction, HttpStatus.OK);
+
     }
 }

@@ -188,7 +188,8 @@ public class TransactionService {
                 }
                 break;
         }
-        return transactionRepository.save(transaction);
+        transactionRepository.save(transaction);
+        return transaction;
     }
 
     // update from account
@@ -264,13 +265,13 @@ public class TransactionService {
                 transaction.setTransferTo("ATM");
                 if (!validateIBAN(postTransBody.getTransferFrom()))
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer from is incorrect.");
-                transaction.setTransferTo(postTransBody.getTransferFrom());
+                transaction.setTransferFrom(postTransBody.getTransferFrom());
                 break;
             case DEPOSIT:
                 transaction.setTransferFrom("ATM");
                 if (!validateIBAN(postTransBody.getTransferTo()))
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN to transfer to is incorrect.");
-                transaction.setTransferFrom(postTransBody.getTransferTo());
+                transaction.setTransferTo(postTransBody.getTransferTo());
                 break;
             case TRANSFER:
                 if (!validateIBAN(postTransBody.getTransferTo()))

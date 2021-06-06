@@ -397,7 +397,42 @@ class TransactionServiceTest {
         assertEquals(expectedPostTran.get(0).getTransferFrom() , postTrans.getTransferFrom());
         assertEquals(expectedPostTran.get(0).getTransferTo() , postTrans.getTransferTo());
         assertEquals(expectedPostTran.get(0).getTransactionType() , postTrans.getType());
+        assertEquals(expectedUsers.get(2).getId(), postTrans.getUserPerforming());
     }
 
+    @Test
+    public void postWithdrawOnCurrentAccount() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(2).getEmailAddress())).willReturn(expectedUsers.get(2));
+        given(accountRepository.findAllByUserId(expectedAccounts.get(4).getUserId())).willReturn(expectedAccountsPerCustomerEmplyee);
 
+        // execute
+        Transaction postTrans = transactionService.createTransaction(expectedUsers.get(2).getEmailAddress(), expectedPostTran.get(1));
+
+        // assertions
+        assertNotNull(postTrans);
+        assertEquals(expectedPostTran.get(1).getAmount() , postTrans.getAmount());
+        assertEquals(expectedPostTran.get(1).getTransferFrom() , postTrans.getTransferFrom());
+        assertEquals("ATM" , postTrans.getTransferTo());
+        assertEquals(expectedPostTran.get(1).getTransactionType() , postTrans.getType());
+        assertEquals(expectedUsers.get(2).getId(), postTrans.getUserPerforming());
+    }
+
+    @Test
+    public void postDepositOnCurrentAccount() throws Exception {
+        // setup
+        given(userRepository.findByEmailAddress(expectedUsers.get(2).getEmailAddress())).willReturn(expectedUsers.get(2));
+        given(accountRepository.findAllByUserId(expectedAccounts.get(4).getUserId())).willReturn(expectedAccountsPerCustomerEmplyee);
+
+        // execute
+        Transaction postTrans = transactionService.createTransaction(expectedUsers.get(2).getEmailAddress(), expectedPostTran.get(2));
+
+        // assertions
+        assertNotNull(postTrans);
+        assertEquals(expectedPostTran.get(2).getAmount() , postTrans.getAmount());
+        assertEquals(expectedPostTran.get(2).getTransferTo() , postTrans.getTransferTo());
+        assertEquals("ATM" , postTrans.getTransferFrom());
+        assertEquals(expectedPostTran.get(2).getTransactionType() , postTrans.getType());
+        assertEquals(expectedUsers.get(2).getId(), postTrans.getUserPerforming());
+    }
 }
