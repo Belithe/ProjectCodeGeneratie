@@ -2,12 +2,16 @@ package io.swagger.IT.steps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.swagger.model.CreateUserPostBody;
 import io.swagger.model.UpdateUserPutBody;
+import io.swagger.model.UserRole;
 import io.swagger.model.dto.ExceptionDTO;
 import io.swagger.model.dto.LoginDTO;
 import io.swagger.model.dto.LoginResponseDTO;
+import org.hibernate.sql.Update;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +22,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.threeten.bp.LocalDate;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
@@ -65,6 +71,7 @@ public class UserSteps {
 
     @Then("The server will return a {int} unauthorized")
     public void theServerWillReturnAUnauthorized(int expectedHttpStatusCode) {
+        Assert.assertNotNull(httpClientErrorException);
         Assert.assertEquals(expectedHttpStatusCode, httpClientErrorException.getRawStatusCode());
     }
 
@@ -87,6 +94,14 @@ public class UserSteps {
         Assert.assertEquals(arg0, jsonArray.length());
     }
 
+    @And("The first names will be {string}, {string}, and {string}")
+    public void theFirstNamesWillBeAnd(String name1, String name2, String name3) throws JSONException {
+        JSONArray jsonArray = new JSONArray(stringResponse.getBody());
+        Assert.assertEquals(name1, jsonArray.getJSONObject(0).get("firstName"));
+        Assert.assertEquals(name2, jsonArray.getJSONObject(1).get("firstName"));
+        Assert.assertEquals(name3, jsonArray.getJSONObject(2).get("firstName"));
+    }
+
     @When("A customer makes a request to the /users API endpoint")
     public void aCustomerMakesARequestToTheUsersAPIEndpoint() throws URISyntaxException, JsonProcessingException {
         try {
@@ -106,6 +121,7 @@ public class UserSteps {
 
     @Then("The server will return a {int} forbidden")
     public void theServerWillReturnAForbidden(int expectedHttpStatusCode) {
+        Assert.assertNotNull(httpClientErrorException);
         Assert.assertEquals(expectedHttpStatusCode, httpClientErrorException.getRawStatusCode());
     }
 
@@ -135,24 +151,13 @@ public class UserSteps {
         stringResponse = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
     }
 
-    @Then("The server server will return the user with the email address of alice@example.com")
-    public void theServerServerWillReturnTheUserWithTheEmailAddressOfAliceExampleCom() throws JSONException {
+    @Then("The server server will return the user with the email address of {string}")
+    public void theServerServerWillReturnTheUserWithTheEmailAddressOfAliceExampleCom(String expectedEmailAddress) throws JSONException {
         // Parse
         JSONObject jsonObject = new JSONObject(stringResponse.getBody());
 
         // Assertions
-        Assert.assertEquals(2, jsonObject.get("id"));
-        Assert.assertEquals("bob@example.com", jsonObject.get("emailAddress"));
-        Assert.assertEquals("Bob", jsonObject.get("firstName"));
-        Assert.assertEquals("Bobson", jsonObject.get("lastName"));
-        Assert.assertEquals("2012-12-12", jsonObject.get("birthDate"));
-        Assert.assertEquals("+31 6 87654321", jsonObject.get("phone"));
-        Assert.assertEquals(2000.0, jsonObject.get("dayLimit"));
-        Assert.assertEquals(50.0, jsonObject.get("transactionLimit"));
-
-        JSONArray roles = jsonObject.getJSONArray("role");
-        Assert.assertEquals(1, roles.length());
-        Assert.assertEquals("customer", roles.get(0));
+        Assert.assertEquals(expectedEmailAddress, jsonObject.get("emailAddress"));
     }
 
     @When("A customer makes a request to the \\/users\\/{int} API endpoint and they are that user")
@@ -166,6 +171,33 @@ public class UserSteps {
         // Perform request
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         stringResponse = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+    }
+
+    @And("The returned JSON objects contains a field of {string} with value of {string}")
+    public void theReturnedJSONObjectsContainsAFieldOfWithValueOf(String key, String expectedValue) throws JSONException {
+        // Parse
+        JSONObject jsonObject = new JSONObject(stringResponse.getBody());
+
+        // Assertions
+        Assert.assertEquals(expectedValue, jsonObject.get(key));
+    }
+
+    @And("The returned JSON objects contains a field of {string} with value of {float}")
+    public void theReturnedJSONObjectsContainsAFieldOfWithValueOf(String key, float expectedFloatValue) throws JSONException {
+        // Parse
+        JSONObject jsonObject = new JSONObject(stringResponse.getBody());
+
+        // Assertions
+        Assert.assertEquals((double) expectedFloatValue, jsonObject.get(key));
+    }
+
+    @And("The returned JSON exception object contains a field of {string} with value of {string}")
+    public void theReturnedJSONExceptionObjectContainsAFieldOfWithValueOf(String key, String expectedValue) throws JSONException {
+        // Parse
+        JSONObject jsonObject = new JSONObject(httpClientErrorException.getResponseBodyAsString());
+
+        // Assertions
+        Assert.assertEquals(expectedValue, jsonObject.get(key));
     }
 
     @When("A customer makes a request to the \\/users\\/{int} API endpoint and they are that not the same user as requested")
@@ -185,14 +217,279 @@ public class UserSteps {
         }
     }
 
-    @When("Someone makes a PUT request to the \\/users/{int} API endpoint without an authentication token")
-    public void someoneMakesAPUTRequestToTheUsersAPIEndpointWithoutAnAuthenticationToken(int userId) throws URISyntaxException {
+    @When("Someone makes a PUT request to the \\/users\\/{int} API endpoint without an authentication token")
+    public void someoneMakesAPUTRequestToTheUsersAPIEndpointWithoutAnAuthenticationToken(int userId) throws URISyntaxException, JsonProcessingException {
+        try {
+            // Create request
+            URI uri = new URI(baseUrl + "/users/" + userId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json");
+
+            // Create body
+            UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+            userPutBody.setFirstName("test");
+
+            String requestBody = objectMapper.writeValueAsString(userPutBody);
+
+            // Perform request
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+            restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("An employee makes a PUT request to the \\/users\\/{int} API endpoint")
+    public void anEmployeeMakesAPUTRequestToTheUsersAPIEndpoint(int userId) throws JsonProcessingException, URISyntaxException {
+        // Create request
+        URI uri = new URI(baseUrl + "/users/" + userId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        headers.add("Authorization", getJwtToken("alice@example.com", "idk"));
+
+        // Create body
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setFirstName("Bob");
+
+        String requestBody = objectMapper.writeValueAsString(userPutBody);
+
+        // Perform request
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+        stringResponse = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
+    }
+
+    @Then("The server will return a {int} ok")
+    public void theServerWillReturnAOk(int statusCode) {
+        Assert.assertEquals(statusCode, stringResponse.getStatusCodeValue());
+    }
+
+    @When("A customer makes a PUT request to the \\/users\\/{int} API endpoint updating fields they have access to")
+    public void aCustomerMakesAPUTRequestToTheUsersAPIEndpointUpdatingFieldsTheyHaveAccessTo(int userId) throws URISyntaxException, JsonProcessingException {
+        // Create request
+        URI uri = new URI(baseUrl + "/users/" + userId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        headers.add("Authorization", getJwtToken("bob@example.com", "idk"));
+
+        // Create body
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setPassword("idk");
+
+        String requestBody = objectMapper.writeValueAsString(userPutBody);
+
+        // Perform request
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+        stringResponse = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
+    }
+
+    @When("A customer makes a PUT request to the \\/users\\/{int} API endpoint updating fields they have do not access to")
+    public void aCustomerMakesAPUTRequestToTheUsersAPIEndpointUpdatingFieldsTheyHaveDoNotAccessTo(int userId) throws JsonProcessingException, URISyntaxException {
+        try {
+            // Create request
+            URI uri = new URI(baseUrl + "/users/" + userId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json");
+            headers.add("Authorization", getJwtToken("bob@example.com", "idk"));
+
+            // Create body
+            UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+            userPutBody.setFirstName("Bob");
+
+            String requestBody = objectMapper.writeValueAsString(userPutBody);
+
+            // Perform request
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+            restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @Then("The server will return a {int} bad request")
+    public void theServerWillReturnABadRequest(int statusCode) {
+        Assert.assertNotNull(httpClientErrorException);
+        Assert.assertEquals(statusCode, httpClientErrorException.getRawStatusCode());
+    }
+
+
+    @When("An employee makes a PUT request to the \\/users\\/{int} API endpoint updating fields the customer does not have access to")
+    public void anEmployeeMakesAPUTRequestToTheUsersAPIEndpointUpdatingFieldsTheCustomerDoesNotHaveAccessTo(int userId) throws URISyntaxException, JsonProcessingException {
+        // Create request
+        URI uri = new URI(baseUrl + "/users/" + userId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        headers.add("Authorization", getJwtToken("alice@example.com", "idk"));
+
+        // Create body
+        UpdateUserPutBody userPutBody = new UpdateUserPutBody();
+        userPutBody.setFirstName("Bob");
+
+        String requestBody = objectMapper.writeValueAsString(userPutBody);
+
+        // Perform request
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+        stringResponse = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
+    }
+
+    @When("Someone makes a DELETE request to the \\/users\\/{int} API endpoint without an authentication token")
+    public void someoneMakesADELETERequestToTheUsersAPIEndpointWithoutAnAuthenticationToken(int userId) throws URISyntaxException {
         try {
             // Create request
             URI uri = new URI(baseUrl + "/users/" + userId);
 
             // Perform request
-            restTemplate.getForEntity(uri, ExceptionDTO.class);
+            restTemplate.exchange(uri, HttpMethod.DELETE, null, String.class);
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("An employee makes a DELETE request to the \\/users\\/{int} API endpoint")
+    public void anEmployeeMakesADELETERequestToTheUsersAPIEndpoint(int userId) throws URISyntaxException, JsonProcessingException {
+        // Create request
+        URI uri = new URI(baseUrl + "/users/" + userId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", getJwtToken("alice@example.com", "idk"));
+
+        // Perform request
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+        stringResponse = restTemplate.exchange(uri, HttpMethod.DELETE, entity, String.class);
+    }
+
+    @When("A customer makes a DELETE request to the \\/users\\/{int} API endpoint")
+    public void aCustomerMakesADELETERequestToTheUsersAPIEndpoint(int userId) throws URISyntaxException, JsonProcessingException {
+        try {
+            // Create request
+            URI uri = new URI(baseUrl + "/users/" + userId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", getJwtToken("bob@example.com", "idk"));
+
+            // Perform request
+            HttpEntity<String> entity = new HttpEntity<>(null, headers);
+            restTemplate.exchange(uri, HttpMethod.DELETE, entity, String.class);
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("Someone makes a POST request to the \\/users API endpoint without an authentication token")
+    public void someoneMakesAPOSTRequestToTheUsersAPIEndpointWithoutAnAuthenticationToken() throws URISyntaxException, JsonProcessingException {
+        try {
+            // Create request
+            URI uri = new URI(baseUrl + "/users");
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json");
+
+            // Create body
+            String requestBody = "{\n" +
+                    "  \"birthDate\": \"1800-06-02\",\n" +
+                    "  \"dayLimit\": 0,\n" +
+                    "  \"emailAddress\": \"test@example.com\",\n" +
+                    "  \"firstName\": \"Test\",\n" +
+                    "  \"lastName\": \"Testson\",\n" +
+                    "  \"password\": \"idk\",\n" +
+                    "  \"phone\": \"+31 6 12345678\",\n" +
+                    "  \"role\": [\n" +
+                    "    \"customer\"\n" +
+                    "  ],\n" +
+                    "  \"transactionLimit\": 100\n" +
+                    "}";
+
+            // Perform request
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+            restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("An employee makes a POST request to the \\/users API endpoint")
+    public void anEmployeeMakesAPOSTRequestToTheUsersAPIEndpoint() throws URISyntaxException, JsonProcessingException {
+        // Create request
+        URI uri = new URI(baseUrl + "/users");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        headers.add("Authorization", getJwtToken("alice@example.com", "idk"));
+
+        // Create body
+        String requestBody = "{\n" +
+                "  \"birthDate\": \"1800-06-02\",\n" +
+                "  \"dayLimit\": 0,\n" +
+                "  \"emailAddress\": \"test@example.com\",\n" +
+                "  \"firstName\": \"Test\",\n" +
+                "  \"lastName\": \"Testson\",\n" +
+                "  \"password\": \"idk\",\n" +
+                "  \"phone\": \"+31 6 12345678\",\n" +
+                "  \"role\": [\n" +
+                "    \"customer\"\n" +
+                "  ],\n" +
+                "  \"transactionLimit\": 100\n" +
+                "}";
+
+        // Perform request
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+        stringResponse = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+    }
+
+    @When("An employee makes a POST request to the \\/users API endpoint and does not provide a valid post body")
+    public void anEmployeeMakesAPOSTRequestToTheUsersAPIEndpointAndDoesNotProvideAValidPostBody() throws JsonProcessingException, URISyntaxException {
+        try {
+            // Create request
+            URI uri = new URI(baseUrl + "/users");
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json");
+            headers.add("Authorization", getJwtToken("alice@example.com", "idk"));
+
+            // Create body
+            String requestBody = "{\n" +
+                    "  \"birthDate\": \"1800-06-02\",\n" +
+                    "  \"dayLimit\": 0,\n" +
+                    "  \"emailAddress\": \"test@example.com\",\n" +
+                    "  \"firstName\": \"Test\",\n" +
+                    // Missing last name
+                    "  \"password\": \"idk\",\n" +
+                    "  \"phone\": \"+31 6 12345678\",\n" +
+                    "  \"role\": [\n" +
+                    "    \"customer\"\n" +
+                    "  ],\n" +
+                    "  \"transactionLimit\": 100\n" +
+                    "}";
+
+            // Perform request
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+            stringResponse = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+        } catch (HttpClientErrorException e) {
+            httpClientErrorException = e;
+        }
+    }
+
+    @When("A customer makes a POST request to the \\/users API endpoint")
+    public void aCustomerMakesAPOSTRequestToTheUsersAPIEndpoint() throws JsonProcessingException, URISyntaxException {
+        try {
+            // Create request
+            URI uri = new URI(baseUrl + "/users");
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json");
+            headers.add("Authorization", getJwtToken("bob@example.com", "idk"));
+
+            // Create body
+            String requestBody = "{\n" +
+                    "  \"birthDate\": \"1800-06-02\",\n" +
+                    "  \"dayLimit\": 0,\n" +
+                    "  \"emailAddress\": \"test@example.com\",\n" +
+                    "  \"firstName\": \"Test\",\n" +
+                    "  \"lastName\": \"Testson\",\n" +
+                    "  \"password\": \"idk\",\n" +
+                    "  \"phone\": \"+31 6 12345678\",\n" +
+                    "  \"role\": [\n" +
+                    "    \"customer\"\n" +
+                    "  ],\n" +
+                    "  \"transactionLimit\": 100\n" +
+                    "}";
+
+            // Perform request
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+            stringResponse = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
         } catch (HttpClientErrorException e) {
             httpClientErrorException = e;
         }
