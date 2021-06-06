@@ -1,4 +1,28 @@
 Feature: User tests
+
+  Scenario: Login without emailaddress
+    When Someone try to login without emailaddress
+    Then The server will return a 422 unprocessable_entity
+
+  Scenario: Login without password
+    When Someone try to login without password
+    Then The server will return a 401 unauthorized
+
+  Scenario: Login without emailaddress and without password
+    When Someone try to login without emailaddress and without password
+    Then The server will return a 422 unprocessable_entity
+
+  Scenario: Login with wrong emailaddress format
+    When Someone try to login with wrong emailaddress format
+    Then The server will return a 422 unprocessable_entity
+
+  Scenario: Login with wrong emailaddress and password combination
+    When Someone try to login with wrong emailaddress and password combination
+    Then The server will return a 401 unauthorized
+
+
+
+
   Scenario: Get all users from the API without authentication
     When Someone makes a request to the /users API endpoint without an authentication token
     Then The server will return a 401 unauthorized

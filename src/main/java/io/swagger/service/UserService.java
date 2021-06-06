@@ -36,9 +36,14 @@ public class UserService {
 
     public String login(String emailAddress, String password) {
         try {
-            //login
+            if (password == null || password.length() == 0) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Please enter a password.");
+            }
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(emailAddress, password));
             User user = userRepository.findByEmailAddress(emailAddress);
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Could not find an user on this emailaddress.");
+            }
             return jwtTokenProvider.createToken(emailAddress, user.getRole());
         } catch (AuthenticationException ex) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login failed, because of invalid input.");
