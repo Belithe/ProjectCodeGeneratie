@@ -89,9 +89,9 @@ public class UserSteps {
     }
 
     @Then("The server will return list of {int} users")
-    public void theServerWillReturnListOfUsers(int arg0) throws JSONException {
+    public void theServerWillReturnListOfUsers(int expectedNumberOfUsers) throws JSONException {
         JSONArray jsonArray = new JSONArray(stringResponse.getBody());
-        Assert.assertEquals(arg0, jsonArray.length());
+        Assert.assertEquals(expectedNumberOfUsers, jsonArray.length());
     }
 
     @And("The first names will be {string}, {string}, and {string}")
