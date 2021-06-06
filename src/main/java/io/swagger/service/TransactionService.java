@@ -112,6 +112,8 @@ public class TransactionService {
     public List<Transaction> getTransActionsByIBAN(String email, String iban) throws Exception {
         if (!validateIBAN(iban) || iban.isEmpty() || iban == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The IBAN number is incorrect.");
+        if(bankIban.compareTo(iban) == 0)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not access this account.");
         Account account = accountRepository.findAccountByIBAN(iban);
         if (account == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no know account with this number.");

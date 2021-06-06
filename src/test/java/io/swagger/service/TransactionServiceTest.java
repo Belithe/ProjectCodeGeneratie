@@ -355,7 +355,6 @@ class TransactionServiceTest {
         assertEquals(transactions, expectedTransactionsByIBAN);
     }
 
-
     @Test
     public void postTransactionOnCurrentAccount() throws Exception {
         // setup
@@ -461,6 +460,18 @@ class TransactionServiceTest {
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.getTransActionsByIBAN(email, iban));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         assertEquals("There is no know account with this number.", exception.getReason());
+    }
+
+    @Test
+    public void getAllTransactionsByIbanOfBankShouldThrowExceptionNotFound() {
+        // Execution
+        String iban = "NL01INHO0000000001";
+        String email = "Alice@example.com";
+
+        // Assertions
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionService.getTransActionsByIBAN(email, iban));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("You can not access this account.", exception.getReason());
     }
 
 
