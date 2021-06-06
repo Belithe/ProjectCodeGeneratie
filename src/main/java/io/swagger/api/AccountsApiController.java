@@ -61,7 +61,7 @@ public class AccountsApiController implements AccountsApi {
     public ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws ResponseStatusException {
         if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
             accountService.deleteSingleAccount(iban);
-            return new ResponseEntity<Void>(HttpStatus.OK);
+            return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -117,7 +117,7 @@ public class AccountsApiController implements AccountsApi {
     public ResponseEntity<Void> regularEditAccount(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to edit", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody UpdateAccountPutBody body) {
         if (getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)) {
             accountService.updateExistingAccount(iban, body);
-            return new ResponseEntity<Void>(HttpStatus.OK);
+            return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Customers are not allowed to edit the minimum limit of an account.");
         }
