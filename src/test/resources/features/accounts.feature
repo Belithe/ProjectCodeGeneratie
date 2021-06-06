@@ -30,46 +30,46 @@ Feature: Account tests
     And The returned JSON objects contains a field of "iban" with value of "NL01INHO0000000002"
 
   Scenario: Get other's account from the API performed by customer
-    When A customer makes a request to the /accounts/NL01INHO0000000004 API endpoint and they are that not the same user as requested
+    When A customer makes a request to the /accounts/NL01INHO0000000004 API endpoint and they do not own that IBAN
     Then The server will return a number 403 forbidden error
 
 
     #Put account scenarios
-  Scenario: Update user without authentication
+  Scenario: Update account without authentication
     When Someone makes a PUT request to the /accounts/NL01INHO0000000002 API endpoint without an authentication token
     Then The server will return a number 401 unauthorized error
 
-  Scenario: Update user performed by employee
+  Scenario: Update account performed by employee
     When An employee makes a PUT request to the /accounts/NL01INHO0000000002 API endpoint
-    Then The server will return a number 204 no content
+    Then The server will return a number 204 noContent
 
-  Scenario: Update user performed by customer
+  Scenario: Update account performed by customer
     When A customer makes a PUT request to the /accounts/NL01INHO0000000002 API endpoint updating fields they have access to
     Then The server will return a number 403 forbidden error
 
 
     #Post account scenarios
-  Scenario: Create user without authentication
+  Scenario: Create account without authentication
     When Someone makes a POST request to the /accounts API endpoint without an authentication token
     Then The server will return a number 401 unauthorized error
 
-  Scenario: Create user performed by customer
+  Scenario: Create account performed by customer
     When A customer makes a POST request to the /accounts API endpoint
     Then The server will return a number 403 forbidden error
 
-  Scenario: Create user performed by employee
+  Scenario: Create account performed by employee
     When An employee makes a POST request to the /accounts API endpoint
-    Then The server will return a number 201 ok
+    Then The server will return a number 201 created
 
     #Delete account scenarios
-  Scenario: Delete user without authentication
+  Scenario: Delete account without authentication
     When Someone makes a DELETE request to the /accounts/NL01INHO0000000002 API endpoint without an authentication token
     Then The server will return a number 401 unauthorized error
 
-  Scenario: Delete user performed by customer
+  Scenario: Delete account performed by customer
     When A customer makes a DELETE request to the /accounts/NL01INHO0000000002 API endpoint
     Then The server will return a number 403 forbidden error
 
-  Scenario: Delete user performed by employee
+  Scenario: Delete account performed by employee
     When An employee makes a DELETE request to the /accounts/NL01INHO0000000002 API endpoint
-    Then The server will return a number 204 no content
+    Then The server will return a number 204 noContent

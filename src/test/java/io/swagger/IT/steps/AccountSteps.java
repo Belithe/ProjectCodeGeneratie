@@ -133,11 +133,10 @@ public class AccountSteps {
     }
 
     // Returns with httpStatus
-    @Then("The server will return a number {int} ok")
+    @Then("The server will return a number {int} {word}")
     public void theServerWillReturnAOk(int statusCode) {
         Assert.assertEquals(statusCode, stringResponse.getStatusCodeValue());
     }
-
 
     // Unauthorized request /accounts/IBAN
     @When("Someone makes a request to the \\/accounts\\/{word} API endpoint without an authentication token")
