@@ -2,6 +2,7 @@ package io.swagger.api;
 
 import io.swagger.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.model.dto.ExceptionDTO;
 import io.swagger.service.AccountManagementService;
 import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -76,6 +77,7 @@ public class AccountsApiController implements AccountsApi {
             accountService.deleteSingleAccount(iban);
             return new ResponseEntity<Void>(HttpStatus.OK);
         } else {
+
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }
@@ -96,7 +98,8 @@ public class AccountsApiController implements AccountsApi {
 
                 return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
             } else {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+                ExceptionDTO exception = new ExceptionDTO(HttpStatus.UNAUTHORIZED);
+                throw new ResponseStatusException(exception.getHttpStatus(), exception.getExceptionMsg());
             }
         } else {
             List<Account> accounts = accountService.getAllAccountsById(userId);
@@ -111,7 +114,9 @@ public class AccountsApiController implements AccountsApi {
         if(!getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || accountRequested.getUserId() == getLoggedInUser().getId()) {
             return new ResponseEntity<Account>(accountRequested, HttpStatus.OK);
         } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account does not belong to currently logged in user.");
+            ExceptionDTO exception = new ExceptionDTO(HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(exception.getHttpStatus(), exception.getExceptionMsg());
+            //Account does not belong to currently logged in user.
         }
     }
 
@@ -131,7 +136,8 @@ public class AccountsApiController implements AccountsApi {
 
         User loggedInUser = userService.getUserByEmailAddress(emailAddress);
         if (loggedInUser == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication token was given.");
+            ExceptionDTO exception = new ExceptionDTO(HttpStatus.FORBIDDEN);
+            throw new ResponseStatusException(exception.getHttpStatus(), exception.getExceptionMsg());
         }
 
         return loggedInUser;
