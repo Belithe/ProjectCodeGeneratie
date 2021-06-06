@@ -41,7 +41,7 @@ Feature: Account tests
 
   Scenario: Update user performed by employee
     When An employee makes a PUT request to the /accounts/NL01INHO0000000002 API endpoint
-    Then The server will return a number 200 ok
+    Then The server will return a number 204 no content
 
   Scenario: Update user performed by customer
     When A customer makes a PUT request to the /accounts/NL01INHO0000000002 API endpoint updating fields they have access to
@@ -72,4 +72,4 @@ Feature: Account tests
 
   Scenario: Delete user performed by employee
     When An employee makes a DELETE request to the /accounts/NL01INHO0000000002 API endpoint
-    Then The server will return a number 200 ok
+    Then The server will return a number 204 no content
