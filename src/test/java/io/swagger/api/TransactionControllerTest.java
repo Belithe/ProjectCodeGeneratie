@@ -459,10 +459,11 @@ public class TransactionControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
     public void getAllTransactionsByIbanOfBankShouldThrowExceptionNotFound() {
         // Execution
         String iban = "NL01INHO0000000001";
-
+        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
         // Assertions
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> transactionsApiController.transactionsIbanGet(iban));
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
