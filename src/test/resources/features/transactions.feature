@@ -1,7 +1,7 @@
 Feature: Transaction tests
   Scenario: Get all transactions from the API without authentication
     When Someone makes a request to the /transactions API endpoint without an authentication token
-    Then The server will return a 401 error unauthorized
+    Then The server will return a 403 forbidden error
 
   Scenario: Get all users from the API performed by employee
     When An employee makes a request to the /transactions API endpoint
@@ -10,11 +10,11 @@ Feature: Transaction tests
 
   Scenario: Get all transactions from the API performed by customer
     When A transactions makes a request to the /transactions API endpoint
-    Then The server will return a 403 forbidden
+    Then The server will return a 401 unauthorize error
 
   Scenario: Get a single transaction from the API without authentication
     When Someone makes a request to the /transactions/1 API endpoint without an authentication token
-    Then The server will return a 401 unauthorized
+    Then The server will return a 401 unauthorize error
 
   Scenario: Get a single transaction from the API performed by employee
     When An employee makes a request to the /transactions/2 API endpoint
@@ -36,24 +36,24 @@ Feature: Transaction tests
 
   Scenario: Create transaction without authentication
     When Someone makes a POST request to the /transactions API endpoint without an authentication token
-    Then The server will return a 401 unauthorized
+    Then The server will return a 403 forbidden error
 
   Scenario: Create transaction performed by customer
     When A customer makes a POST request to the /transactions API endpoint
-    Then The server will return a 403 forbidden
+    Then The server will return a 401 unauthorized error
 
   Scenario: Create transaction performed by employee
     When An employee makes a POST request to the /transactions API endpoint
-    Then The server will return a 200 ok
+    Then The server will return a 200 ok message
 
   Scenario: Create transaction performed by employee with an incomplete body
     When An employee makes a POST request to the /transactions API endpoint and does not provide a valid post body
-    Then The server will return a 400 bad request
+    Then The server will return a 400 bad request error
 
   Scenario: Delete transaction without authentication
     When Someone makes a DELETE request to the /transactions/7 API endpoint without an authentication token
-    Then The server will return a 401 unauthorized
+    Then The server will return a 403 forbidden error
 
   Scenario: Delete transaction performed by employee
     When An employee makes a DELETE request to the /transactions/7 API endpoint
-    Then The server will return a 200 ok
+    Then The server will return a 200 ok message
