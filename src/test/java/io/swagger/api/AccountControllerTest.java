@@ -441,5 +441,47 @@ public class AccountControllerTest {
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     }
 
+    // Put test
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void editAccountAsEmployee() {
+        UpdateAccountPutBody testBody = new UpdateAccountPutBody();
+        testBody.setMinimumLimit(200f);
 
+        // Execution
+        ResponseEntity<Void> responseEntity = accountsApiController.regularEditAccount("NL19INHO3286319395", testBody);
+
+        // Assertions
+        assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void editAccountAsCustomer() {
+        UpdateAccountPutBody testBody = new UpdateAccountPutBody();
+        testBody.setMinimumLimit(200f);
+
+        // Execution
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            accountsApiController.regularEditAccount("NL19INHO3286319395", testBody);
+        });
+
+        // Assertions
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+    @Test
+    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    public void editAccountBankAsEmployee() {
+        UpdateAccountPutBody testBody = new UpdateAccountPutBody();
+        testBody.setMinimumLimit(200f);
+
+        // Execution
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            accountsApiController.regularEditAccount("NL01INHO0000000001", testBody);
+        });
+
+        // Assertions
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
 }
