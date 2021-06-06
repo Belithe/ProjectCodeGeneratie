@@ -256,6 +256,12 @@ public class TransactionSteps {
         Assert.assertEquals(statusCode, httpClientErrorException.getRawStatusCode());
     }
 
+    @Then("The server will return a {int} error unauthorized")
+    public void theServerWillReturnAUnauthorized(int expectedHttpStatusCode) {
+        Assert.assertNotNull(httpClientErrorException);
+        Assert.assertEquals(expectedHttpStatusCode, httpClientErrorException.getRawStatusCode());
+    }
+
 
     @When("An employee makes a PUT request to the \\/transactions\\/{int} API endpoint updating fields the customer does not have access to")
     public void anEmployeeMakesAPUTRequestToTheTransactionsAPIEndpointUpdatingFieldsTheCustomerDoesNotHaveAccessTo(int transactionId) throws URISyntaxException, JsonProcessingException {
