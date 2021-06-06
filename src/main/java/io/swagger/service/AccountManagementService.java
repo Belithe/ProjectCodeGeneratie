@@ -31,15 +31,23 @@ public class AccountManagementService {
     JwtTokenProvider jwtTokenProvider;
 
     public Account getByIBAN(String IBANToGet) {
-        return accountRepository.findAccountByIBAN(IBANToGet);
+        if(accountRepository.findAccountByIBAN(IBANToGet) != null) {
+            return accountRepository.findAccountByIBAN(IBANToGet);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
     }
 
-    public List<Account> getAllAccountsById(Integer userId) {
-        return accountRepository.findAllByUserId(userId);
+    public List<Account> getAllAccountsById(Integer userId) throws ResponseStatusException {
+        if(!accountRepository.findAllByUserId(userId).isEmpty()) {
+            return accountRepository.findAllByUserId(userId);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     public void updateExistingAccount(String IBAN, UpdateAccountPutBody body) throws ResponseStatusException {
@@ -53,17 +61,17 @@ public class AccountManagementService {
         if (body.getMinimumLimit() != null) {
             accountToEdit.setMinimumLimit(body.getMinimumLimit());
         } else {
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT);
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No minimum limit was supplied");
         }
 
         accountRepository.save(accountToEdit);
     }
 
-    public void deleteSingleAccount(String IBAN) throws NotFoundException {
+    public void deleteSingleAccount(String IBAN) throws ResponseStatusException {
         Account accountToDelete = this.getByIBAN(IBAN);
 
         if (accountToDelete == null) {
-            throw new NotFoundException(404, "Could not find a user with the given user ID.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
         accountRepository.delete(accountToDelete);
@@ -71,22 +79,23 @@ public class AccountManagementService {
     }
 
     public void createNewAccount(CreateAccountPostBody accountToCreate) throws ResponseStatusException {
-        if(!Pattern.matches("^NL\\d{2}INHO\\d{10}", "hi lol")){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        if (accountToCreate.getUserId() == null || accountToCreate.getIBAN() == null || accountToCreate.getMinimumLimit() == null || accountToCreate.getAccountType() == null ) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more fields was not given");
+        } else if (accountRepository.findAccountByIBAN(accountToCreate.getIBAN()) != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account with supplied IBAN was already found");
+        } else if(!Pattern.matches("^NL\\d{2}INHO\\d{10}$", accountToCreate.getIBAN())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "IBAN does not match official pattern");
         } else {
             Account accountToAdd = new Account();
 
             accountToAdd.setUserId(accountToCreate.getUserId());
             accountToAdd.setIBAN(accountToCreate.getIBAN());
             accountToAdd.setMinimumLimit(accountToCreate.getMinimumLimit());
-            accountToAdd.setBalance(0F);
             accountToAdd.setAccountType(accountToCreate.getAccountType());
 
+            accountToAdd.setBalance(0F);
             accountRepository.save(accountToAdd);
         }
-
-
     }
-
 }
 

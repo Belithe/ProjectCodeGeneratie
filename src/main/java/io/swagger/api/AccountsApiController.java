@@ -52,13 +52,13 @@ public class AccountsApiController implements AccountsApi {
     public ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody CreateAccountPostBody body) throws ResponseStatusException {
         if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
             accountService.createNewAccount(body);
-            return new ResponseEntity<Account>(HttpStatus.OK);
+            return new ResponseEntity<Account>(HttpStatus.CREATED);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }
 
-    public ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws NotFoundException {
+    public ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws ResponseStatusException {
         if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
             accountService.deleteSingleAccount(iban);
             return new ResponseEntity<Void>(HttpStatus.OK);
@@ -71,8 +71,20 @@ public class AccountsApiController implements AccountsApi {
             , defaultValue="100")) @Valid @RequestParam(value = "limit", required = false, defaultValue="20") Integer limit,@Min(1)@Parameter(in = ParameterIn.QUERY, description = "The page of transactions to return." ,schema=@Schema(allowableValues={  }, minimum="1"
             , defaultValue="1")) @Valid @RequestParam(value = "page", required = false, defaultValue="1") Integer page, @Parameter(in = ParameterIn.QUERY, description = "Current user's id.", required=false, schema=@Schema()) Integer userId) {
         if(userId != null) {
-            List<Account> accounts = accountService.getAllAccountsById(userId);
-            return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
+            if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || userId == getLoggedInUser().getId()) {
+                List<Account> accounts = accountService.getAllAccountsById(userId);
+
+                page -= 1;
+                int skip = limit * page;
+                accounts = accounts.stream()
+                        .skip(skip)
+                        .limit(limit)
+                        .collect(Collectors.toList());
+
+                return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
+            } else {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
         } else {
             if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE)){
                 List<Account> accounts = accountService.getAllAccounts();
@@ -92,7 +104,7 @@ public class AccountsApiController implements AccountsApi {
 
     }
 
-    public ResponseEntity<Account> getUserAccounts(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to get.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
+    public ResponseEntity<Account> getAccountsByIBAN(@Parameter(in = ParameterIn.PATH, description = "The IBAN of the account to get.", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
         Account accountRequested = accountService.getByIBAN(iban);
 
         if(!getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) || accountRequested.getUserId() == getLoggedInUser().getId()) {
