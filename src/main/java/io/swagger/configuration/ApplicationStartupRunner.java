@@ -46,7 +46,7 @@ public class ApplicationStartupRunner implements ApplicationRunner {
         alice.transactionLimit(BigDecimal.valueOf(100f));
         alice.dayLimit(1000f);
         alice.birthDate(LocalDate.of(2010, 10, 10));
-        alice.password(passwordEncoder.encode("idk"));
+        alice.password("idk");
 
         userService.add(alice);
 
@@ -60,7 +60,7 @@ public class ApplicationStartupRunner implements ApplicationRunner {
         bob.transactionLimit(BigDecimal.valueOf(50f));
         bob.dayLimit(2000f);
         bob.birthDate(LocalDate.of(2012, 12, 12));
-        bob.password(passwordEncoder.encode("idk"));
+        bob.password("idk");
 
         userService.add(bob);
 
@@ -75,7 +75,7 @@ public class ApplicationStartupRunner implements ApplicationRunner {
         charlie.transactionLimit(BigDecimal.valueOf(200f));
         charlie.dayLimit(500f);
         charlie.birthDate(LocalDate.of(1980, 8, 18));
-        charlie.password(passwordEncoder.encode("idk"));
+        charlie.password("idk");
 
         userService.add(charlie);
 

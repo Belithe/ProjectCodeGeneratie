@@ -6,7 +6,7 @@ Feature: User tests
 
   Scenario: Login without password
     When Someone try to login without password
-    Then The server will return a 401 unauthorized
+    Then The server will return a 422 unprocessable_entity
 
   Scenario: Login without emailaddress and without password
     When Someone try to login without emailaddress and without password
@@ -72,11 +72,11 @@ Feature: User tests
 
   Scenario: Update user performed by employee
     When An employee makes a PUT request to the /users/2 API endpoint
-    Then The server will return a 200 ok
+    Then The server will return a 204 no content
 
   Scenario: Update user performed by customer
     When A customer makes a PUT request to the /users/2 API endpoint updating fields they have access to
-    Then The server will return a 200 ok
+    Then The server will return a 204 ok
 
   Scenario: Update user blacklisted fields performed by customer
     When A customer makes a PUT request to the /users/2 API endpoint updating fields they have do not access to
@@ -85,7 +85,7 @@ Feature: User tests
 
   Scenario: Update user blacklisted fields performed by employee
     When An employee makes a PUT request to the /users/2 API endpoint updating fields the customer does not have access to
-    Then The server will return a 200 ok
+    Then The server will return a 204 ok
 
   Scenario: Create user without authentication
     When Someone makes a POST request to the /users API endpoint without an authentication token
@@ -97,7 +97,7 @@ Feature: User tests
 
   Scenario: Create user performed by employee
     When An employee makes a POST request to the /users API endpoint
-    Then The server will return a 200 ok
+    Then The server will return a 201 created
 
   Scenario: Create user performed by employee with an incomplete body
     When An employee makes a POST request to the /users API endpoint and does not provide a valid post body
@@ -113,7 +113,7 @@ Feature: User tests
 
   Scenario: Delete user performed by employee
     When An employee makes a DELETE request to the /users/7 API endpoint
-    Then The server will return a 200 ok
+    Then The server will return a 204 ok
 
   Scenario: Get the current user without authentication
     When Someone makes a GET request to the /users/self API endpoint without an authentication token
@@ -121,7 +121,7 @@ Feature: User tests
 
   Scenario: Get the current user with token
     When Someone makes a GET request to the /users/self API endpoint providing a authentication token
-    Then The server will return a 401 unauthorized
+    Then The server will return a 200 ok
     And The returned JSON objects contains a field of "emailAddress" with value of "bob@example.com"
     And The returned JSON objects contains a field of "firstName" with value of "Bob"
     And The returned JSON objects contains a field of "lastName" with value of "Bobson"
