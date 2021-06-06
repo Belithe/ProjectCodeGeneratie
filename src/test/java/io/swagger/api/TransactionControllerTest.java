@@ -296,7 +296,7 @@ public class TransactionControllerTest {
         given(accountRepository.findAllByUserId(expectedUsers.get(0).getId())).willReturn(expectedAccountsPerUser);
 
         // execute
-        ResponseEntity<List<Transaction>> transactions = transactionsApiController.transactionsGet(0,49);
+        ResponseEntity<List<Transaction>> transactions = transactionsApiController.transactionsGet(50,0);
 
         // assertions
         assertNotNull(transactions);
@@ -318,7 +318,7 @@ public class TransactionControllerTest {
         given(accountRepository.findAllByUserId(expectedUsers.get(1).getId())).willReturn(expectedAccountsPerCustomer);
 
         // execute
-        ResponseEntity<List<Transaction>> transactions = transactionsApiController.transactionsGet(0,50);
+        ResponseEntity<List<Transaction>> transactions = transactionsApiController.transactionsGet(50,0);
 
         // assertions
         assertNotNull(transactions);
@@ -342,7 +342,7 @@ public class TransactionControllerTest {
         given(accountRepository.findAllByUserId(expectedUsers.get(2).getId())).willReturn(expectedAccountsPerCustomerEmplyee);
 
         // execute
-        ResponseEntity<List<Transaction>> transactions = transactionsApiController.transactionsGet(0,50);
+        ResponseEntity<List<Transaction>> transactions = transactionsApiController.transactionsGet(50,0);
 
 
         // assertions
@@ -447,6 +447,7 @@ public class TransactionControllerTest {
     @Test
     @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
     public void getAllTransactionsControllerWithInvalidEmailAddressShouldThrowException() {
+        given(userRepository.findByEmailAddress(expectedUsers.get(0).getEmailAddress())).willReturn(expectedUsers.get(0));
 
         // Execution
         String iban = "LL01INHO0000000006";
