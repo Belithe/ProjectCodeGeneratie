@@ -457,7 +457,7 @@ public class AccountControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
+    @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void editAccountAsCustomer() {
         UpdateAccountPutBody testBody = new UpdateAccountPutBody();
         testBody.setMinimumLimit(200f);
