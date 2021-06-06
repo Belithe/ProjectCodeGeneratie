@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.server.ResponseStatusException;
 import org.threeten.bp.LocalDate;
 
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 
+@ActiveProfiles("unitTesting")
 @SpringBootTest(classes = { Swagger2SpringBoot.class })
 @AutoConfigureMockMvc
 public class UserControllerTest {

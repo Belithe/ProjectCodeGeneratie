@@ -10,11 +10,13 @@ import io.swagger.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.threeten.bp.LocalDate;
 
 import java.math.BigDecimal;
 
+@Profile("!unitTesting")
 @Component
 public class ApplicationStartupRunner implements ApplicationRunner {
 
@@ -23,13 +25,7 @@ public class ApplicationStartupRunner implements ApplicationRunner {
 
     @Autowired
     TransactionService transactionService;
-//
-//    @Autowired
-//    AccountManagementService accountManagementService;
-//
-//    @Autowired
-//    TransactionRepository transactionRepository;
-//
+
     @Autowired
     AccountRepository accountRepository;
 
