@@ -59,7 +59,7 @@ public class AccountsApiController implements AccountsApi {
     }
 
     public ResponseEntity<Void> deleteAccount(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The IBAN of the to be deleted account, which must be 18 characters long.", required=true, schema=@Schema()) @PathVariable("iban") String iban) throws ResponseStatusException {
-        if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) && iban.equals("NL01INHO0000000001")){
+        if(getLoggedInUser().getRole().contains(UserRole.EMPLOYEE) && !iban.equals("NL01INHO0000000001")){
             accountService.deleteSingleAccount(iban);
             return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
         } else {
@@ -92,14 +92,15 @@ public class AccountsApiController implements AccountsApi {
                 page -= 1;
                 int skip = limit * page;
                 accounts = accounts.stream()
+                        .filter(account -> account.getIBAN() != "NL01INHO0000000001")
                         .skip(skip)
                         .limit(limit)
                         .collect(Collectors.toList());
 
-                if(page == 0) {
-                    //remove bank account from getAll
-                    accounts.remove(0);
-                }
+//                if (page == 0) {
+//                    //remove bank account from getAll
+//                    accounts.remove(0);
+//                }
 
                 return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
             } else {

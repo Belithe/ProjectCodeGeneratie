@@ -150,14 +150,14 @@ public class AccountControllerTest {
     @WithMockUser(username = "alice@example.com", authorities = { "EMPLOYEE" })
     public void getAllAccounts() {
         // Setup
-        given(accountManagementService.getAllAccounts()).willReturn(expectedAccounts);
+        given(accountManagementService.getAllAccounts()).willReturn(expectedAccounts.subList(1, 6));
 
         // Execution
         ResponseEntity<List<Account>> AccountsResponse = accountsApiController.getAccounts(20, 1, null);
 
         // Assertions
         assertEquals(5, AccountsResponse.getBody().size());
-        assertEquals(expectedAccounts, AccountsResponse.getBody());
+        assertEquals(expectedAccounts.subList(1, 6), AccountsResponse.getBody());
     }
 
     @Test
@@ -175,7 +175,7 @@ public class AccountControllerTest {
         assertEquals(2, AccountsResponse.getBody().size());
 
         // Need to compare each item as the lists are not the same instance
-        List<Account> expectedLimitedAccounts = expectedAccounts.subList(0, 1);
+        List<Account> expectedLimitedAccounts = expectedAccounts.subList(1, 2);
         for (int i = 0; i < expectedLimitedAccounts.size(); i++) {
             Account expectedAccount = expectedLimitedAccounts.get(i);
             Account respondedAccount = AccountsResponse.getBody().get(i);
@@ -199,7 +199,7 @@ public class AccountControllerTest {
         assertEquals(2, AccountsResponse.getBody().size());
 
         // Need to compare each item as the lists are not the same instance
-        List<Account> expectedLimitedAccounts = expectedAccounts.subList(2, 3);
+        List<Account> expectedLimitedAccounts = expectedAccounts.subList(3, 4);
         for (int i = 0; i < expectedLimitedAccounts.size(); i++) {
             Account expectedAccount = expectedLimitedAccounts.get(i);
             Account respondedAccount = AccountsResponse.getBody().get(i);
@@ -271,6 +271,7 @@ public class AccountControllerTest {
 
     // Failed get all
     @Test
+    @WithMockUser(username = "anonymousUser", authorities = { "ROLE_ANONYMOUS" })
     public void getAllAccountsWithoutAuthentication() {
         // Setup
         given(accountManagementService.getAllAccounts()).willReturn(expectedAccounts);
@@ -347,13 +348,13 @@ public class AccountControllerTest {
     @WithMockUser(username = "bob@example.com", authorities = { "CUSTOMER" })
     public void getAccountByOwnedIBANAsCustomer() {
         // Setup
-        given(accountManagementService.getByIBAN("NL19INHO1259637692")).willReturn(expectedAccounts.get(1));
+        given(accountManagementService.getByIBAN("NL19INHO1259637692")).willReturn(expectedAccounts.get(2));
 
         // Executions
         ResponseEntity<Account> retrievedAccount = accountsApiController.getAccountsByIBAN("NL19INHO1259637692");
 
         // Assertions
-        assertEquals(expectedAccounts.get(1),retrievedAccount.getBody());
+        assertEquals(expectedAccounts.get(2), retrievedAccount.getBody());
 
     }
 

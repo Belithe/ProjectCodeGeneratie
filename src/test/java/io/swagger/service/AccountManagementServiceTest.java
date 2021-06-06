@@ -113,7 +113,7 @@ class AccountManagementServiceTest {
     @Test
     public void getAllAccounts() {
         // Setup
-        given(accountRepository.findAll()).willReturn(expectedAccounts);
+        given(accountRepository.findAll()).willReturn(expectedAccounts.subList(1, 6));
 
         // Execution
         List<Account> accounts = accountManagementService.getAllAccounts();
@@ -121,13 +121,13 @@ class AccountManagementServiceTest {
         // Assertions
         assertNotNull(accounts);
         assertEquals(5, accounts.size());
-        assertEquals(accounts, expectedAccounts);
+        assertEquals(expectedAccounts.subList(1, 6), accounts);
     }
 
     @Test
     public void getAccountByIban() {
         // Setup
-        given(accountRepository.findAccountByIBAN("NL19INHO6296399613")).willReturn(expectedAccounts.get(0));
+        given(accountRepository.findAccountByIBAN("NL19INHO6296399613")).willReturn(expectedAccounts.get(1));
 
         // Execution
         Account account = accountManagementService.getByIBAN("NL19INHO6296399613");
@@ -135,7 +135,7 @@ class AccountManagementServiceTest {
         // Assertions
         assertNotNull(account);
         assertEquals(1, account.getUserId());
-        assertEquals(expectedAccounts.get(0), account);
+        assertEquals(expectedAccounts.get(1), account);
     }
 
     @Test
